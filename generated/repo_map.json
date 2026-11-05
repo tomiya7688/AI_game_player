@@ -16288,6 +16288,2042 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.artifact_store",
+        "ai_game_player.challenger_update_models",
+        "ai_game_player.challenger_update_policy",
+        "ai_game_player.learning_dataset",
+        "ai_game_player.training_diagnosis_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Iterable"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            },
+            {
+              "alias": null,
+              "name": "FileSystemArtifactStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update_models"
+          ],
+          "module": "ai_game_player.challenger_update_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "MAX_CONFIDENCE_SCALE"
+            },
+            {
+              "alias": null,
+              "name": "MAX_LINEAGE_DEPTH"
+            },
+            {
+              "alias": null,
+              "name": "MAX_PROTOTYPES"
+            },
+            {
+              "alias": null,
+              "name": "MAX_STRICT_REFS"
+            },
+            {
+              "alias": null,
+              "name": "MIN_CONFIDENCE_SCALE"
+            },
+            {
+              "alias": null,
+              "name": "PARAMETER_OF_STRATEGY"
+            },
+            {
+              "alias": null,
+              "name": "ChallengerArtifact"
+            },
+            {
+              "alias": null,
+              "name": "ChallengerUpdateError"
+            },
+            {
+              "alias": null,
+              "name": "ComponentParameters"
+            },
+            {
+              "alias": null,
+              "name": "ObservationRequest"
+            },
+            {
+              "alias": null,
+              "name": "Prototype"
+            },
+            {
+              "alias": null,
+              "name": "UpdateProposal"
+            },
+            {
+              "alias": null,
+              "name": "UpdateProposalSet"
+            },
+            {
+              "alias": null,
+              "name": "canonical"
+            },
+            {
+              "alias": null,
+              "name": "component_order"
+            },
+            {
+              "alias": null,
+              "name": "expected_direction"
+            },
+            {
+              "alias": null,
+              "name": "validate_created_at"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 32,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update_policy"
+          ],
+          "module": "ai_game_player.challenger_update_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "CHALLENGER_UPDATE_RULE_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "FAILURE_COMPONENTS"
+            },
+            {
+              "alias": null,
+              "name": "ChallengerUpdatePolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 37,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.learning_dataset"
+          ],
+          "module": "ai_game_player.learning_dataset",
+          "names": [
+            {
+              "alias": null,
+              "name": "DatasetSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 38,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_models"
+          ],
+          "module": "ai_game_player.training_diagnosis_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "TRAINING_DIAGNOSIS_SCHEMA_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "ComponentTarget"
+            },
+            {
+              "alias": null,
+              "name": "TrainingDiagnosisReport"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.challenger_update",
+      "path": "src/ai_game_player/challenger_update.py",
+      "source_location": {
+        "end_line": 474,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "propose_updates",
+          "parameters": [
+            {
+              "annotation": "TrainingDiagnosisReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            },
+            {
+              "annotation": "Iterable[ComponentParameters]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "champions"
+            },
+            {
+              "annotation": "ChallengerUpdatePolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "propose_updates",
+          "return_annotation": "UpdateProposalSet",
+          "signature": "(report: TrainingDiagnosisReport, champions: Iterable[ComponentParameters], policy: ChallengerUpdatePolicy | None = …) -> UpdateProposalSet",
+          "source_location": {
+            "column": 0,
+            "end_line": 135,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "build_challenger",
+          "parameters": [
+            {
+              "annotation": "UpdateProposal",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "proposal"
+            },
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "champion"
+            },
+            {
+              "annotation": "ChallengerUpdatePolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "created_at"
+            }
+          ],
+          "qualified_name": "build_challenger",
+          "return_annotation": "ChallengerArtifact",
+          "signature": "(proposal: UpdateProposal, champion: ComponentParameters, policy: ChallengerUpdatePolicy | None = …, *, created_at: str) -> ChallengerArtifact",
+          "source_location": {
+            "column": 0,
+            "end_line": 184,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "save_challenger",
+          "parameters": [
+            {
+              "annotation": "FileSystemArtifactStore",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "store"
+            },
+            {
+              "annotation": "ChallengerArtifact",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            }
+          ],
+          "qualified_name": "save_challenger",
+          "return_annotation": "ArtifactReference",
+          "signature": "(store: FileSystemArtifactStore, artifact: ChallengerArtifact) -> ArtifactReference",
+          "source_location": {
+            "column": 0,
+            "end_line": 206,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_challenger",
+          "parameters": [
+            {
+              "annotation": "FileSystemArtifactStore",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "store"
+            },
+            {
+              "annotation": "ArtifactReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reference"
+            },
+            {
+              "annotation": "ChallengerUpdatePolicy | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "load_challenger",
+          "return_annotation": "ChallengerArtifact",
+          "signature": "(store: FileSystemArtifactStore, reference: ArtifactReference, policy: ChallengerUpdatePolicy | None = …) -> ChallengerArtifact",
+          "source_location": {
+            "column": 0,
+            "end_line": 251,
+            "start_line": 217
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_verified_evidence",
+          "parameters": [
+            {
+              "annotation": "TrainingDiagnosisReport",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "report"
+            }
+          ],
+          "qualified_name": "_verified_evidence",
+          "return_annotation": "dict[tuple[str, str], list[tuple[str, float, DatasetSource]]]",
+          "signature": "(report: TrainingDiagnosisReport) -> dict[tuple[str, str], list[tuple[str, float, DatasetSource]]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 272,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_target_proposals",
+          "parameters": [
+            {
+              "annotation": "ComponentTarget",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "target"
+            },
+            {
+              "annotation": "list[tuple[str, float, DatasetSource]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evidence"
+            },
+            {
+              "annotation": "ComponentParameters | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "champion"
+            },
+            {
+              "annotation": "ChallengerUpdatePolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "diagnosis_id"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "diagnosis_fingerprint"
+            }
+          ],
+          "qualified_name": "_target_proposals",
+          "return_annotation": "tuple[list[UpdateProposal], str | None]",
+          "signature": "(target: ComponentTarget, evidence: list[tuple[str, float, DatasetSource]], champion: ComponentParameters | None, policy: ChallengerUpdatePolicy, diagnosis_id: str, diagnosis_fingerprint: str) -> tuple[list[UpdateProposal], str | None]",
+          "source_location": {
+            "column": 0,
+            "end_line": 363,
+            "start_line": 283
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_proposal",
+          "parameters": [
+            {
+              "annotation": "UpdateProposal",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "proposal"
+            },
+            {
+              "annotation": "ChallengerUpdatePolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_check_proposal",
+          "return_annotation": "None",
+          "signature": "(proposal: UpdateProposal, policy: ChallengerUpdatePolicy) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 392,
+            "start_line": 372
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_apply",
+          "parameters": [
+            {
+              "annotation": "UpdateProposal",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "proposal"
+            },
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "base"
+            },
+            {
+              "annotation": "int",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "max_prototypes"
+            }
+          ],
+          "qualified_name": "_apply",
+          "return_annotation": "ComponentParameters",
+          "signature": "(proposal: UpdateProposal, base: ComponentParameters, max_prototypes: int) -> ComponentParameters",
+          "source_location": {
+            "column": 0,
+            "end_line": 428,
+            "start_line": 403
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_challenger_version",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parent_version"
+            },
+            {
+              "annotation": "UpdateProposal",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "proposal"
+            }
+          ],
+          "qualified_name": "_challenger_version",
+          "return_annotation": "str",
+          "signature": "(parent_version: str, proposal: UpdateProposal) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 437,
+            "start_line": 436
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_policy",
+          "parameters": [
+            {
+              "annotation": "ChallengerUpdatePolicy | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_policy",
+          "return_annotation": "ChallengerUpdatePolicy",
+          "signature": "(policy: ChallengerUpdatePolicy | None) -> ChallengerUpdatePolicy",
+          "source_location": {
+            "column": 0,
+            "end_line": 451,
+            "start_line": 446
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unique_object",
+          "parameters": [
+            {
+              "annotation": "list[tuple[str, object]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_unique_object",
+          "return_annotation": "dict",
+          "signature": "(pairs: list[tuple[str, object]]) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 465,
+            "start_line": 459
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_constant",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            }
+          ],
+          "qualified_name": "_reject_constant",
+          "return_annotation": "None",
+          "signature": "(name: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 474,
+            "start_line": 473
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.challenger_update_policy",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.learning_dataset",
+        "ai_game_player.training_diagnosis_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "datetime",
+          "names": [
+            {
+              "alias": null,
+              "name": "datetime"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update_policy"
+          ],
+          "module": "ai_game_player.challenger_update_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "CHALLENGER_UPDATE_RULE_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "FAILURE_COMPONENTS"
+            },
+            {
+              "alias": null,
+              "name": "MAX_PROPOSAL_REFS"
+            },
+            {
+              "alias": null,
+              "name": "NEGATIVE_FAILURE_KINDS"
+            },
+            {
+              "alias": null,
+              "name": "STRATEGIES"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.learning_dataset"
+          ],
+          "module": "ai_game_player.learning_dataset",
+          "names": [
+            {
+              "alias": null,
+              "name": "DatasetSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_models"
+          ],
+          "module": "ai_game_player.training_diagnosis_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "COMPONENTS"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.challenger_update_models",
+      "path": "src/ai_game_player/challenger_update_models.py",
+      "source_location": {
+        "end_line": 792,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ChallengerUpdateError",
+          "parameters": [],
+          "qualified_name": "ChallengerUpdateError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 83,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            }
+          ],
+          "qualified_name": "ChallengerUpdateError.__init__",
+          "return_annotation": "None",
+          "signature": "(self, code: str, message: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 83,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True, order=True)"
+          ],
+          "kind": "class",
+          "name": "Prototype",
+          "parameters": [],
+          "qualified_name": "Prototype",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 109,
+            "start_line": 91
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Prototype.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 102,
+            "start_line": 100
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "Prototype.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ComponentParameters",
+          "parameters": [],
+          "qualified_name": "ComponentParameters",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 209,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ComponentParameters.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 158,
+            "start_line": 134
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ComponentParameters.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 173,
+            "start_line": 165
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "ComponentParameters.from_dict",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, value: object) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 182
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "sha256",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ComponentParameters.sha256",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 209,
+            "start_line": 208
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ResourceCost",
+          "parameters": [],
+          "qualified_name": "ResourceCost",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 234,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ResourceCost.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 234,
+            "start_line": 228
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "UpdateProposal",
+          "parameters": [],
+          "qualified_name": "UpdateProposal",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 387,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "UpdateProposal.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 314,
+            "start_line": 271
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "UpdateProposal.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 340,
+            "start_line": 321
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "UpdateProposal.from_dict",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, value: object) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 379,
+            "start_line": 349
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "proposal_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "UpdateProposal.proposal_id",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 387,
+            "start_line": 386
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ObservationRequest",
+          "parameters": [],
+          "qualified_name": "ObservationRequest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 437,
+            "start_line": 396
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ObservationRequest.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 423,
+            "start_line": 409
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ObservationRequest.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 437,
+            "start_line": 429
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "UpdateProposalSet",
+          "parameters": [],
+          "qualified_name": "UpdateProposalSet",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 482,
+            "start_line": 447
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "UpdateProposalSet.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 474,
+            "start_line": 461
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "proposal_set_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "UpdateProposalSet.proposal_set_id",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 482,
+            "start_line": 481
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ChallengerArtifact",
+          "parameters": [],
+          "qualified_name": "ChallengerArtifact",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 643,
+            "start_line": 492
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerArtifact.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 529,
+            "start_line": 506
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "lineage_depth",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerArtifact.lineage_depth",
+          "return_annotation": "int",
+          "signature": "(self) -> int",
+          "source_location": {
+            "column": 4,
+            "end_line": 537,
+            "start_line": 536
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "resource_cost",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerArtifact.resource_cost",
+          "return_annotation": "ResourceCost",
+          "signature": "(self) -> ResourceCost",
+          "source_location": {
+            "column": 4,
+            "end_line": 557,
+            "start_line": 545
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "rollback_parameters",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerArtifact.rollback_parameters",
+          "return_annotation": "ComponentParameters",
+          "signature": "(self) -> ComponentParameters",
+          "source_location": {
+            "column": 4,
+            "end_line": 565,
+            "start_line": 564
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerArtifact.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 604,
+            "start_line": 572
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "artifact_id",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerArtifact.artifact_id",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 612,
+            "start_line": 611
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "ChallengerArtifact.from_dict",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, value: object) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 643,
+            "start_line": 621
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "expected_direction",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "strategy"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "failure_kind"
+            }
+          ],
+          "qualified_name": "expected_direction",
+          "return_annotation": "str",
+          "signature": "(strategy: str, failure_kind: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 657,
+            "start_line": 652
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validate_created_at",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "validate_created_at",
+          "return_annotation": "None",
+          "signature": "(value: object) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 671,
+            "start_line": 665
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "canonical",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "canonical",
+          "return_annotation": "bytes",
+          "signature": "(value: Any) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 685,
+            "start_line": 678
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "digest",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "digest",
+          "return_annotation": "str",
+          "signature": "(value: Any) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 693,
+            "start_line": 692
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "component_order",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "component"
+            }
+          ],
+          "qualified_name": "component_order",
+          "return_annotation": "int",
+          "signature": "(component: str) -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 701,
+            "start_line": 700
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_finite",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_finite",
+          "return_annotation": "bool",
+          "signature": "(value: object) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 759,
+            "start_line": 758
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_fields",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "frozenset[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "expected"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            }
+          ],
+          "qualified_name": "_fields",
+          "return_annotation": "None",
+          "signature": "(value: object, expected: frozenset[str], code: str) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 770,
+            "start_line": 768
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_list",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            }
+          ],
+          "qualified_name": "_list",
+          "return_annotation": "list",
+          "signature": "(value: object, code: str) -> list",
+          "source_location": {
+            "column": 0,
+            "end_line": 781,
+            "start_line": 778
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_source",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_source",
+          "return_annotation": "DatasetSource",
+          "signature": "(value: object) -> DatasetSource",
+          "source_location": {
+            "column": 0,
+            "end_line": 792,
+            "start_line": 789
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "asdict"
+            },
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.challenger_update_policy",
+      "path": "src/ai_game_player/challenger_update_policy.py",
+      "source_location": {
+        "end_line": 160,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ChallengerUpdatePolicy",
+          "parameters": [],
+          "qualified_name": "ChallengerUpdatePolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 130,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerUpdatePolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "strategies_for",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "failure_kind"
+            }
+          ],
+          "qualified_name": "ChallengerUpdatePolicy.strategies_for",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(self, failure_kind: str) -> tuple[str, ...]",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "max_step",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "strategy"
+            }
+          ],
+          "qualified_name": "ChallengerUpdatePolicy.max_step",
+          "return_annotation": "float",
+          "signature": "(self, strategy: str) -> float",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 112
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "fingerprint",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerUpdatePolicy.fingerprint",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_strategy_tuple",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "bool",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "allow_empty"
+            }
+          ],
+          "qualified_name": "_strategy_tuple",
+          "return_annotation": "None",
+          "signature": "(value: object, *, allow_empty: bool) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 146,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_bounded_ratio",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "low"
+            },
+            {
+              "annotation": "float",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "high"
+            }
+          ],
+          "qualified_name": "_bounded_ratio",
+          "return_annotation": "None",
+          "signature": "(value: object, low: float, high: float) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 160,
+            "start_line": 154
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.capture_region"
       ],
       "imports": [
@@ -108064,6 +110100,1366 @@
             "column": 4,
             "end_line": 9,
             "start_line": 7
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.artifact_store",
+        "ai_game_player.challenger_update",
+        "ai_game_player.challenger_update_models",
+        "ai_game_player.challenger_update_policy",
+        "ai_game_player.experience",
+        "ai_game_player.knowledge_scope",
+        "ai_game_player.learning_dataset",
+        "ai_game_player.training_diagnosis",
+        "ai_game_player.training_diagnosis_models",
+        "ai_game_player.training_diagnosis_policy"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "os",
+          "names": [
+            {
+              "alias": null,
+              "name": "os"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "FileSystemArtifactStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update"
+          ],
+          "module": "ai_game_player.challenger_update",
+          "names": [
+            {
+              "alias": null,
+              "name": "_apply"
+            },
+            {
+              "alias": null,
+              "name": "build_challenger"
+            },
+            {
+              "alias": null,
+              "name": "load_challenger"
+            },
+            {
+              "alias": null,
+              "name": "propose_updates"
+            },
+            {
+              "alias": null,
+              "name": "save_challenger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 16,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update_models"
+          ],
+          "module": "ai_game_player.challenger_update_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ChallengerArtifact"
+            },
+            {
+              "alias": null,
+              "name": "ChallengerUpdateError"
+            },
+            {
+              "alias": null,
+              "name": "ComponentParameters"
+            },
+            {
+              "alias": null,
+              "name": "Prototype"
+            },
+            {
+              "alias": null,
+              "name": "UpdateProposal"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update_policy"
+          ],
+          "module": "ai_game_player.challenger_update_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "ChallengerUpdatePolicy"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.experience"
+          ],
+          "module": "ai_game_player.experience",
+          "names": [
+            {
+              "alias": null,
+              "name": "ExperienceEpisode"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceEvent"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceProvenance"
+            },
+            {
+              "alias": null,
+              "name": "ExperienceStep"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 30,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 31,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.learning_dataset"
+          ],
+          "module": "ai_game_player.learning_dataset",
+          "names": [
+            {
+              "alias": null,
+              "name": "DatasetSource"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 32,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis"
+          ],
+          "module": "ai_game_player.training_diagnosis",
+          "names": [
+            {
+              "alias": null,
+              "name": "CONTEXT_EVENT_TYPE"
+            },
+            {
+              "alias": null,
+              "name": "diagnose_cases"
+            },
+            {
+              "alias": null,
+              "name": "diagnose_episodes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 37,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_models"
+          ],
+          "module": "ai_game_player.training_diagnosis_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "DiagnosisCase"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 38,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_policy"
+          ],
+          "module": "ai_game_player.training_diagnosis_policy",
+          "names": [
+            {
+              "alias": null,
+              "name": "TrainingDiagnosisPolicy"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_challenger_update",
+      "path": "tests/test_challenger_update.py",
+      "source_location": {
+        "end_line": 628,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "case",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "number"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "case",
+          "return_annotation": null,
+          "signature": "(number, **overrides)",
+          "source_location": {
+            "column": 0,
+            "end_line": 59,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "overconfident",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "numbers"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "overconfident",
+          "return_annotation": null,
+          "signature": "(*numbers, **overrides)",
+          "source_location": {
+            "column": 0,
+            "end_line": 63,
+            "start_line": 62
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "report_of",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "report_of",
+          "return_annotation": null,
+          "signature": "(cases, policy = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 67,
+            "start_line": 66
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "proposals_for",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "champions"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "diagnosis"
+            }
+          ],
+          "qualified_name": "proposals_for",
+          "return_annotation": null,
+          "signature": "(cases, champions = …, policy = …, diagnosis = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 71,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "code_of",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "code_of",
+          "return_annotation": null,
+          "signature": "(context)",
+          "source_location": {
+            "column": 0,
+            "end_line": 75,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ProposalTest",
+          "parameters": [],
+          "qualified_name": "ProposalTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 408,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_candidate_target_produces_typed_proposal",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_candidate_target_produces_typed_proposal",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 94,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_proposal_round_trips_and_id_is_content_digest",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_proposal_round_trips_and_id_is_content_digest",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 104,
+            "start_line": 96
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_strategy_table_orders_multiple_strategies",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_strategy_table_orders_multiple_strategies",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 122,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_disabled_strategy_is_skipped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_disabled_strategy_is_skipped",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_intensity_scales_step_within_hard_cap",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_intensity_scales_step_within_hard_cap",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 146,
+            "start_line": 132
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_hypothesis_target_becomes_observation_request",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_hypothesis_target_becomes_observation_request",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_uncertain_refs_are_not_used_as_prototypes",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_uncertain_refs_are_not_used_as_prototypes",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 165,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_truncated_findings_fail_closed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_truncated_findings_fail_closed",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 174,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_strict_receipt_is_not_a_verified_label",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_strict_receipt_is_not_a_verified_label",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 186,
+            "start_line": 176
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_prototype_only_for_negative_kinds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_prototype_only_for_negative_kinds",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 202,
+            "start_line": 188
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_ambiguous_failure_kind_is_skipped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_ambiguous_failure_kind_is_skipped",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 209,
+            "start_line": 204
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_champion_is_skipped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_missing_champion_is_skipped",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 213,
+            "start_line": 211
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_out_of_bounds_parameter_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_out_of_bounds_parameter_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 232,
+            "start_line": 215
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_prototype_capacity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_prototype_capacity",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 257,
+            "start_line": 234
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_policy_validation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_policy_validation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 291,
+            "start_line": 259
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_proposal_limit_truncates",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_proposal_limit_truncates",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 305,
+            "start_line": 293
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_duplicate_targets_and_champions_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_duplicate_targets_and_champions_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 317,
+            "start_line": 307
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_input_same_output",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_same_input_same_output",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 356,
+            "start_line": 319
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "shape",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "result"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_same_input_same_output.shape",
+          "return_annotation": null,
+          "signature": "(result)",
+          "source_location": {
+            "column": 8,
+            "end_line": 343,
+            "start_line": 339
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_episodes_end_to_end",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ProposalTest.test_episodes_end_to_end",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 408,
+            "start_line": 358
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ChallengerTest",
+          "parameters": [],
+          "qualified_name": "ChallengerTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 523,
+            "start_line": 411
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 415,
+            "start_line": 412
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_build_challenger_does_not_mutate_champion",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_build_challenger_does_not_mutate_champion",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 428,
+            "start_line": 417
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stale_champion_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_stale_champion_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 434,
+            "start_line": 430
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_scope_mismatch_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_scope_mismatch_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 441,
+            "start_line": 436
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_external_proposal_is_revalidated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_external_proposal_is_revalidated",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 462,
+            "start_line": 443
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_created_at",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_invalid_created_at",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 474,
+            "start_line": 464
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_artifact_records_version_and_provenance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_artifact_records_version_and_provenance",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 498,
+            "start_line": 476
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_lineage_depth_and_version_limit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_lineage_depth_and_version_limit",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 511,
+            "start_line": 500
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_resource_cost_is_deterministic",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChallengerTest.test_resource_cost_is_deterministic",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 523,
+            "start_line": 513
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "StorageTest",
+          "parameters": [],
+          "qualified_name": "StorageTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 624,
+            "start_line": 526
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StorageTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 532,
+            "start_line": 527
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "tearDown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StorageTest.tearDown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 535,
+            "start_line": 534
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_save_load_round_trip_and_rollback_parameters",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StorageTest.test_save_load_round_trip_and_rollback_parameters",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 544,
+            "start_line": 537
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_load_checks_version_and_optional_policy",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StorageTest.test_load_checks_version_and_optional_policy",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 563,
+            "start_line": 546
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_rule_or_schema_version_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StorageTest.test_unknown_rule_or_schema_version_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 574,
+            "start_line": 565
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_observation_request_is_validated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StorageTest.test_observation_request_is_validated",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 589,
+            "start_line": 576
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tampered_artifact_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "StorageTest.test_tampered_artifact_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 624,
+            "start_line": 591
           }
         }
       ]
