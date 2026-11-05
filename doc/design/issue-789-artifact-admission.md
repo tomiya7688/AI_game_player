@@ -83,7 +83,7 @@ Parent: #18
 5. 容量判定: `expected_sha256`が索引または未索引の既存objectなら追加容量0、それ以外は`payload_size`。`使用量+追加 > hard_limit_bytes`なら`RetentionCapacityError`で拒否（pending recordもobjectも作らない）。`expected_sha256`無しの場合は存在を事前に知れないため`payload_size`で保守的に判定する（`can_admit(sha256=None)`と同じ）。
 6. writer実行。`AdmissionPutPort.put`内でdigestとobject既存有無（`preexisting`）を求め、**put直前**にpending recordを原子的に書く（admission_id、digest、`created_object = not preexisting`、entry_id、request要約、開始時刻、pid、source_ref）。その後`store.put`。
 7. put結果の検証: 参照のdigest/media_type/sensitiveがputしたpayloadと一致、`store.verify`のmetadataの`artifact_type`と`size_bytes`がrequestと一致。不一致はcommitしない。
-8. `collector.register`（同lock内の再入）。失敗時は索引を再読込し、同じ`entry_id`・digestの記録が既に有るなら（公開後の例外）成功とみなし、無ければ補償へ。
+8. `collector.register`（同lock内の再入）。失敗時は索引を再読込し、**同じ`entry_id`かつ同じdigest**の記録が既に有るなら（索引公開後の例外。entry_idは手順4で重複を除いてあるため、有れば今回のregisterが公開したものと一意に判定できる）成功とみなして手順9へ進み、無ければ補償へ。
 9. 成功: pending recordを削除し、結果を返す。削除失敗はadmissionを失敗にせず、traceに`pending_cleanup_failed`を残す（後で`recover_pending`が「索引に有る」として記録だけ消す）。
 10. lock解放（`finally`）。
 
@@ -96,13 +96,37 @@ writer/put/検証/register のどの段階で例外が出ても（`BaseException
 - `created_object`がTrue: 索引を再読込し、(a)digestが索引にある、(b)他のpending recordが同じdigestを参照している、(c)root外/symlink、のいずれかなら消さない。そうでなければ`collector.discard_unindexed_object`で削除し、recordを消す。
 - 削除またはrecord削除が失敗、または他recordの読取が不正（fail-closed）: **recordを残す**（`pending_retained=True`）。silent successにしない。
 
+### 例外の分類と順序
+
+| 発生位置 | 外へ出る例外 | `rolled_back` | trace `outcome` |
+|---|---|---|---|
+| put前（lock・検証・容量・entry_id・計測） | 元の例外（`RetentionCapacityError`等） | - | `rejected_capacity`/`rejected_invalid`/`lock_timeout` |
+| writerがputを呼ぶ前に例外、またはportの2回目のput、payload不一致 | `ArtifactAdmissionError`（`__cause__`に原因） | True（record未作成で取り消す対象が無い） | `failed_rolled_back` |
+| put・検証・registerで例外 | `ArtifactAdmissionError` | 補償が完了すればTrue、補償不能ならFalseで`pending_retained=True` | `failed_rolled_back`/`failed_pending_retained` |
+| `BaseException`（`KeyboardInterrupt`等） | **元の例外をそのまま**再送出（包まない） | 補償は`Exception`と同じ順序で最善努力。補償できなければrecordが残る | 同上 |
+
+trace eventとstatsは、`admit`の`finally`で成功・失敗・`BaseException`のすべての経路について**ちょうど1回**確定する。補償の完了または失敗は例外を再送出する前に確定する。補償はI/Oなので、補償中にさらに中断された場合は記録（pending record）が残り、`recover_pending`が回収する。
+
+### 容量の不変条件
+
+hard limitの比較対象は、索引登録済みobjectと**未索引objectの両方**を含むdisk上の実使用量（`measure()`）である。中断したadmissionが残した未索引objectも次のadmissionの計測に含まれるため、残骸があっても合計はhard limitを超えない（超過する見込みなら拒否される）。pending recordそのものは容量の予約を表さない（予約はlock保持と、lock内でput直前まで続く再計測で成立する）。残骸を減らしたい場合は`recover_pending`を呼ぶ（admitは自動では回収しない。破損recordが1件あるだけで全admitが止まるのを避けるため）。
+
+`expected_sha256`が無い場合は存在を事前に知れないため、既存digestでも`payload_size`分を追加として判定する（保守的に拒否側へ倒す）。この場合も、putの直前にlock内で既存有無を判定して`created_object`を決めるため、補償が既存objectを消すことはない。
+
+### 所有権（objectが誰のものか）
+
+- `created_object=True`: このadmissionがputで新規作成した。補償・回収で消してよい（索引・他recordが参照しない場合に限る）。
+- `created_object=False`: putの時点で既に有った。索引登録済みでも未索引（過去の残骸）でも、このadmissionは所有せず**消さない**。未索引の既存objectの掃除は#790の責務で、`preexisting`のrecordは削除してよい（recordを残しても所有権が増えず、回収対象も増えない）。
+- lockはroot lock fileを開いたまま保持し、このfileを削除・renameしない（Windowsで他processのlock取得が共有違反にならない）。
+
 ### 異常終了とpending record
 
 processがputの前後で落ちるとrecordが残る。lock所有中だけ変更が進むので、あるprocessがlockを取れた時点で既存recordは全て中断済みと判断できる。`inspect_pending()`は実状態と照合して分類する（読取専用）。
 
 | 分類 | 条件 | `recover_pending`の動作 |
 |---|---|---|
-| `registered` | digestが索引にある | recordだけ削除 |
+| `registered` | 索引に**同じentry_idかつ同じdigest**の記録がある | recordだけ削除 |
+| `indexed_by_other_entry` | digestは索引にあるが、このrecordのentry_idの記録が無い（admissionは完了していない） | recordだけ削除（objectは他entryが参照するため消さない。呼出元には成功を返していないので、entryを補完登録はしない） |
 | `no_object` | objectが無い | recordだけ削除 |
 | `preexisting` | `created_object=False` | recordだけ削除（objectは触らない） |
 | `orphan_created` | `created_object=True`、objectあり、索引に無い | 他のpending recordが同digestを参照しなければobjectを安全削除してrecord削除。参照があれば残す |
@@ -152,6 +176,8 @@ malformed record・サイズ超過・symlinkはfail-closedで`AdmissionRecordErr
 | register失敗 | 索引書込みを失敗させる→新規objectを削除・record無し・例外はsilentにならない |
 | index write失敗 | 同上（`RetentionFileSystem.write_index`差替え）。索引は元のまま |
 | rollback不能 | `remove_object`も失敗→record残存・`pending_retained` |
+| entry_id照合 | 同digestが別entry_idで登録済み・自entry_idが無いrecordは`indexed_by_other_entry`となり、object不削除でrecordのみ回収 |
+| 例外分類 | writerがputを呼ばず例外・2回目のput・`KeyboardInterrupt`相当（`BaseException`）で、event/statsが1回確定し元の型が保たれる |
 | crash fixture | put後register前でプロセス相当の中断→record残存→`inspect_pending`が`orphan_created`→`recover_pending`でobject+record回収 |
 | 各分類 | `registered`/`no_object`/`preexisting`のrecover |
 | pre-existing不削除 | 既存digestでregister失敗→objectが残る |
