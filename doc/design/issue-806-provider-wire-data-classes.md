@@ -34,10 +34,10 @@ Parent: #123（兄弟: #226 Remote Consent Enforcement、後続）
 | `decision_context.state.**`（その他） | ui_metadata | 画面id・寸法・署名・hash・明るさ・要素数 |
 | `decision_context.candidates[].action_id/kind/label/recognition_confidence/allowed/uncertainty[]` | ui_metadata | 候補のUI情報と認識確信度 |
 | `decision_context.candidates[].evaluation.**` | model_output | 評価器の点数・理由（Provider/評価器出力） |
-| `decision_context.candidates[].knowledge[].**` | decision_context | 候補に添える参考知識の抜粋（DG-3） |
+| `decision_context.candidates[].knowledge[].**` | knowledge | 候補に添える参考知識の抜粋（DG-3） |
 | `decision_context.previous_outcome.**` | model_output | 直前操作の結果評価（OutcomeEvaluator/Ollama出力） |
 | `decision_context.recent_history[].**` | history | 実行済み操作の履歴 |
-| `decision_context.knowledge_projection.**` | decision_context | 明示`expose_to_models`時のみ。既定では含まれない。圧縮したsoft evidence（`priors`等は空に落とす`to_model_dict`）で保存本体ではない。DG-3の対象 |
+| `decision_context.knowledge_projection.**` | knowledge | 明示`expose_to_models`時のみ。既定では含まれない。圧縮したsoft evidence（`priors`等は空に落とす`to_model_dict`）で保存本体ではない。DG-3の対象 |
 | `decision_context.evaluation_projection.**` | model_output | 同上 |
 
 - 送信箇所→class（inventory `transmitters`）: `assess_outcome` = {ocr_text, ui_metadata}、`_request_decision` = {decision_context, ocr_text, ui_metadata, history, model_output}、`list_models` = {}（GET、body無し）。testは実payloadから導いたclass集合とinventoryの宣言が**等しい**ことを要求する（過少・過大宣言のどちらも失敗）。
@@ -85,5 +85,5 @@ Parent: #123（兄弟: #226 Remote Consent Enforcement、後続）
 ## 範囲外・残件
 
 - #226: 送信前のconsent照合、未許可class拒否、規則表のruntime利用、audit event。
-- DG-3（非ブロッキング）: `candidates[].knowledge[]`（`KnowledgeStore`由来の参考知識。`evidence_id`・`source`・`statement`・`confidence`・`provenance`・`category`）と、明示opt-inの`knowledge_projection`は実際にモデル要求へ入りうる。inventoryの`knowledge` classは`remote: never`（保存本体の方針）だが、本Issueは**現行の送信挙動を変えず**、これらを「Decision Contextとして判断に添える派生の抜粋・要約」として`decision_context`に分類した。これは分類上の判断であり、`knowledge` classの`never`が満たされたことの証明ではない。`knowledge`を同意対象として別に扱うか、candidate抜粋の送信を止めるかは#226が決める（#226の受入前提に追加する）。それまで`knowledge`のtransmitter宣言はしない。
+- DG-3: `candidates[].knowledge[]`と明示opt-inの`knowledge_projection`は実際にモデル要求へ入りうる。inventoryの`knowledge` classは`remote: never`なので、テストでは`decision_context`へ寄せず**`knowledge`として分類**し（CodeRabbit指摘を採用）、「remote:neverなのに現行payloadへ入る」既知の差分`KNOWN_REMOTE_GAP={knowledge}`として固定した。`test_data_inventory`の不変条件（transmitterは全てremote-eligible）のため`knowledge`のtransmitter宣言はしない。本Issueは現行の送信挙動を変えない。送信を止めるか同意対象に含めるかは#226が決め、その時にKNOWN_REMOTE_GAPを空にする。
 - `expose_to_models`が真のknowledge/evaluation projectionの送信は、既存の明示opt-inのまま。

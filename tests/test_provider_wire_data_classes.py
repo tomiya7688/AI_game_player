@@ -51,12 +51,14 @@ FIELD_RULES: dict[str, str] = {
     "decision_context/candidates/[]/allowed": "ui_metadata",
     "decision_context/candidates/[]/uncertainty/**": "ui_metadata",
     "decision_context/candidates/[]/evaluation/**": "model_output",
-    "decision_context/candidates/[]/knowledge/**": "decision_context",
+    "decision_context/candidates/[]/knowledge/**": "knowledge",
     "decision_context/previous_outcome/**": "model_output",
     "decision_context/recent_history/**": "history",
-    "decision_context/knowledge_projection/**": "decision_context",
+    "decision_context/knowledge_projection/**": "knowledge",
     "decision_context/evaluation_projection/**": "model_output",
 }
+# remote:neverなのに現行payloadへ入るclass。#226で同意判定へ含めるか送信を止める。
+KNOWN_REMOTE_GAP = frozenset({"knowledge"})
 # 明示のexpose_to_models時だけ現れる項目。既定payloadでは出現しないのが正しい。
 OPTIONAL_RULES = frozenset(
     {
@@ -231,7 +233,14 @@ class ProviderWireDataClassesTest(unittest.TestCase):
         classes, unclassified, _ = classify(self.prompts("choose_context")[0])
         self.assertEqual([], unclassified)
         self.assertEqual(
-            {"decision_context", "ocr_text", "ui_metadata", "history", "model_output"},
+            {
+                "decision_context",
+                "ocr_text",
+                "ui_metadata",
+                "history",
+                "model_output",
+                "knowledge",
+            },
             data_classes(classes),
         )
 
@@ -269,10 +278,20 @@ class ProviderWireDataClassesTest(unittest.TestCase):
             for site, classes in self.inventory.transmitters.items()
             if site.startswith("ai_game_player.provider:OllamaProvider.")
         }
-        self.assertEqual(observed, declared)
+        # knowledgeはremote:neverでtransmitter宣言できない（test_data_inventoryの不変条件）。
+        # 実payloadに入る事実は既知の差分として下で固定し、宣言とは差し引いて照合する。
+        self.assertEqual(
+            {site: classes - KNOWN_REMOTE_GAP for site, classes in observed.items()},
+            declared,
+        )
         remote = self.inventory.remote_eligible_classes()
+        # knowledgeは保存本体の方針がremote:never。現行の送信挙動は変えず、
+        # 同意判定の対象外のまま送られている事実を既知の差分として固定する（#226が解消する）。
         for site, classes in observed.items():
-            self.assertLessEqual(classes, remote, site)
+            self.assertLessEqual(classes - KNOWN_REMOTE_GAP, remote, site)
+            self.assertLessEqual(classes & KNOWN_REMOTE_GAP, KNOWN_REMOTE_GAP, site)
+        self.assertEqual(frozenset({"knowledge"}), KNOWN_REMOTE_GAP)
+        self.assertNotIn("knowledge", remote)
 
     def test_every_rule_is_exercised_by_real_payloads(self) -> None:
         used: set[str] = set()
@@ -310,7 +329,7 @@ class ProviderWireDataClassesTest(unittest.TestCase):
         }
         classes, unclassified, _ = classify(prompt)
         self.assertEqual([], unclassified)
-        self.assertEqual({"decision_context", "model_output"}, data_classes(classes))
+        self.assertEqual({"knowledge", "model_output"}, data_classes(classes))
 
     @unittest.skipUnless(HAS_JSONSCHEMA, "jsonschema is a development dependency")
     def test_new_classes_validate_against_schema(self) -> None:
