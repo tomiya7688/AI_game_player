@@ -1,8 +1,7 @@
-Spec-Status: BLOCKED
-Depends-On: #164（済）, #261（済）, #789（PR #821 未マージ）
+Spec-Status: READY
+Depends-On: #164（済）, #261（済）, #789（済、PR #821 / 7bd8500）
 Decision-Gaps: none
 Parent: #18
-Blocked-By: #789 の root lock（`RetentionCollector.coordination_lock()`）と `ArtifactAdmissionCoordinator.admit` が main に入るまで実装を始めない。設計上の未決はない。
 
 # Issue #788 Runtime Retention Adapter：Session/Journal参照SnapshotとGC Triggerの本番接続
 
@@ -20,7 +19,7 @@ Blocked-By: #789 の root lock（`RetentionCollector.coordination_lock()`）と 
 
 - `retention_collector.py`（#164）: `collect(live_references)` は「計画→全削除先の安全検査→索引の原子置換→object削除」。`live_references` の既定値は空で、空のまま呼ぶと参照中の Artifact も TTL/budget で消え得る。本Issueはこの既定値を本番経路で使わせない。`plan()` は副作用なしで同じ計画を返す。
 - `retention_planner.py`: `RetentionPlan`（`removed_entries`、`deleted_artifacts`、`blocked_entries`、`bytes_before/after`、`over_budget`、`over_hard_limit`）。Trace の値はここから取る。
-- #789（PR #821、未マージ）: `RetentionCollector.coordination_lock()`（root単位の OS advisory lock＋process内 `RLock`、再入可、`lock_timeout_seconds` で有界、待ち時間msを返す）。`register`/`set_protected`/`collect` は同じ lock 内で動く。`ArtifactAdmissionCoordinator.admit(request, writer)` が put と register を1つの transaction にする。**本Issueは admission・pending record・補償を再実装せず、この2つを呼ぶだけ**。
+- #789（PR #821、main 取込済み 7bd8500）: `retention_root_lock.retention_root_lock(root, *, timeout_seconds)`（root単位の OS advisory lock＋process内 `RLock`、同一threadは深さを増やすだけで再入可、取得待ちmsを返す。期限超過は `RetentionLockTimeoutError`（`TimeoutError`）、root/lock file が link なら `RetentionRootUnsafeError`）。`RetentionCollector(store, policy, *, lock_timeout_seconds=...)` の `coordination_lock()` は同じ lock をコンストラクタの期限で取る。`register`/`set_protected`/`collect`/`discard_unindexed_object` は `@_serialized` で同じ lock 内、`plan`/`needs_collection` は lock を取らない読取。`measure() -> RetentionSnapshot(entries, usage)`。`ArtifactAdmissionCoordinator(collector, *, trace=None, records=None).admit(request: ArtifactAdmissionRequest, writer: Callable[[AdmissionPutPort], ArtifactReference]) -> ArtifactReference`（request は `payload_size`、`expected_sha256: str | None`、`artifact_type`、`media_type`、`entry_id`、`protected`、`source_ref`、`sensitive=False`）。失敗は `ArtifactAdmissionError`。**本Issueは admission・pending record（`PendingAdmissionStore`）・補償・`inspect_pending`/`recover_pending` を再実装せず、これらを呼ぶだけ**。
 - `event_journal.py`（#261）: `EventJournal` は1 Session 1 SQLite（`events(sequence PRIMARY KEY, event_id, envelope_json)`）。`EventEnvelope.artifact_refs` に `ArtifactReference` を持つ。`self._lock`（`RLock`）で同一instanceを直列化。**artifact参照を読み出す API は無い**。
 - `experience_reader.py`: `JsonlExperienceReader(path)` が episode/step/event の `artifacts` を持つ。末尾の破損行だけを切り捨て `recovery_notices` に記録し、途中の破損は `ExperienceRecoveryError`。
 - `runtime/session_composition.py`: `RuntimeComposition.create_session_runtime` が `EventJournal(<game_directory>/session_events/<session_id>.sqlite3)` を作って pipeline factory へ渡し、`_managed_session` が `ManagedSessionRuntime` を作る。`ManagedSessionRuntime.close()` は adaptation→実行resource→provider→`close_event_journal` の順に閉じる。
@@ -158,7 +157,7 @@ soft budget crossing は hot path で計測しない。adapter は「直近 GC �
 1. `closed` なら `closed`。`_run_lock` を非 blocking で取り、取れなければ `already_running`（coalesce）。
 2. trigger 判定: `session_close`/`maintenance` は `min_interval_ms`・条件判定を**無条件に迂回**して実行する（直前の GC 直後でも実行）。それ以外は `min_interval_ms` 未満なら `coalesced`、条件（件数・推定使用量・周期）を満たさなければ `not_due`。
 3. **gate** を取る（process 内 `threading.Lock`。`recording()` と共有。待ち時間を `gate_wait_ms`）。
-4. root lock を取る: `collector.coordination_lock()`（timeout は trigger 種別で切替）。期限切れは `lock_timeout`。
+4. root lock を取る: `coordination_lock()` は期限がコンストラクタ固定のため、外側は `retention_root_lock(Path(store.root), timeout_seconds=<trigger 種別の期限>)` で直接取る（同じ root key の lock なので、続く `collect` の `@_serialized` は同一threadの再入として深さを増やすだけ）。root が無ければ lock を取る前に `store_absent`（lock は root を作るため、先に存在を確認する）。期限切れは `lock_timeout`。
 5. `provider.snapshot()`。例外→`snapshot_failed`、`complete=False`→`snapshot_incomplete`、`session_id` 不一致→`session_mismatch`、`clock() - created_at_ms > snapshot_max_age_ms` または `generation < last_seen_generation`→`snapshot_stale`。collect の直前に source の増分読取をもう1回行い（gate 保持中なので通常は0件）、参照付き event が増えていれば `generation_mismatch`。いずれも削除しない。
 6. live = snapshot の参照 ∪ その時点の pin（`_state_lock` 内で写す）。gate を持っていても `persist()` の pin は増え得るが、その digest の admit は root lock を待つため、GC が古い object を消した後に admit が新しく作り直す（参照切れにならない）。このため pin は generation に含めない。
 7. 作業上限: `collector.plan(live)` を求め、`deleted_artifacts` が上限以下ならそのまま。超えるなら `deleted_artifacts` の先頭（計画の決定的順序）から上限件を「今回分」とし、索引上の他の全 digest を live に加えた（= 今回分以外は削除不可にした。`ArtifactReference` は `store.read_metadata(d).to_reference()` で作る）上で次へ進む。live を増やすことは削除を減らす方向にしか働かないので安全。この絞った live で手順8の `collect` が計画を作り直し、索引置換→object削除の既存の原子的順序で適用する（索引と削除対象は常に同じ計画から作られ、「索引から外したのに消さない」「消したのに索引に残る」は起きない）。加えた件数を `deferred_artifacts` とし、0 でなければ次回を `persist_count` 相当として即 `request()` する。
@@ -257,7 +256,7 @@ CLOSED: maybe_collect/request は `closed`、persist は RuntimeError、release 
 
 ## 未決事項（技術的に決めたもの）
 
-1. **Spec-Status を BLOCKED にした**: 依存 #789 が未マージ。API（`coordination_lock`、`admit`）は PR #821 の設計どおりに使う。マージ時に名前が変われば本書を直してから実装する。
+1. **Spec-Status を READY にした**: #789（PR #821）が main に入り（7bd8500）、`retention_root_lock`・`RetentionCollector.coordination_lock`/`collect`・`ArtifactAdmissionCoordinator.admit`・`ArtifactAdmissionRequest` の実 API を原文で照合した。差分は lock 期限の指定方法だけで、手順4を `retention_root_lock` の直接利用に直した。
 2. **Store root は Session 単位**: 他 Session の参照を snapshot に含められないため。終了済み Session の root の掃除は後続Issue（本PRで起票しない。実装PRで起票する）。
 3. **既定は有効**: Session root にはこの adapter 経由の保存しか入らないため、既定有効でも他データを消さない。policy の既定値は Experience 用途の保守値（soft 1GiB/hard 2GiB、TTL なし）で、data inventory の型別 TTL（#224 `ttl_ms_by_artifact_type()`）を `ttl_ms_by_type` へ渡す。
 4. **Experience source は設定時のみ**: 本番 Session に Experience writer が無いため。producer 追加時に `experience_paths` を設定する。
