@@ -124,6 +124,18 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 
 高負荷のfinish_task（全件883秒）で`test_comparison_preflight`のStop試験が`initial safety lease is not active`で失敗した。実時計と実heartbeat threadを使い、external watchdog無しのため、旧実装ではthreadが0.75秒以上止まっても失効後に暗黙延長されていた。新しい規則で正しく`lease_expired`になる。このfileはlease期限を検証しないため、試験専用に`lease_timeout_seconds=30`とした（製品既定値は不変）。同じ実行で落ちた`test_reference_browser_diagnostics`（1.165s対上限1.15s）と`test_runtime_boundary_benchmark`（IPC timeout）はfail-safeを使わない負荷起因の失敗で、単独実行・再実行（全件560秒、OK）では成功した。
 
+## CodeRabbit指摘への対応（PR #813、9件を現行コードと照合し全て有効と判断）
+
+- 「全て」の過大表現（文書2か所）: 条件付き書込はheartbeat・record_observation・check_command・complete_commandのみ、初期化・arm・遷移・watchdogは無条件と明記。
+- watchdogの`lease_store.read()`が`TimeoutError`で終了する: 捕捉して短い待機後に監視を継続（停止方向の変更なし。期限判定は次回読取）。
+- 診断observerの例外が結果を変え得る: callback全体を例外隔離。
+- check_commandが読取前の時刻で失効判定し、その後の延長で復活し得る: 時刻を永続読取の後で取得し、延長も失効確認つきにした。受理直前に期限を過ぎていれば`lease_expired`で拒否。
+- 2回目のcloseが`previous_reason`を上書き: 既にclose済みなら再記録しない。
+- 同一epochで`state`が空・欠落したleaseを書込可能としていた: 設計書の「空/active以外」に合わせ停止（Recovery）として扱う。
+- `cycle_ms_*`は開始間隔ではなく処理時間: `duration_ms_*`に改名し文書を修正。
+- 計測起点が時刻採取より後: `renewing`イベントで採取前にmonotonicを取り、余裕を保守側にした。
+- 診断行の出力がcleanup前でstdout停止時に解放を妨げる: 行はcleanup前に作り、出力はlauncher.close()の後にした。
+
 ## sample E2Eの起動直後失敗（PRで観測、leaseとは別原因）
 
 main取込後、push側のlanguage-ci（run 41958841719）で`Run sample-control-confirmed live input loop`が起動0.3秒・0 stepsの`recognition_or_candidate_failure`（`許可された操作候補がありません`）になった。同じHEADのpull_request側E2E（run 41958852024）は成功し、9375f83の2回も成功していたため非決定的。9375f83→HEADの製品差分は`tools/run_noisy_provider_benchmark.py`だけ。
