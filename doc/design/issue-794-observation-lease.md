@@ -59,7 +59,9 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 - `AtomicJsonStore.replace_unless(value: dict[str, object], reject: Callable[[dict[str, object], bool], bool]) -> dict[str, object] | None`
   - lock内で現在値（不正・不在は`{}`）と存在flagを`reject`へ渡す。`True`なら書かずに現在値を返す。`False`なら`value`をatomic書込して`None`。
   - lock timeout・OSError・reject内例外は呼出元へ送出（呼出元は既存どおり`recovery_required`へ）。
-- 拒否条件（Runtime）: 存在するが読めないlease、または同一epochで`state`が空/`active`以外。別epochの値は従来どおり上書き可（明示rearmの契約を維持）。
+- 拒否条件（Runtime）: 存在するが読めないlease、または同一epochで`state`が空/`active`以外。別epochの値は従来どおり上書き可。epochを変えるのは初回leaseと明示rearm（`_persist_or_fail`の無条件書込）だけで、延長系の書込は常に現在epochの値を書く。従来の`_honor_persisted_stop_locked`も別epochの停止を無視しており、その意味を変えない（別epochの停止で現在epochを止める変更はStopの意味変更になるため今回はしない）。
+- 失効境界: Runtime（`check_command`・`_extend_lease_locked`）もwatchdogも`now > lease_expires_at`で失効（`now == expires`は未失効）。この演算子を揃えたまま変更しない。
+- directory不在: `replace_unless`の読取は`{}`・不在として判定し、書込の一時file作成が`FileNotFoundError`のときだけ親directoryを作って1回再試行する。lock fileも同様。
 - 新しいreason codeは追加しない（`lease_expired`/`lease_unreadable`/既存storage系を使用）。`check_command`は条件付き書込が永続Stopで拒否されたとき`runtime_not_active`、書込例外のとき従来どおり`storage_failure`を返す。
 - heartbeat診断 schema_version 2: 行に`renewal_mono_ns`、結果語彙に`lease_expired`、snapshotに`summary`。上限32KiB・ring 8件は不変。`summary`の期限余裕は「heartbeat更新だけを見た下限」（main threadの更新があれば実際の余裕はこれ以上）。
 - `heartbeat_lease_budget`行: `{"event":"heartbeat_lease_budget","schema_version":1,"diagnostic_only":true,"lease_timeout_ms":750.0,"summary":{...}}`。診断OFF・取得失敗時は出さない。失敗判定には使わない。
@@ -70,10 +72,14 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 1. 期限スケジュール: heartbeat threadは各周回の開始をmonotonic時計で記録し、次周回を「開始時刻+間隔」に置く。処理が間隔を超えたら待たずに次を始める。authority時計（`clock`）は判定にだけ使い、スケジュールに使わない。これで更新間隔は`max(間隔, 1周回の処理時間)`になり、書込(n)と待ちと読取(n+1)の直列加算が無くなる。
 2. 失効済みleaseを延長しない: `_extend_lease_locked(now)`は`now > _lease_expires_at`なら`_transition(RECOVERY_REQUIRED, "lease_expired")`して`False`。heartbeat・`record_observation`・`complete_command`が使う（`check_command`は既存の失効判定の後に延長）。初回lease・明示rearmは従来の`_renew_lease_locked`（失効判定なし）。
 3. 条件付き書込: `_write_lease_or_fail`は`replace_unless`で、拒否時は読んだ値で既存の永続Stop採用処理（`_adopt_persisted_locked`、heartbeat停止・入力解放）を行い`False`。heartbeatは別の永続読取をせず、この1回のlock内で読取と書込を行う（I/Oとlock取得が半分）。他の入口の事前Stop確認は維持。
+   - heartbeatは`extend_at_commit=True`: lock内の読取・停止判定の**後**、書込値を作る直前にauthority時計で失効確認と延長を行う（`replace_unless`へ書込値の生成関数を渡す）。旧実装と同じく「更新→保存完了」は書込時間だけになる。失効時は生成関数が書込を中止し、cross-process lockを解放した後で`_transition(lease_expired)`する（lock保持中の再取得を避ける）。
+   - 実装中の発見: 更新をlock取得前に取ると「更新→保存完了」に読取が加わり、run 41938316919のring再生で余裕が−12msになった。このため更新を書込直前へ移した。
 4. 遷移（`_persist_or_fail`）とwatchdogは無条件書込のまま（停止方向の書込で、上書きされても停止側）。
 5. syscall削減は意味不変に限定: 書込先directoryの不在時だけmkdirして再試行、`os.name == "nt"`ではdirectory fsyncを試みない、replace成功時は一時fileのunlinkを省く（失敗時は従来どおり削除）、読取は`FileNotFoundError`で不在を判定。
 6. close: 遷移前の`state/reason`をjournal detailsの`previous_state/previous_reason`へ残す。leaseの`state=safe_idle`は従来どおり。
-7. 失敗時: lock timeout・書込例外は従来どおり`recovery_required`（fail-closed）。heartbeatが失効を検出した場合、watchdogより先にRuntime自身が停止する。
+7. 失敗時: lock timeout・書込例外は従来どおり`recovery_required`（fail-closed）。heartbeatが失効を検出した場合、watchdogより先にRuntime自身が停止する。heartbeatの永続読取はこれまで例外をそのまま送出してthreadを終了させ、lease失効まで停止が遅れていたが、条件付き書込内の失敗として即座に`recovery_required/heartbeat_storage_failure`になる（停止方向のみの変化）。
+8. Runtimeの失効遷移とwatchdogのStop書込が競合しても、どちらの順でも最終状態は`recovery_required`で理由は`lease_expired`（両者同じ語彙）。journalは後勝ちだが状態・理由は同じ。以後の`check_command`は`runtime_not_active`で拒否する。
+9. 期限スケジュールが保証するのは「1周回の処理時間が間隔を超えたときに待ちを加えない」ことだけ。1周回（または連続2周回の処理）がTTLを超えれば従来どおり失効して停止する（fail-closed、試験で固定）。2件の自然失敗ringを同じ相別所要時間で再生した場合の余裕は計算で示し、それ以上の一般的な保証はCIの`heartbeat_lease_budget`実測で確認する。
 
 ## テスト
 
@@ -81,8 +87,10 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 |---|---|
 | 自然失敗の因果を固定 | fixture（2 run のring）から固定遅延スケジュールの更新間隔761.5ms/749.7ms＋書込で期限超過になることを計算で確認し、同じ相別所要時間を期限スケジュールへ再生すると期限内になることを確認 |
 | 期限スケジュール | 偽monotonic時計と台本の所要時間で`_heartbeat_loop`の待ち時間が`max(0, 間隔−経過)`になる |
-| 失効leaseを延長しない | FakeClockで0.75s超過後のheartbeat/`record_observation`/`complete_command`が`False`、状態`recovery_required/lease_expired`、ディスクの期限0 |
-| lost update防止 | 延長と書込の間に同一epochのStopを書く注入で、heartbeat/`record_observation`/`check_command`/`complete_command`がStopを上書きせず採用する（`check_command`は`runtime_not_active`） |
+| TTL超の周回はfail-closed | 1周回の処理がTTLを超える台本で、次のheartbeatが`False`・`lease_expired`になり延長しない |
+| 失効境界 | `now == expires`では延長し、`now > expires`では延長しない |
+| 失効leaseを延長しない | FakeClockで0.75s超過後のheartbeat/`record_observation`/`complete_command`が`False`、状態`recovery_required/lease_expired`、ディスクの期限0、その後の`check_command`（古い観測のcommand）が`runtime_not_active`で入力を許可しない |
+| lost update防止 | 事前Stop確認と書込の間に同一epochのStopを書く注入で、`record_observation`/`check_command`/`complete_command`がStopを上書きせず採用する（`check_command`は`runtime_not_active`）。heartbeatは別読取を持たず`replace_unless`1回だけで停止判定と書込を行うことを確認 |
 | 別epoch・不在leaseは従来どおり | 別epochのStopは上書きされ、不在fileは作成される |
 | watchdog競合 | 失効leaseで実`run_external_watchdog`がStopを書いた後、heartbeatが`False`で再開しない |
 | 書込障害・lock timeoutはfail-closed | 既存`FailingStore`系テストを`replace_unless`経路でも通す |
@@ -91,11 +99,21 @@ run 41941522328: seq 369 読取148.4/書込260.9、seq 370 読取221.0/書込25.
 | campaign出力 | 診断ON時だけ`heartbeat_lease_budget`を1行出し、取得失敗でもcloseを妨げない |
 | TTL/Stop不変 | `FailSafeConfig()`既定値と`run_external_watchdog`の既存テストが無変更で通る |
 
+### 実測（実装後）
+
+- ring再生（同じ相別所要時間、旧I/O量のまま）: 最悪余裕 固定遅延 −53.0ms/−7.4ms → 期限スケジュール +21.0ms/+128.4ms（run 41938316919/41941522328）。旧I/O量のままでは余裕が小さいため、lock統合・syscall削減によるI/O短縮と合わせて効く。
+- ローカルprobe（CPU-bound main thread 30秒、`probe_margin.py`）: 修正前 42更新中37回が負（最小−373ms、p50−183ms、周期p50 400ms） → 修正後 100更新で負0（最小+69ms、p05+181ms、p50+364ms、周期p50 204ms）。結果は`E:/projects/.review-work/AI_GAME_Player/issue-794-observation-lease/probe_{before,after}.txt`。
+
 ## 完了条件
 
 - 上表の試験と`finish_task.bat`が通る。
 - ローカル再現probe（CPU-bound main thread）で修正前後の期限余裕を記録する。
 - PRのE2E jobが同一HEADで連続2回成功し、`heartbeat_lease_budget`の最小余裕を記録する。push/PR/main検証を区別して報告し、未達はIssueへ引継ぐ。
+
+## 設計レビュー（packet-design.txt、SHA256 81D14A93…B2BB1）
+
+採用: 失効境界の明示と試験（Luna）、TTL超周回のfail-closed試験と保証範囲の限定（Luna/Antigravity）、失効遷移とwatchdog Stopの競合結果の定義（Luna）、Stop後に古い観測のcommandが許可されない試験（Luna）、directory不在時の流れの明記（Antigravity）。
+不採用: 別epochの停止でも延長を拒否する案（Luna/Antigravity）— 延長系は現在epochしか書かず、別epochの停止を無視する既存の意味を変えるとStop semanticsの変更になるため。書込前の残TTL閾値で先行停止する案（Antigravity）— 失効判定はwatchdogとRuntimeの同じ`>`境界で既に行い、閾値はTTL短縮と同等の意味変更になるため。Windowsのreplace共有違反試験（Antigravity）— 読取側も同じcross-process lockを取るため置換中の共有読取は起きず、既存の8回再試行も不変。
 
 ## 代替案と不採用理由
 

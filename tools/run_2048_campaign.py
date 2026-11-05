@@ -1116,11 +1116,51 @@ class ReferenceGame2048Episode(CampaignEpisode):
         except Exception as error:
             return {"status": "unavailable", "error_type": type(error).__name__[:64]}
 
+    # {
+    #   責務: [_emit_heartbeat_lease_budget: 明示診断ON時、close前のheartbeat期限余裕を1行JSONで記録する]
+    #   処理: [成功runでもlease予算の実測を残す（Issue #794）。取得・出力の失敗は無視し、判定・closeを変えない]
+    #   引数: [なし] 戻り値: [なし]
+    # }
+    def _emit_heartbeat_lease_budget(self) -> None:
+        if getattr(self, "_save_heartbeat_diagnostics", False) is not True:
+            return
+        try:
+            pipeline = getattr(self, "pipeline", None)
+            runtime = (
+                pipeline.executor.fail_safe_runtime if pipeline is not None else None
+            )
+            snapshot = (
+                runtime.heartbeat_diagnostic_snapshot() if runtime is not None else None
+            )
+            summary = snapshot.get("summary") if isinstance(snapshot, dict) else None
+            if not isinstance(summary, dict):
+                return
+            print(
+                json.dumps(
+                    {
+                        "event": "heartbeat_lease_budget",
+                        "schema_version": 1,
+                        "diagnostic_only": True,
+                        "lease_timeout_ms": round(
+                            runtime.config.lease_timeout_seconds * 1000, 3
+                        ),
+                        "summary": summary,
+                    },
+                    ensure_ascii=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ),
+                flush=True,
+            )
+        except Exception:
+            return
+
     def close(self) -> None:
         if self._closed:
             return
         self._closed = True
         close_errors: list[Exception] = []
+        self._emit_heartbeat_lease_budget()
         if self.pipeline is not None:
             try:
                 self.pipeline.close()

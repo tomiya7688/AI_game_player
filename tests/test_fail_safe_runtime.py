@@ -41,11 +41,12 @@ class FailingStore(AtomicJsonStore):
         self.fail_after = fail_after
         self.writes = 0
 
-    def write(self, value: dict[str, object]) -> None:
+    # 無条件書込と条件付き書込（replace_unless）の両方が通る実書込で障害を注入する（Issue #794）。
+    def _write_unlocked(self, value: dict[str, object]) -> None:
         self.writes += 1
         if self.writes > self.fail_after:
             raise OSError("injected disk failure")
-        super().write(value)
+        super()._write_unlocked(value)
 
 
 class TargetProbe:

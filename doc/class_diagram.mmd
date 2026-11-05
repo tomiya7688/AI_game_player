@@ -704,6 +704,7 @@ classDiagram
         +read()
         +_read_unlocked()
         +write()
+        +replace_unless()
         +_write_unlocked()
     }
     class FailSafeJournal {
@@ -753,7 +754,10 @@ classDiagram
         +_start_heartbeat_locked()
         +_heartbeat_loop()
         +_renew_lease_locked()
+        +_extend_lease_locked()
+        +_persisted_blocks_write()
         +_honor_persisted_stop_locked()
+        +_adopt_persisted_locked()
         +_transition()
         +_release_inputs()
         +_persist_or_fail()
@@ -885,6 +889,8 @@ classDiagram
         +mark()
         +renewal()
         +finish()
+        +_summarize()
+        +summary()
         +snapshot()
     }
     class HistoryStore {

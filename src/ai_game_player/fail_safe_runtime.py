@@ -17,6 +17,9 @@ from uuid import uuid4
 from ai_game_player.cross_process_lock import cross_process_file_lock
 from ai_game_player.heartbeat_diagnostic import HeartbeatDiagnostics
 
+# heartbeat周期の予定専用。lease期限の判定はauthority時計（FailSafeRuntime.clock）だけを使う。
+_schedule_clock: Callable[[], float] = time.monotonic
+
 
 # {
 #   責務: [_finite_time: 外部数値を比較する前に有限の実数へ限定する]
@@ -70,7 +73,9 @@ class FailSafeConfig:
         if type(self.max_queue_depth) is not int or self.max_queue_depth < 1:
             raise ValueError("fail-safe queue depth must be positive")
         if self.watchdog_poll_seconds >= self.lease_timeout_seconds:
-            raise ValueError("watchdog poll interval must be shorter than lease timeout")
+            raise ValueError(
+                "watchdog poll interval must be shorter than lease timeout"
+            )
 
 
 @dataclass(frozen=True)
@@ -126,9 +131,12 @@ class AtomicJsonStore:
         with cross_process_file_lock(self.lock_path):
             return self._read_unlocked()
 
+    # {
+    #   責務: [_read_unlocked: lock保持中に現在値を読み、不在・破損・非objectを空dictへ統一する]
+    #   処理: [不在判定は読取のFileNotFoundErrorで行い、事前のstat呼出しを持たない（Issue #794）]
+    #   引数: [なし] 戻り値: [dict: 現在値または空dict]
+    # }
     def _read_unlocked(self) -> dict[str, object]:
-        if not self.path.exists():
-            return {}
         try:
             value = json.loads(self.path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
@@ -139,37 +147,78 @@ class AtomicJsonStore:
         with cross_process_file_lock(self.lock_path):
             self._write_unlocked(value)
 
+    # {
+    #   責務: [replace_unless: 1回のcross-process lock内で現在値を判定し、拒否されなければatomic置換する]
+    #   処理: [読取と書込の間に他processが書いた停止状態を上書きしない（lost update防止、Issue #794）]
+    #   引数: [value: 書込値、または判定後に呼ぶ書込値の生成関数（Noneを返せば書込中止）,
+    #     reject: (現在値, file存在)を受けTrueなら書込を中止する判定]
+    #   戻り値: [dictまたはNone: 拒否・中止時は読んだ現在値、書込時はNone]
+    #   エラー: [lock timeout・書込失敗・判定内例外は呼出元へ送出する]
+    # }
+    def replace_unless(
+        self,
+        value: dict[str, object] | Callable[[], dict[str, object] | None],
+        reject: Callable[[dict[str, object], bool], bool],
+    ) -> dict[str, object] | None:
+        with cross_process_file_lock(self.lock_path):
+            current = self._read_unlocked()
+            exists = bool(current) or self.path.exists()
+            if reject(current, exists):
+                return current
+            # 呼出可能値は読取・判定の後に書込値を作る（更新時刻を書込直前に取る）。Noneは書込中止。
+            payload = value() if callable(value) else value
+            if payload is None:
+                return current
+            self._write_unlocked(payload)
+            return None
+
+    # {
+    #   責務: [_write_unlocked: lock保持中に一時fileへfsync後atomic置換する]
+    #   処理: [directory作成は一時file作成が不在で失敗した時だけ、Windowsで必ず失敗するdirectory fsyncは試みない、
+    #     置換成功後の一時file削除は省く。fsync・置換・再試行の意味は不変（Issue #794のsyscall削減）]
+    #   引数: [value: JSON object] 戻り値: [なし] エラー: [OSError: 書込・置換失敗]
+    # }
     def _write_unlocked(self, value: dict[str, object]) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
         temporary = self.path.with_name(f".{self.path.name}.{uuid4().hex}.tmp")
-        data = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        data = json.dumps(
+            value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        )
+        replaced = False
         try:
-            with temporary.open("w", encoding="utf-8", newline="\n") as stream:
+            try:
+                stream = temporary.open("w", encoding="utf-8", newline="\n")
+            except FileNotFoundError:
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                stream = temporary.open("w", encoding="utf-8", newline="\n")
+            with stream:
                 stream.write(data)
                 stream.flush()
                 os.fsync(stream.fileno())
             for attempt in range(8):
                 try:
                     os.replace(temporary, self.path)
+                    replaced = True
                     break
                 except PermissionError:
                     if attempt == 7:
                         raise
                     time.sleep(0.005 * (attempt + 1))
-            try:
-                directory_fd = os.open(str(self.path.parent), os.O_RDONLY)
-            except (AttributeError, OSError):
-                directory_fd = None
-            if directory_fd is not None:
+            if os.name != "nt":
                 try:
-                    os.fsync(directory_fd)
-                finally:
-                    os.close(directory_fd)
+                    directory_fd = os.open(str(self.path.parent), os.O_RDONLY)
+                except (AttributeError, OSError):
+                    directory_fd = None
+                if directory_fd is not None:
+                    try:
+                        os.fsync(directory_fd)
+                    finally:
+                        os.close(directory_fd)
         finally:
-            try:
-                temporary.unlink(missing_ok=True)
-            except OSError:
-                pass
+            if not replaced:
+                try:
+                    temporary.unlink(missing_ok=True)
+                except OSError:
+                    pass
 
 
 class FailSafeJournal:
@@ -204,7 +253,12 @@ class FailSafeJournal:
 class InputLedger:
     """Cross-process ledger for keys/buttons that must be releasable after parent loss."""
 
-    def __init__(self, path: Path, store: AtomicJsonStore | None = None, clock: Callable[[], float] = time.time) -> None:
+    def __init__(
+        self,
+        path: Path,
+        store: AtomicJsonStore | None = None,
+        clock: Callable[[], float] = time.time,
+    ) -> None:
         self.path = path
         self.store = store or AtomicJsonStore(path)
         self.clock = clock
@@ -278,7 +332,9 @@ class InputLedger:
         }
 
     @staticmethod
-    def _entries(value: dict[str, object], name: str, *, integer_keys: bool) -> dict[str, float]:
+    def _entries(
+        value: dict[str, object], name: str, *, integer_keys: bool
+    ) -> dict[str, float]:
         raw = value.get(name, {})
         if not isinstance(raw, dict):
             return {}
@@ -305,7 +361,13 @@ class ExternalWatchdogProcess:
         if getattr(sys, "frozen", False):
             command = [sys.executable, "--failsafe-watchdog", str(self.state_directory)]
         else:
-            command = [sys.executable, "-m", "ai_game_player", "--failsafe-watchdog", str(self.state_directory)]
+            command = [
+                sys.executable,
+                "-m",
+                "ai_game_player",
+                "--failsafe-watchdog",
+                str(self.state_directory),
+            ]
         kwargs: dict[str, object] = {
             "stdin": subprocess.DEVNULL,
             "stdout": subprocess.DEVNULL,
@@ -365,8 +427,12 @@ class FailSafeRuntime:
         self.config = config or FailSafeConfig()
         self.clock = clock
         self.journal = journal or FailSafeJournal(self.state_directory / "journal.json")
-        self.lease_store = lease_store or AtomicJsonStore(self.state_directory / "lease.json")
-        self.ledger = ledger or InputLedger(self.state_directory / "input_ledger.json", clock=clock)
+        self.lease_store = lease_store or AtomicJsonStore(
+            self.state_directory / "lease.json"
+        )
+        self.ledger = ledger or InputLedger(
+            self.state_directory / "input_ledger.json", clock=clock
+        )
         self.release_callback = release_callback
         self._lock = threading.RLock()
         self._heartbeat_diagnostics: HeartbeatDiagnostics | None = None
@@ -385,7 +451,9 @@ class FailSafeRuntime:
         self._inflight = 0
         self._heartbeat_shutdown = threading.Event()
         self._heartbeat_thread: threading.Thread | None = None
-        self._watchdog = ExternalWatchdogProcess(self.state_directory) if external_watchdog else None
+        self._watchdog = (
+            ExternalWatchdogProcess(self.state_directory) if external_watchdog else None
+        )
 
         previous = self.journal.read()
         previous_state = str(previous.get("state", ""))
@@ -545,29 +613,36 @@ class FailSafeRuntime:
         """元例外/closeを変更せず、Runtime lockを取らずに固定metadataを返す。"""
         try:
             recorder = self._heartbeat_diagnostics
-            return None if type(recorder) is not HeartbeatDiagnostics else recorder.snapshot()
+            return (
+                None
+                if type(recorder) is not HeartbeatDiagnostics
+                else recorder.snapshot()
+            )
         except Exception:
             return None
 
     # {
-    #   責務: [heartbeat: 既存の永続Stop確認と期限付き制御lease更新を行う]
-    #   引数: [なし] 戻り値: [bool: 元の更新結果。保存読取の例外契約は維持]
-    #   処理: [明示診断ON時だけphaseを記録し、通常は診断clock/I/Oを追加しない]
+    #   責務: [heartbeat: 未失効の制御leaseだけを延長し、永続Stop確認と書込を1回のlock内で行う]
+    #   引数: [なし] 戻り値: [bool: 延長を保存したか。失効・永続Stop・保存失敗はFalse]
+    #   処理: [失効済みleaseはRecoveryへ遷移して延長しない。永続Stopは条件付き書込で採用（Issue #794）。
+    #     明示診断ON時だけphaseを記録し、通常は診断clock/I/Oを追加しない]
     # }
     def heartbeat(self) -> bool:
         recorder = self._heartbeat_diagnostics
         if type(recorder) is HeartbeatDiagnostics:
             return self._traced_heartbeat(recorder)
         with self._lock:
-            if self._state != FailSafeState.ACTIVE or not self._honor_persisted_stop_locked():
+            if self._state != FailSafeState.ACTIVE:
                 return False
-            self._renew_lease_locked()
-            return self._write_lease_or_fail("heartbeat_storage_failure")
+            return self._write_lease_or_fail(
+                "heartbeat_storage_failure", extend_at_commit=True
+            )
 
     # {
-    #   責務: [_traced_heartbeat: 元heartbeatと同じlock・Stop確認・更新へ診断を添える]
+    #   責務: [_traced_heartbeat: 元heartbeatと同じlock・条件付き書込・失効確認へ診断を添える]
     #   引数: [recorder: 有効化済みmemory recorder] 戻り値: [bool: 元の更新結果]
-    #   処理: [処理区間はmonotonic、wall値は既存renewの値だけ複製。元例外をそのまま再送出]
+    #   処理: [処理区間はmonotonic、wall値は既存延長の値だけ複製。persisted_readは条件付き書込lock内の読取で、
+    #     更新はその後・書込直前に行う]
     # }
     def _traced_heartbeat(self, recorder: HeartbeatDiagnostics) -> bool:
         row = recorder.begin()
@@ -578,21 +653,35 @@ class FailSafeRuntime:
                     recorder.finish(row, "not_active")
                     return False
                 recorder.mark(row, "persisted_read_started_mono_ns")
+                stage: list[str] = []
+
+                def observed(event: str, renewed: float | None) -> None:
+                    if event == "read":
+                        recorder.mark(row, "persisted_read_finished_mono_ns")
+                    elif event == "renewed" and renewed is not None:
+                        recorder.mark(row, "renewal_mono_ns")
+                        recorder.renewal(row, renewed, self._lease_expires_at)
+                        recorder.mark(row, "lease_write_started_mono_ns")
+                    stage.append(event)
+
                 try:
-                    current = self._honor_persisted_stop_locked()
+                    allowed = self._write_lease_or_fail(
+                        "heartbeat_storage_failure",
+                        extend_at_commit=True,
+                        observer=observed,
+                    )
                 finally:
-                    recorder.mark(row, "persisted_read_finished_mono_ns")
-                if not current:
-                    recorder.finish(row, "persisted_stop")
-                    return False
-                renewed = self._renew_lease_locked()
-                recorder.renewal(row, renewed, self._lease_expires_at)
-                recorder.mark(row, "lease_write_started_mono_ns")
-                try:
-                    allowed = self._write_lease_or_fail("heartbeat_storage_failure")
-                finally:
-                    recorder.mark(row, "lease_write_finished_mono_ns")
-                recorder.finish(row, "renewed" if allowed else "storage_failure")
+                    if "renewed" in stage:
+                        recorder.mark(row, "lease_write_finished_mono_ns")
+                if allowed:
+                    result = "renewed"
+                elif "expired" in stage:
+                    result = "lease_expired"
+                elif "blocked" in stage:
+                    result = "persisted_stop"
+                else:
+                    result = "storage_failure"
+                recorder.finish(row, result)
                 return allowed
         except BaseException:
             recorder.finish(row, "raised")
@@ -606,20 +695,30 @@ class FailSafeRuntime:
     # }
     def record_observation(self, observed_at: float | None = None) -> bool:
         with self._lock:
-            if self._state != FailSafeState.ACTIVE or not self._honor_persisted_stop_locked():
+            if (
+                self._state != FailSafeState.ACTIVE
+                or not self._honor_persisted_stop_locked()
+            ):
                 return False
             now = self.clock()
             try:
                 timestamp = _finite_time(now if observed_at is None else observed_at)
             except ValueError:
-                self._transition(FailSafeState.RECOVERY_REQUIRED, "invalid_observation_timestamp")
+                self._transition(
+                    FailSafeState.RECOVERY_REQUIRED, "invalid_observation_timestamp"
+                )
                 return False
             if timestamp <= 0 or timestamp > now + 1.0:
-                self._transition(FailSafeState.RECOVERY_REQUIRED, "invalid_observation_timestamp")
+                self._transition(
+                    FailSafeState.RECOVERY_REQUIRED, "invalid_observation_timestamp"
+                )
+                return False
+            if not self._extend_lease_locked(now):
                 return False
             self._last_observation_at = timestamp
-            self._observation_expires_at = timestamp + self.config.observation_timeout_seconds
-            self._renew_lease_locked()
+            self._observation_expires_at = (
+                timestamp + self.config.observation_timeout_seconds
+            )
             return self._write_lease_or_fail("observation_storage_failure")
 
     def make_command(
@@ -652,9 +751,13 @@ class FailSafeRuntime:
         with self._lock:
             now = self.clock()
             if self._state != FailSafeState.ACTIVE:
-                return self._block("runtime_not_active", f"fail-safe runtime is {self._state.value}")
+                return self._block(
+                    "runtime_not_active", f"fail-safe runtime is {self._state.value}"
+                )
             if not self._honor_persisted_stop_locked():
-                return self._block("runtime_not_active", f"fail-safe runtime is {self._state.value}")
+                return self._block(
+                    "runtime_not_active", f"fail-safe runtime is {self._state.value}"
+                )
             if now > self._lease_expires_at:
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "lease_expired")
                 return self._block("lease_expired", "control lease expired")
@@ -662,42 +765,81 @@ class FailSafeRuntime:
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "observation_stale")
                 return self._block("observation_stale", "fresh observation is required")
             if command.epoch != self._epoch:
-                return self._block("stale_epoch", "command epoch does not match active control epoch")
+                return self._block(
+                    "stale_epoch", "command epoch does not match active control epoch"
+                )
             try:
                 _finite_time(command.issued_at)
                 _finite_time(command.observation_at)
             except ValueError:
-                return self._block("invalid_command_timestamp", "command timestamps must be finite numeric values")
+                return self._block(
+                    "invalid_command_timestamp",
+                    "command timestamps must be finite numeric values",
+                )
             age = now - command.issued_at
             if age < -0.05 or age > self.config.max_command_age_seconds:
-                return self._block("stale_command", "command age exceeds fail-safe limit")
+                return self._block(
+                    "stale_command", "command age exceeds fail-safe limit"
+                )
             if command.observation_at != self._last_observation_at:
-                return self._block("stale_observation", "command was not created from the latest observation")
+                return self._block(
+                    "stale_observation",
+                    "command was not created from the latest observation",
+                )
             if command.sequence <= self._last_sequence:
-                return self._block("stale_sequence", "command sequence is stale or duplicated")
-            if command.target_pid != self._target_pid or command.target_handle != self._target_handle:
+                return self._block(
+                    "stale_sequence", "command sequence is stale or duplicated"
+                )
+            if (
+                command.target_pid != self._target_pid
+                or command.target_handle != self._target_handle
+            ):
                 self._transition(FailSafeState.RECOVERY_REQUIRED, "target_changed")
-                return self._block("target_changed", "command target differs from the re-armed target")
+                return self._block(
+                    "target_changed", "command target differs from the re-armed target"
+                )
             if command.session_id != self._session_id:
-                return self._block("stale_session", "command session does not match active session")
+                return self._block(
+                    "stale_session", "command session does not match active session"
+                )
             if self._inflight >= self.config.max_queue_depth:
-                return self._block("queue_full", "fail-safe command queue depth exceeded")
+                return self._block(
+                    "queue_full", "fail-safe command queue depth exceeded"
+                )
 
             self._last_sequence = command.sequence
             self._inflight += 1
             self._renew_lease_locked()
             if not self._write_lease_or_fail("command_accept_storage_failure"):
                 self._inflight = max(0, self._inflight - 1)
-                return self._block("storage_failure", "critical fail-safe state could not be persisted")
-            return FailSafeDecision(True, "allowed", "fresh lease/observation/target/command", self._state)
+                if self._reason != "command_accept_storage_failure":
+                    # 条件付き書込が直前に書かれた永続Stopを採用した（Issue #794）。
+                    return self._block(
+                        "runtime_not_active",
+                        f"fail-safe runtime is {self._state.value}",
+                    )
+                return self._block(
+                    "storage_failure", "critical fail-safe state could not be persisted"
+                )
+            return FailSafeDecision(
+                True, "allowed", "fresh lease/observation/target/command", self._state
+            )
 
+    # {
+    #   責務: [complete_command: 処理中数を戻し、未失効leaseだけを延長して保存する]
+    #   処理: [失効済みならRecoveryへ遷移し延長しない。永続Stopは条件付き書込で採用（Issue #794）]
+    #   引数: [command: 完了したcommand] 戻り値: [なし]
+    # }
     def complete_command(self, command: FailSafeCommand) -> None:
         del command
         with self._lock:
             self._inflight = max(0, self._inflight - 1)
-            if self._state == FailSafeState.ACTIVE and self._honor_persisted_stop_locked():
-                self._renew_lease_locked()
-                self._write_lease_or_fail("command_complete_storage_failure")
+            if (
+                self._state == FailSafeState.ACTIVE
+                and self._honor_persisted_stop_locked()
+            ):
+                if self._extend_lease_locked(self.clock()):
+                    self._write_lease_or_fail("command_complete_storage_failure")
 
     def emergency_stop(self, reason: str = "emergency stop requested") -> None:
         with self._lock:
@@ -711,8 +853,21 @@ class FailSafeRuntime:
         with self._lock:
             self._transition(FailSafeState.SAFE_IDLE, reason)
 
+    # {
+    #   責務: [close: SAFE_IDLEへ遷移し外部監視を止める]
+    #   処理: [遷移前の状態・理由をjournal detailsへ残し、失効等の原因をcloseで失わない（Issue #794）]
+    #   引数: [なし] 戻り値: [なし]
+    # }
     def close(self) -> None:
-        self.safe_idle("runtime closed")
+        with self._lock:
+            self._transition(
+                FailSafeState.SAFE_IDLE,
+                "runtime closed",
+                details={
+                    "previous_state": self._state.value,
+                    "previous_reason": self._reason,
+                },
+            )
         if self._watchdog is not None:
             self._watchdog.stop()
 
@@ -729,32 +884,84 @@ class FailSafeRuntime:
         )
         self._heartbeat_thread.start()
 
+    # {
+    #   責務: [_heartbeat_loop: 開始時刻基準の期限でheartbeatを周期実行する]
+    #   処理: [次周回を「今回開始+間隔」に置き、処理が間隔を超えたら待たない。完了後に間隔を足す固定遅延では
+    #     更新間隔が書込+間隔+次の読取となりTTLを超えたため（Issue #794）。判定にはauthority時計を使い、
+    #     予定には同一processのmonotonic時計だけを使う]
+    #   引数: [interval: 周期秒] 戻り値: [なし]
+    # }
     def _heartbeat_loop(self, interval: float) -> None:
-        while not self._heartbeat_shutdown.wait(interval):
+        next_due = _schedule_clock() + interval
+        while not self._heartbeat_shutdown.wait(max(0.0, next_due - _schedule_clock())):
+            started = _schedule_clock()
             if not self.heartbeat() and self.state != FailSafeState.ACTIVE:
                 return
+            next_due = started + interval
 
     # {
     #   責務: [_renew_lease_locked: Runtime lock内で既存時計から制御lease期限を更新する]
     #   引数: [なし。呼出元がRuntime lockを保持] 戻り値: [float: 既に取得したauthorityのUnix秒]
-    #   処理: [clock呼出しは従来どおり1回。戻り値の複製で期限の後付け延長や追加取得をしない]
+    #   処理: [clock呼出しは従来どおり1回。初回lease・明示rearm・許可済みcommandだけが使う]
     # }
     def _renew_lease_locked(self) -> float:
         renewed = self.clock()
         self._lease_expires_at = renewed + self.config.lease_timeout_seconds
         return renewed
 
+    # {
+    #   責務: [_extend_lease_locked: 未失効の制御leaseだけを呼出元のauthority時刻から延長する]
+    #   処理: [既に期限を過ぎていればRecovery/lease_expiredへ遷移し延長しない。watchdog・check_commandと
+    #     同じ失効の意味にし、失効後の暗黙rearmを防ぐ（Issue #794）]
+    #   引数: [now: 呼出元が取得済みのauthority Unix秒] 戻り値: [bool: 延長したか]
+    # }
+    def _extend_lease_locked(self, now: float) -> bool:
+        if now > self._lease_expires_at:
+            self._transition(FailSafeState.RECOVERY_REQUIRED, "lease_expired")
+            return False
+        self._lease_expires_at = now + self.config.lease_timeout_seconds
+        return True
+
+    # {
+    #   責務: [_persisted_blocks_write: 永続leaseがこのRuntimeの書込を禁じる停止状態かを判定する]
+    #   引数: [persisted: lock内で読んだ値, exists: fileの存在] 戻り値: [bool: 書込を中止すべきか]
+    #   処理: [読めない既存file、または同一epochのactive以外の状態を停止とみなす。別epochは明示rearmの上書き対象]
+    # }
+    def _persisted_blocks_write(
+        self, persisted: dict[str, object], exists: bool
+    ) -> bool:
+        if not persisted:
+            return exists
+        if str(persisted.get("epoch", "")) != self._epoch:
+            return False
+        state = str(persisted.get("state", ""))
+        return bool(state) and state != FailSafeState.ACTIVE.value
+
     def _honor_persisted_stop_locked(self) -> bool:
         persisted = self.lease_store.read()
+        exists = bool(persisted) or self.lease_store.path.exists()
+        return self._adopt_persisted_locked(persisted, exists)
+
+    # {
+    #   責務: [_adopt_persisted_locked: 読取済みの永続停止状態をRuntimeへ採用する]
+    #   処理: [従来の永続Stop確認と同じく、読めない既存fileはRecovery、同一epochの停止はその状態へ移し
+    #     heartbeat停止と入力解放を行う]
+    #   引数: [persisted: 読取値, exists: fileの存在] 戻り値: [bool: 実行を続けてよいか]
+    # }
+    def _adopt_persisted_locked(
+        self, persisted: dict[str, object], exists: bool
+    ) -> bool:
         if not persisted:
-            if not self.lease_store.path.exists():
+            if not exists:
                 return True
             self._state = FailSafeState.RECOVERY_REQUIRED
             self._reason = "lease_unreadable"
             self._heartbeat_shutdown.set()
             self._release_inputs()
             try:
-                self.journal.record(self._state, self._reason, self._epoch, timestamp=self.clock())
+                self.journal.record(
+                    self._state, self._reason, self._epoch, timestamp=self.clock()
+                )
             except Exception:
                 pass
             return False
@@ -767,7 +974,11 @@ class FailSafeRuntime:
             adopted = FailSafeState(persisted_state)
         except ValueError:
             adopted = FailSafeState.RECOVERY_REQUIRED
-        self._state = adopted if adopted != FailSafeState.ACTIVE else FailSafeState.RECOVERY_REQUIRED
+        self._state = (
+            adopted
+            if adopted != FailSafeState.ACTIVE
+            else FailSafeState.RECOVERY_REQUIRED
+        )
         self._reason = str(persisted.get("reason", "external_watchdog_stop"))
         self._heartbeat_shutdown.set()
         self._release_inputs()
@@ -776,10 +987,16 @@ class FailSafeRuntime:
     # {
     #   責務: [_transition: 停止・復旧・closeへの遷移を保存し保持入力を解放する]
     #   処理: [初回lease権利を失効しheartbeatを止め、journalとleaseへ状態を反映する]
-    #   引数: [state: 遷移先, reason: 停止理由] 戻り値: [なし]
+    #   引数: [state: 遷移先, reason: 停止理由, details: journalへ追加する診断値] 戻り値: [なし]
     #   エラー: [保存失敗は既存fail-closed処理で監査する]
     # }
-    def _transition(self, state: FailSafeState, reason: str) -> None:
+    def _transition(
+        self,
+        state: FailSafeState,
+        reason: str,
+        *,
+        details: dict[str, object] | None = None,
+    ) -> None:
         self._initial_lease_available = False
         self._state = state
         self._reason = reason
@@ -787,7 +1004,7 @@ class FailSafeRuntime:
         if state != FailSafeState.ACTIVE:
             self._lease_expires_at = 0.0
         self._release_inputs()
-        self._persist_or_fail(reason, allow_state_change=False)
+        self._persist_or_fail(reason, allow_state_change=False, details=details)
 
     def _release_inputs(self) -> None:
         if self.release_callback is not None:
@@ -796,13 +1013,20 @@ class FailSafeRuntime:
             except Exception:
                 pass
 
-    def _persist_or_fail(self, reason: str, *, allow_state_change: bool = True) -> bool:
+    def _persist_or_fail(
+        self,
+        reason: str,
+        *,
+        allow_state_change: bool = True,
+        details: dict[str, object] | None = None,
+    ) -> bool:
         try:
             self.journal.record(
                 self._state,
                 reason,
                 self._epoch,
                 details={
+                    **(details or {}),
                     "owner_pid": os.getpid(),
                     "target_pid": self._target_pid,
                     "target_handle": self._target_handle,
@@ -820,20 +1044,67 @@ class FailSafeRuntime:
                 self._release_inputs()
             return False
 
-    def _write_lease_or_fail(self, reason: str) -> bool:
+    # {
+    #   責務: [_write_lease_or_fail: 永続Stopを上書きしない条件付き書込でleaseを保存する]
+    #   処理: [1回のcross-process lock内で読取→停止判定→書込。停止なら読んだ値を採用してFalse（lost update防止、
+    #     Issue #794）。保存例外は従来どおりRecoveryへ遷移しFalse]
+    #   引数: [reason: 保存失敗時の理由, extend_at_commit: lock内の読取・停止判定の後、書込直前に
+    #     `_extend_lease_locked`相当の失効確認と延長を行う（heartbeat用。更新から保存完了までを書込だけにする）,
+    #     observer: 診断用callback（"read"/"blocked"/"expired"/"renewed"と更新Unix秒）]
+    #   戻り値: [bool: 保存したか]
+    # }
+    def _write_lease_or_fail(
+        self,
+        reason: str,
+        *,
+        extend_at_commit: bool = False,
+        observer: Callable[[str, float | None], None] | None = None,
+    ) -> bool:
+        expired: list[float] = []
+
+        def notify(event: str, renewed: float | None = None) -> None:
+            if observer is not None:
+                observer(event, renewed)
+
+        def reject(persisted: dict[str, object], exists: bool) -> bool:
+            notify("read")
+            blocked = self._persisted_blocks_write(persisted, exists)
+            if blocked:
+                notify("blocked")
+            return blocked
+
+        def payload() -> dict[str, object] | None:
+            if extend_at_commit:
+                now = self.clock()
+                if now > self._lease_expires_at:
+                    # cross-process lock保持中は遷移の保存をせず、lock解放後に行う。
+                    expired.append(now)
+                    notify("expired")
+                    return None
+                self._lease_expires_at = now + self.config.lease_timeout_seconds
+                notify("renewed", now)
+            return self._lease_payload()
+
         try:
-            self.lease_store.write(self._lease_payload())
-            return True
+            blocked = self.lease_store.replace_unless(payload, reject)
         except Exception:
             self._state = FailSafeState.RECOVERY_REQUIRED
             self._reason = reason
             self._heartbeat_shutdown.set()
             self._release_inputs()
             try:
-                self.journal.record(self._state, reason, self._epoch, timestamp=self.clock())
+                self.journal.record(
+                    self._state, reason, self._epoch, timestamp=self.clock()
+                )
             except Exception:
                 pass
             return False
+        if blocked is None:
+            return True
+        if expired:
+            self._transition(FailSafeState.RECOVERY_REQUIRED, "lease_expired")
+            return False
+        return self._adopt_persisted_locked(blocked, True)
 
     def _lease_payload(self) -> dict[str, object]:
         return {
@@ -866,7 +1137,9 @@ class FailSafeRuntime:
 #   引数: [state_directory: 所有状態directory, max_runtime_seconds: 開発時の実行上限]
 #   戻り値: [int: 監視の終了code。通常期限・既存Stopの意味を変更しない]
 # }
-def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float | None = None) -> int:
+def run_external_watchdog(
+    state_directory: Path, *, max_runtime_seconds: float | None = None
+) -> int:
     """Run the dependency-minimal watchdog in a separate process."""
 
     state_directory = Path(state_directory)
@@ -881,11 +1154,16 @@ def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float |
             if lease_store.path.exists():
                 _release_ledger(ledger, release_all=True, now=time.time())
                 try:
-                    journal.record(FailSafeState.RECOVERY_REQUIRED, "lease_unreadable", "")
+                    journal.record(
+                        FailSafeState.RECOVERY_REQUIRED, "lease_unreadable", ""
+                    )
                 except Exception:
                     pass
                 return 2
-            if max_runtime_seconds is not None and time.time() - started >= max_runtime_seconds:
+            if (
+                max_runtime_seconds is not None
+                and time.time() - started >= max_runtime_seconds
+            ):
                 return 0
             time.sleep(0.05)
             continue
@@ -906,12 +1184,18 @@ def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float |
             reason = "owner_process_lost"
         elif target_pid > 0 and not _process_alive(target_pid):
             reason = "target_process_lost"
-        elif os.name == "nt" and target_handle > 0 and not _windows_target_matches(target_handle, target_pid):
+        elif (
+            os.name == "nt"
+            and target_handle > 0
+            and not _windows_target_matches(target_handle, target_pid)
+        ):
             reason = "target_window_lost"
         else:
             try:
                 lease_expires = _finite_time(lease.get("lease_expires_at", 0.0))
-                observation_expires = _finite_time(lease.get("observation_expires_at", 0.0))
+                observation_expires = _finite_time(
+                    lease.get("observation_expires_at", 0.0)
+                )
                 _finite_time(lease.get("observation_at", 0.0))
             except ValueError:
                 reason = "invalid_lease_timestamp"
@@ -937,7 +1221,11 @@ def run_external_watchdog(state_directory: Path, *, max_runtime_seconds: float |
                     FailSafeState.RECOVERY_REQUIRED,
                     reason,
                     epoch,
-                    details={"owner_pid": owner_pid, "target_pid": target_pid, "target_handle": target_handle},
+                    details={
+                        "owner_pid": owner_pid,
+                        "target_pid": target_pid,
+                        "target_handle": target_handle,
+                    },
                     timestamp=now,
                 )
             except Exception:
@@ -1046,7 +1334,11 @@ def _release_key_os(virtual_key: int, input_mode: str, target_handle: int) -> No
     if os.name != "nt":
         return
     user32 = ctypes.windll.user32
-    if input_mode == "window_message" and target_handle > 0 and user32.IsWindow(target_handle):
+    if (
+        input_mode == "window_message"
+        and target_handle > 0
+        and user32.IsWindow(target_handle)
+    ):
         user32.PostMessageW(target_handle, 0x0101, int(virtual_key), 0)
     else:
         user32.keybd_event(int(virtual_key), 0, 0x0002, 0)
@@ -1056,7 +1348,11 @@ def _release_mouse_os(button: str, input_mode: str, target_handle: int) -> None:
     if os.name != "nt" or button != "left":
         return
     user32 = ctypes.windll.user32
-    if input_mode == "window_message" and target_handle > 0 and user32.IsWindow(target_handle):
+    if (
+        input_mode == "window_message"
+        and target_handle > 0
+        and user32.IsWindow(target_handle)
+    ):
         user32.PostMessageW(target_handle, 0x0202, 0, 0)
     else:
         user32.mouse_event(0x0004, 0, 0, 0, 0)

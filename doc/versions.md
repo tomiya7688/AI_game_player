@@ -1,3 +1,10 @@
+## 2026-11-05 Observation Lease失効の根因修正（Issue #794）
+
+- CI E2Eの`runtime_not_active (lease_expired)`の因果を2件の自然失敗ringで特定: CPU-boundな認識処理とのGIL競合でheartbeatの永続読取・書込が数百msに伸び、「完了後に0.25秒待つ」周期のため更新間隔が761.5ms/749.7ms＋書込となって0.75秒TTLを超えた。[設計](design/issue-794-observation-lease.md)。
+- heartbeatを開始時刻基準の周期にし、永続Stop確認と書込を1回のcross-process lock内の条件付き書込（`AtomicJsonStore.replace_unless`）に統合、更新時刻を書込直前に取得。lock/書込の冗長なsyscallを削減。TTL・watchdog・Stop・fsyncは不変。
+- 安全側の修正: 失効済みleaseをheartbeat/観測/完了処理で延長しない。読取と書込の間にwatchdogが書いたStopを`active`で上書きしない（lost update）。closeが直前の状態・理由をjournalへ残す。
+- heartbeat診断schema 2（`renewal_mono_ns`、`lease_expired`、`summary`）とcampaignの`heartbeat_lease_budget`出力を追加。
+
 ## 2026-11-04 Experience Retention Core（Issue #164）
 
 - Artifact Store上の保持記録索引と`RetentionCollector`を追加。soft budget/hard limit、Protected（どの理由でも削除しない）、型別TTL、同一digestのexact dedupを、決定的な純粋関数`plan_retention`で判断します。削除順序は重複→TTL→古い順のbudget退避です。[設計](architecture/retention_core.md)。
