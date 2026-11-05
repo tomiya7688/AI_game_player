@@ -27,7 +27,9 @@ from tools.run_2048_campaign import (
 
 class ComparisonPreflightTests(unittest.TestCase):
     def setUp(self):
-        self.deadline = time.monotonic() + 5
+        # Real wall clock: keep well inside SCREEN_READY_TIMEOUT_SECONDS (45s) but far from
+        # the 5s that a loaded full-suite run on Windows exceeded; expiry is tested with a patched clock.
+        self.deadline = time.monotonic() + 30
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
         self.global_stop, self.local_stop = EmergencyStop(), EmergencyStop()
