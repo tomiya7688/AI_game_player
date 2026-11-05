@@ -85,5 +85,5 @@ Parent: #123（兄弟: #226 Remote Consent Enforcement、後続）
 ## 範囲外・残件
 
 - #226: 送信前のconsent照合、未許可class拒否、規則表のruntime利用、audit event。
-- DG-3: `candidates[].knowledge[]`と明示opt-inの`knowledge_projection`は実際にモデル要求へ入りうる。inventoryの`knowledge` classは`remote: never`なので、テストでは`decision_context`へ寄せず**`knowledge`として分類**し（CodeRabbit指摘を採用）、「remote:neverなのに現行payloadへ入る」既知の差分`KNOWN_REMOTE_GAP={knowledge}`として固定した。`test_data_inventory`の不変条件（transmitterは全てremote-eligible）のため`knowledge`のtransmitter宣言はしない。本Issueは現行の送信挙動を変えない。送信を止めるか同意対象に含めるかは#226が決め、その時にKNOWN_REMOTE_GAPを空にする。
+- DG-3: `candidates[].knowledge[]`と明示opt-inの`knowledge_projection`は実際にモデル要求へ入りうる。inventoryの`knowledge` classは`remote: never`なので、テストでは`decision_context`へ寄せず**`knowledge`として分類**し（CodeRabbit指摘を採用）、「remote:neverなのに現行payloadへ入る」既知の差分`KNOWN_REMOTE_GAP={knowledge}`として固定した。inventoryには`knowledge`を事実どおり`_request_decision`のtransmitterとして宣言し、`test_data_inventory`の不変条件（transmitterは全てremote-eligible）の例外を`KNOWN_REMOTE_GAP`の1件だけに限定した。本Issueは現行の送信挙動を変えない。送信を止めるか同意対象に含めるかは#226が決め、その時にKNOWN_REMOTE_GAPを空にする。
 - `expose_to_models`が真のknowledge/evaluation projectionの送信は、既存の明示opt-inのまま。

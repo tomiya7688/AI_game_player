@@ -293,7 +293,7 @@
   "transmitters": [
     {"site": "ai_game_player.provider:OllamaProvider.list_models", "data_classes": [], "note": "model一覧取得（GET）。利用者dataを送らない。"},
     {"site": "ai_game_player.provider:OllamaProvider.assess_outcome", "data_classes": ["ocr_text", "ui_metadata"], "note": "ScreenObservation.to_dict()（OCR全文・features）を設定endpointへ送る。"},
-    {"site": "ai_game_player.provider:OllamaProvider._request_decision", "data_classes": ["decision_context", "ocr_text", "ui_metadata", "history", "model_output"], "note": "choose_context()はDecision Context（OCR抜粋・画面要約・候補の評価=model_output・直前結果・履歴）、旧choose()はScreenObservationと候補を設定endpointへ送る。field→classの対応はtests/test_provider_wire_data_classes.py。"}
+    {"site": "ai_game_player.provider:OllamaProvider._request_decision", "data_classes": ["decision_context", "ocr_text", "ui_metadata", "history", "model_output", "knowledge"], "note": "knowledge（候補の参考知識抜粋・明示opt-inのknowledge_projection）はremote:neverのclassだが現行payloadに入るため事実どおり宣言する。既知の差分としてtests/test_data_inventory.pyのKNOWN_REMOTE_GAPに限定し、#226で解消する。choose_context()はDecision Context（OCR抜粋・画面要約・候補の評価=model_output・直前結果・履歴）、旧choose()はScreenObservationと候補を設定endpointへ送る。field→classの対応はtests/test_provider_wire_data_classes.py。"}
   ],
   "non_data_paths": {
     "assets": "同梱の読取専用asset",

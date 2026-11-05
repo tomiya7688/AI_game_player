@@ -278,12 +278,7 @@ class ProviderWireDataClassesTest(unittest.TestCase):
             for site, classes in self.inventory.transmitters.items()
             if site.startswith("ai_game_player.provider:OllamaProvider.")
         }
-        # knowledgeはremote:neverでtransmitter宣言できない（test_data_inventoryの不変条件）。
-        # 実payloadに入る事実は既知の差分として下で固定し、宣言とは差し引いて照合する。
-        self.assertEqual(
-            {site: classes - KNOWN_REMOTE_GAP for site, classes in observed.items()},
-            declared,
-        )
+        self.assertEqual(observed, declared)
         remote = self.inventory.remote_eligible_classes()
         # knowledgeは保存本体の方針がremote:never。現行の送信挙動は変えず、
         # 同意判定の対象外のまま送られている事実を既知の差分として固定する（#226が解消する）。
