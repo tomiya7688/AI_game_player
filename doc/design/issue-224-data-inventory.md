@@ -4,7 +4,7 @@
 - Depends-On: #164（Retention Core、merge済み。`RetentionPolicy.ttl_ms_by_type`へ既定TTLを渡すだけ）
 - Decision-Gaps:
   - DG-1（owner確認、非ブロッキング）: class別の既定TTL値（raw_frame/cropped_image/unclassified 1日、ocr_text/decision_context/video/replay 7日、crash_diagnostic/runtime_log 14日、その他local_bounded 30日）は本設計の提案値。現行runtimeには適用しないため#224の実装は非ブロッキング。**#225でTTLを強制適用する前のowner承認は#225のブロッカー**で、承認はIssue #225のコメントに記録する。それまでTTLは暫定値。
-  - DG-2（#226で決定、非ブロッキング）: Provider wire schema v1の`data_classes`列挙は`ui_metadata`・`model_output`を持たない。`OllamaProvider.assess_outcome`/旧`choose()`が送るfeaturesを宣言できない。schema拡張かclass統合かは#226で決める。本Issueではschemaを変更しない。**#226の受入前提**: DG-2の解決、全送信siteで実payloadと宣言classの対応を契約testで確認、未知・欠落classはfail-closedで拒否。
+  - DG-2（#226で決定、非ブロッキング）: Provider wire schema v1の`data_classes`列挙は`ui_metadata`・`model_output`を持たない。`OllamaProvider.assess_outcome`/旧`choose()`が送るfeaturesを宣言できない。schema拡張かclass統合かは#226で決める。本Issueではschemaを変更しない。**更新（Issue #806）: DG-2のschema拡張は解決済み。`ui_metadata`・`model_output`をv1の互換拡張としてenumへ追加し、実payloadとの対応を`tests/test_provider_wire_data_classes.py`で固定した（設計 `doc/design/issue-806-provider-wire-data-classes.md`）。** **#226の受入前提**（DG-2のschema部分を除く）: 全送信siteで実payloadと宣言classの対応を契約testで確認、未知・欠落classはfail-closedで拒否。
 - Parent: #123（Privacy Parent: Data Inventory / Retention / Remote Consent）。兄弟: #225 Retention/Delete/Export、#226 Remote Consent Enforcement。
 
 ## 成果物
@@ -46,7 +46,7 @@
 | componentがpolicyをqueryできる | `test_policy_queries`、`test_retention_ttl_defaults_feed_retention_policy` |
 | validation testがある | `DataInventoryValidationTest`（版・未知キー・未登録参照・非privacy既定・内包矛盾・循環・重複・JSON重複key・非文字列class・読込失敗） |
 | 保存/送信の未分類を検出 | `DataInventoryCoverageTest`（src AST走査: writer・transmitter・path名・artifact型、逆向きstale） |
-| #226との整合 | `test_provider_wire_data_classes_are_remote_eligible` |
+| #226との整合 | `test_wire_enums_equal_remote_eligible_classes` |
 
 ## 完了条件
 
