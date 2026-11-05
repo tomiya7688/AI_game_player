@@ -177891,6 +177891,19 @@
           "level": 0,
           "line": 8,
           "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -177902,7 +177915,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -177919,7 +177932,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "urllib.error",
           "names": [
@@ -177932,7 +177945,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [],
           "module": "urllib.request",
           "names": [
@@ -177945,7 +177958,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [],
           "module": "urllib.parse",
           "names": [
@@ -177958,7 +177971,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "tools",
             "tools.reference_browser_diagnostics"
@@ -177978,7 +177991,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "tools",
             "tools.reference_game_2048_launcher"
@@ -177994,7 +178007,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "tools",
             "tools.reference_game_http_server"
@@ -178011,7 +178024,7 @@
       "module": "tests.test_reference_game_http_server",
       "path": "tests/test_reference_game_http_server.py",
       "source_location": {
-        "end_line": 216,
+        "end_line": 231,
         "start_line": 1
       },
       "symbols": [
@@ -178033,8 +178046,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 216,
-            "start_line": 19
+            "end_line": 231,
+            "start_line": 20
           }
         },
         {
@@ -178056,8 +178069,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 35,
-            "start_line": 20
+            "end_line": 36,
+            "start_line": 21
           }
         },
         {
@@ -178079,8 +178092,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 88,
-            "start_line": 37
+            "end_line": 103,
+            "start_line": 38
           }
         },
         {
@@ -178102,8 +178115,8 @@
           "signature": "(name)",
           "source_location": {
             "column": 12,
-            "end_line": 57,
-            "start_line": 54
+            "end_line": 59,
+            "start_line": 55
           }
         },
         {
@@ -178125,8 +178138,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 90
+            "end_line": 136,
+            "start_line": 105
           }
         },
         {
@@ -178148,8 +178161,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 123
+            "end_line": 161,
+            "start_line": 138
           }
         },
         {
@@ -178171,8 +178184,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 185,
-            "start_line": 148
+            "end_line": 200,
+            "start_line": 163
           }
         },
         {
@@ -178194,8 +178207,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 216,
-            "start_line": 187
+            "end_line": 231,
+            "start_line": 202
           }
         }
       ]

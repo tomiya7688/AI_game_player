@@ -5,6 +5,7 @@ from pathlib import Path
 import tempfile
 import sys
 import threading
+import time
 import unittest
 from unittest.mock import Mock, patch
 from urllib.error import URLError
@@ -52,8 +53,9 @@ class ReferenceGameHttpServerTests(unittest.TestCase):
             barrier = threading.Barrier(len(scripts))
 
             def read(name):
-                barrier.wait(2)
-                with urlopen(url + name.lstrip("/"), timeout=2) as response:
+                # Generous bounds: 11 threads on a loaded Windows host can stall for seconds.
+                barrier.wait(15)
+                with urlopen(url + name.lstrip("/"), timeout=15) as response:
                     return name, response.read(65537), response.status, response.version
 
             try:
@@ -63,10 +65,23 @@ class ReferenceGameHttpServerTests(unittest.TestCase):
                 for name, body, status, version in values:
                     self.assertEqual(body, expected[name])
                     self.assertEqual((status, version), (200, 10))
-                self.assertFalse(
-                    server.resource_response_summary()["recording_incomplete"]
-                )
-                resources = server.resource_response_summary()["resources"]
+                # The server updates its counters after the response is written, which can be
+                # after the client has already received the body; wait (bounded) for them.
+                deadline = time.monotonic() + 10
+                while True:
+                    summary = server.resource_response_summary()
+                    resources = summary["resources"]
+                    if len(resources) == len(scripts) and all(
+                        value["completed"] == 1 for value in resources.values()
+                    ):
+                        break
+                    self.assertLess(
+                        time.monotonic(),
+                        deadline,
+                        f"server counters did not settle: {resources}",
+                    )
+                    time.sleep(0.02)
+                self.assertFalse(summary["recording_incomplete"])
                 self.assertEqual(
                     set(resources), {RESOURCE_NAMES[path] for path in scripts}
                 )
