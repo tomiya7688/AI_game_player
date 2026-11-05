@@ -117,5 +117,5 @@ inventoryに残った古い登録（コードから消えたsite・path）もsta
 ## 非対象と残り
 
 - 既定の保存・送信をruntimeで強制する処理は本Issueの範囲外です。保存期間・削除・exportは #225、送信前のconsent照合・未許可classの拒否・credential拒否・audit eventは #226 が、このinventoryの`remote`・`effective_classes`・`forbidden_field_paths`を使って実装します。
-- 現行コードとの差: `ui_metadata`・`history`・`trace`等の`local_bounded`のTTLは、各storeにはまだ適用されていません（#225）。Provider wire schema v1の`data_classes`列挙は`ui_metadata`と`model_output`を含まないため、`assess_outcome`等が送るfeaturesを宣言できません（#226でschemaとの対応を決める）。
+- 現行コードとの差: `ui_metadata`・`history`・`trace`等の`local_bounded`のTTLは、各storeにはまだ適用されていません（#225）。Provider wire schema v1の`data_classes`列挙へ`ui_metadata`・`model_output`を追加しました（#806、v1の互換拡張）。列挙は`remote_eligible_classes()`と一致し、`tests/test_provider_wire_data_classes.py`が`OllamaProvider`の実payloadの全fieldをclassへ対応付けます（未分類fieldで失敗）。送信を実際に許可・拒否するconsent照合は#226です。候補の参考知識（`candidates[].knowledge[]`）は`decision_context`に分類しており、`knowledge` class（`remote: never`）との関係は#226が決めます（DG-3、設計書 `doc/design/issue-806-provider-wire-data-classes.md`）。
 - UIのPrivacy表示（#123の「README/UIから確認できる」）はこのinventoryを表示元にする前提で、表示自体は未実装です。

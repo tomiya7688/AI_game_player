@@ -115,10 +115,14 @@ For each inference request that transmits data off the device, the adapter MUST 
 - raw_frame
 - history
 - trace
+- ui_metadata
+- model_output
+
+`ui_metadata` and `model_output` were added to the v1 enums by Issue #806 as a compatible extension: existing manifests and requests stay valid, while a request that uses a new class is rejected by an older v1 schema (fail-closed). The enum is append-only; removing a class or changing its meaning requires a new protocol version. The `schema` constants are unchanged.
 
 Credentials never belong in Decision Context, Trace, Replay, or normal logs.
 
-The machine-readable data class registry (sensitivity, 1.0 default persistence, retention and whether a class may leave the device after opt-in) is `src/ai_game_player/assets/privacy/data_inventory.json`; see [Privacy Data Inventory](privacy_data_inventory.md) (#224). Every class above is `remote: opt_in` there, and a test keeps this enum within the registry. See Issue #123 for the full privacy policy.
+The machine-readable data class registry (sensitivity, 1.0 default persistence, retention and whether a class may leave the device after opt-in) is `src/ai_game_player/assets/privacy/data_inventory.json`; see [Privacy Data Inventory](privacy_data_inventory.md) (#224). Every class above is `remote: opt_in` there, and a test keeps this enum equal to the registry's remote-eligible classes. `tests/test_provider_wire_data_classes.py` maps every field of the real `OllamaProvider` request payloads to one of these classes and fails on an unclassified field. See Issue #123 for the full privacy policy.
 
 ## Bundled local model profiles
 
