@@ -299,4 +299,24 @@ non_provider_core_ms = max(0, total_step_ms - provider_ms)
 
 これは真のLLM性能benchmarkではなく、LLM待ち時間をほぼ除いたCore regression detectorである。
 
+### 予算判定の方法と根拠（#811）
+
+予算値とWindows multiplierは変えず、判定方法だけを単発測定から複数round測定へ変更した。
+
+- 1 roundは従来の1回分と同じ測定（新しい一時directory・SQLite journal・Engine・同じseed、warm-up 8 step、測定128 step、直接outcome評価128回）。既定5 round（`--rounds`、奇数かつ3以上）を順に実行する。
+- 指標ごとにroundごとのnearest-rank p95を求め、その中央値（観測された中央のround p95）を丸めずに`<= budget × multiplier`で判定する。5 roundなら3 round以上が予算を超えたときだけ不合格になる。
+- reportは`noisy-provider-benchmark/v3`。`p95_ms`は判定値、`round_p95_ms`・`worst_round_p95_ms`・`pooled_p95_ms`（全sample結合）を参考値として残す。
+
+根拠:
+
+- 尾部はSQLite journal書込み待ちが支配的で、runnerのディスク・CPU負荷の集中に影響されやすい。従来の128 step単発p95は、同じ時間帯に7 step（5%超）が遅れるだけで僅差超過した（PR #732 ubuntu 150.66ms/150ms、PR #724・#717 Windowsは再実行で成功）。
+- 数秒規模の一時的な負荷集中は順に実行する一部のroundにしか入らないため、中央値で除外できる。一方、処理量の増加や毎回起きる尾部退行はすべてのroundを遅くするため、中央値でも検出される。
+- 最良round（最小値）判定は1 roundだけ速ければ合格して退行を見逃すため、自動再実行は失敗原因を隠すため、予算緩和やp90化は検出感度を下げるため採用しない。
+
+検出範囲と限界:
+
+- 検出する: 過半数のroundで測定stepの5%を超えて現れる遅延（全体の処理量増加、5%超の尾部退行）。`tests/test_noisy_provider_benchmark.py`が疑似時計と軽量Engineで、処理量2倍・全roundの10%尾部退行・5 round中3 roundの遅延が不合格、1 roundだけの4倍停止とPR #732相当の僅差超過が合格になることを決定論的に確認する。
+- 検出しない: 5%以下の頻度の尾部退行（従来の単一p95と同じ）。p99・最大値の予算は追加していない。
+- 測定期間全体でrunnerが遅い場合は退行と区別できず、従来どおり不合格になる。測定時間は約5倍（ローカルWindowsで約17秒→約96秒）。
+
 Level 1 / 2048 runner完成後は、同じNoisy Providerを実ゲームにも常設接続する。攻略scoreはGateにせず、crash、candidate grounding違反、Safety bypass、execution failure、回復不能stall等をhard failureとする。

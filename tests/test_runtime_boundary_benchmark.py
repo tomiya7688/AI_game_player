@@ -34,7 +34,9 @@ def _read_then_wait(connection):
 class RuntimeBoundaryBenchmarkTest(unittest.TestCase):
     def test_spawned_ipc_worker_roundtrip_succeeds_and_exits(self):
         before = {process.pid for process in multiprocessing.active_children()}
-        result = measure_ipc_roundtrip(3)
+        # 最初の往復はspawnしたinterpreterの起動を含むため、高負荷のfull suiteでも
+        # 往復の成功と終了だけを検証できるよう応答期限に余裕を持たせます（#811）。
+        result = measure_ipc_roundtrip(3, timeout_seconds=60.0)
         self.assertEqual(result["name"], "ipc_pipe_4k_roundtrip")
         self.assertEqual(result["samples"], 3)
         self.assertGreaterEqual(result["p95"], 0)
