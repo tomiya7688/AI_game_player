@@ -46,8 +46,8 @@
       "rule": "B110",
       "path": "src/ai_game_player/fail_safe_runtime.py",
       "match": "except Exception:",
-      "count": 6,
-      "reason": "fail-safe経路で、journal記録・release callback等の二次的な失敗が停止・復旧判定の戻り値を変えないよう、意図的に例外を無視しています。",
+      "count": 7,
+      "reason": "fail-safe経路で、journal記録・release callback・診断observer（#794）等の二次的な失敗が停止・復旧判定の戻り値を変えないよう、意図的に例外を無視しています。",
       "expires": "2027-05-31",
       "issue": "#114"
     },
