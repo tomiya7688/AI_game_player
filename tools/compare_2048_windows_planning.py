@@ -18,6 +18,7 @@ from ai_game_player.frame_analyzer import FrameAnalyzer
 from ai_game_player.game_2048_adapter import ReferenceGame2048Adapter
 from ai_game_player.ocr_recognizer import TesseractOcrRecognizer
 from ai_game_player.observation_freshness import ObservationFreshness
+from ai_game_player.planner_factory import wait_for_reference_2048_planner_ready
 from ai_game_player.planning_outcome import PlanningOutcome
 from ai_game_player.run_control import ExecutionCancelled
 from ai_game_player.screen_capture import ScreenFrame
@@ -33,6 +34,18 @@ from tools.run_2048_campaign import (
     CAMPAIGN_OBSERVATION_TIMEOUT_SECONDS,
     SCREEN_READY_TIMEOUT_SECONDS,
 )
+
+
+# Explicit startup budget for the planner worker round trip. It is separate from (and does
+# not consume) SCREEN_READY_TIMEOUT_SECONDS; the per-decision SearchBudget is never relaxed.
+PLANNER_READY_TIMEOUT_SECONDS = 30.0
+
+
+def planner_search_budget(episode):
+    """The product Provider's own budget, or None when the episode has no planner."""
+    provider = getattr(getattr(episode.pipeline, "engine", None), "provider", None)
+    budget = getattr(provider, "search_budget", None)
+    return budget if provider is not None and hasattr(provider, "planner") else None
 
 
 def failure_header_bbox(frame, label_bbox=None):
@@ -209,6 +222,17 @@ def run_episode(
             episode.source, "frame_preprocessing_profile", "unknown"
         )
         result["seed_fixture"] = episode.launcher.server.test_seed_metadata
+        phase = "planner_readiness"
+        budget = planner_search_budget(episode) if provider == "planner" else None
+        if budget is None:
+            result["planner_readiness"] = {"status": "not_applicable"}
+        else:
+            # Wait for the machine to settle (browser render, scanners, other jobs) with
+            # the same budget as the decisions; the gate never sends input.
+            result["planner_readiness"] = {"status": "pending"}
+            result["planner_readiness"] = wait_for_reference_2048_planner_ready(
+                budget, time.monotonic() + PLANNER_READY_TIMEOUT_SECONDS
+            )
         phase = "initial_observation"
         ready_deadline = time.monotonic() + SCREEN_READY_TIMEOUT_SECONDS
         state = episode.capture_preflight(
@@ -504,6 +528,9 @@ def run_episode(
         diagnostics = getattr(planning, "runtime_diagnostics", None)
         if callable(diagnostics):
             result["planning_runtime"] = diagnostics()
+        diagnostic = getattr(error, "diagnostic", None)
+        if phase == "planner_readiness" and isinstance(diagnostic, dict):
+            result["planner_readiness"] = diagnostic
         result["failure_stage"] = phase
         result["failure"] = {"type": type(error).__name__, "message": str(error)[:2000]}
     finally:
@@ -631,6 +658,7 @@ def comparison_summary(result):
         "hold_rate": result.get("hold_rate"),
         "all_attempts_held": result.get("all_attempts_held", False),
         "attempt_profile": result.get("attempt_profile"),
+        "planner_readiness": result.get("planner_readiness"),
         "attempt_records": result.get("attempt_records", [])[-60:],
         "latency_ms": result.get("latency_ms"),
         "resources": result.get("resources"),

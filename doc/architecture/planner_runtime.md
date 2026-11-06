@@ -52,6 +52,8 @@ Windows比較は既存language CIに独立jobとしてseed479/480/481を並列�
 
 再現CLI: `tools/compare_2048_planning.py` はpublic boardのheadless fixture、`tools/compare_2048_browser_planning.py --allow-live-input` は明示的なisolated Chromium実画面、`tools/compare_2048_windows_planning.py --allow-live-input --seed 479 --max-steps 12` は所有WindowのWGC/OS入力です。Chromiumには任意開発依存Pillow/Playwright、Windows比較にはOCRとpsutilが必要です。どの結果も試行ごとのreportへ固定し、live判定とfixture判定を混同しません。
 
+Windows比較のplanner episodeは、ゲーム起動直後・最初の観測前に`planner_readiness`ゲートを通ります（Issue #812、`ai_game_player.planning_readiness`）。実Pipelineと分離した使い捨てplannerへ固定の合成盤面を渡し、本番Providerと同じ`SearchBudget`のまま、cutoff前に深さ1以上のcheckpointを連続2回受領するまで最大30秒待ちます。budget・判定値は変えず、入力・Safety・Stop世代にも触れません。期限切れは`failure_stage=planner_readiness`・actions 0で失敗し、結果は`planner_readiness`に有界記録されます。ゲート通過後に負荷が再発した場合の自動回復はありません。[設計](../design/issue-812-invalid-frame-planner-readiness.md)
+
 5199f479の[Chromium短試走](../validation/planner_smoke_5199.json)ではPlanner12手、12unique receipt、12予測遷移一致、score52/max16、Stop後送信0、実Outcome12件すべてunknownを確認しました。sourceの開始/終了hashは同一です。これは旧direct-Pipeline JSON経路の短試走で、最終Journal比較とは別条件です。
 
 長枠準備で、直接Pipelineを構成したfixtureが旧trace全JSONを書き換える経路だったことを確認しました。[旧経路の診断](../validation/planner_legacy_diagnostic.json)だけを保存してheadless旧測定を中断し、3provider共通で明示EventJournalへ切り替えました。旧測定の未完結果を最終比較へ混ぜません。Journal/PipelineをTempdir削除前に閉じ、constructor/cleanup失敗を元エラーから分離して保存します。開始/終了にsrc/tools全Pythonのaggregatehashとhelperhashを記録し、途中にsourceが変化した測定は成功扱いにしません。
