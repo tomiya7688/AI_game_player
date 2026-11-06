@@ -1,3 +1,7 @@
+## 2026-11-07 Orphan Reconciliation（Issue #790）
+
+- `artifact_trash.py`の`ArtifactTrash`（intent record→rename→掃除→ack、使用量への残存byte加算）と、`orphan_reconciler.py`の`OrphanReconciler`（状態分類・dry-run・再検査付きapply・audit・`reclaim_budget`）を追加。`LocalRetentionFileSystem.remove_object`をtrash経由にし、`collect`・#789補償・`recover_pending`の削除途中停止でも半壊objectを残さない。`StoreUsage.trash_bytes`を追加。
+- 範囲外（残件）: runtimeへの配線とauditの永続化（#225）、corrupt objectの隔離。[契約](architecture/retention_core.md)、[設計](design/issue-790-orphan-reconciliation.md)。
 ## 2026-11-07 Windows長枠3 Provider比較の実装（Issue #795）
 
 - `tools/compare_2048_windows_long.py`（provider順の6順列巡回、600秒内のepisode反復、recovery 2回、780秒hard timeoutの子process回収、hardware・条件fingerprint照合）、`tools/windows_long_comparison_stats.py`（指標・Wilson区間・bootstrap・符号反転検定、コード定数の閾値）、`tools/aggregate_2048_windows_long.py`（期待manifestを母数にした比較表・対比・感度分析・終了コード0/1/2）を追加。`run_episode`へ任意の`deadline_monotonic`を追加（`None`なら従来の短比較と同じ）。

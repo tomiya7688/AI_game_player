@@ -5,7 +5,6 @@ from __future__ import annotations
 import functools
 import os
 import re
-import shutil
 import time
 from collections.abc import Callable, Iterable, Iterator
 from contextlib import contextmanager
@@ -13,6 +12,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol, TypeVar
 
+from ai_game_player.artifact_trash import (
+    KIND_OBJECT,
+    REASON_RETENTION_REMOVE,
+    ArtifactTrash,
+)
 from ai_game_player.artifact_store import (
     ArtifactIntegrityError,
     FileSystemArtifactStore,
@@ -121,11 +125,13 @@ class LocalRetentionFileSystem:
             staged.discard()
 
     # {
-    #   責務: [remove_object: object directoryを削除する]
-    #   処理: [削除直前にもsymlink・junctionでない実directoryかを再確認し、shutil.rmtreeで中身ごと削除する]
+    #   責務: [remove_object: object directoryをcrash安全に削除する]
+    #   処理: [削除直前にもsymlink・junctionでない実directoryかを再確認し、ArtifactTrashへ
+    #     intent→rename→rmtreeの順で移す（途中で停止してもshardに半壊objectを残さない。Issue #790）]
     #   引数: [path: 安全検査済みのobject directory]
     #   戻り値: [なし]
-    #   エラー: [RetentionSafetyError: 検査後にsymlink等へ差し替えられた, OSError: 削除失敗]
+    #   エラー: [RetentionSafetyError: 検査後にsymlink等へ差し替えられた, OSError: intent書込み・rename失敗
+    #     （元のobjectは不変）。rmtree失敗は例外にせず、次回のtrash sweepが再開する]
     #   補足: [検査と削除の間の差替えを完全には排除できない。管理rootは同じユーザーの信頼できるprocessだけが書く前提]
     # }
     def remove_object(self, path: Path) -> None:
@@ -133,7 +139,12 @@ class LocalRetentionFileSystem:
             raise RetentionSafetyError(
                 f"deletion target changed before removal: {path}"
             )
-        shutil.rmtree(path)
+        ArtifactTrash(path.parent.parent).discard(
+            path,
+            kind=KIND_OBJECT,
+            sha256=path.name,
+            reason=REASON_RETENTION_REMOVE,
+        )
 
 
 # {
@@ -269,7 +280,7 @@ class RetentionCollector:
                 return False
             if not os.path.lexists(self.store.object_path(digest)):
                 return False
-            self.file_system.remove_object(self._safe_object_path(digest))
+            self.file_system.remove_object(self.safe_object_path(digest))
             return True
 
     # {
@@ -411,7 +422,7 @@ class RetentionCollector:
         self, live_references: Iterable[ArtifactReference] = ()
     ) -> RetentionReport:
         plan = self.plan(live_references)
-        targets = [self._safe_object_path(digest) for digest in plan.deleted_artifacts]
+        targets = [self.safe_object_path(digest) for digest in plan.deleted_artifacts]
         if plan.removed_entries:
             self.file_system.write_index(
                 self.index_path, retention_index_document(plan.kept_entries)
@@ -453,21 +464,24 @@ class RetentionCollector:
                 f"artifact metadata is not usable: {error}"
             ) from error
         unindexed_bytes = sum(unindexed.values())
+        # trashに残る削除途中のbyteも使用量に含め、残存中にhard limitを超えないようにする（Issue #790）。
+        trash_bytes = ArtifactTrash(Path(self.store.root)).residual_bytes()
         return StoreUsage(
-            total_bytes=sum(indexed.values()) + unindexed_bytes,
+            total_bytes=sum(indexed.values()) + unindexed_bytes + trash_bytes,
             unindexed_bytes=unindexed_bytes,
             unindexed_digests=frozenset(unindexed),
+            trash_bytes=trash_bytes,
         )
 
     # {
-    #   責務: [_safe_object_path: 削除してよい正規のobject directoryだけを返す]
+    #   責務: [safe_object_path: 削除してよい正規のobject directoryだけを返す（Orphan Reconcilerも使うため公開）]
     #   処理: [Store配置からpathを得て、root・shard・objectのどれもsymlinkでなく、
     #     実体pathがroot直下の「先頭2文字/digest」であることを確認する]
     #   引数: [digest: 削除予定のdigest]
     #   戻り値: [Path: root内の検証済みobject directory]
     #   エラー: [RetentionSafetyError: root外・symlink・配置不一致・digest不正]
     # }
-    def _safe_object_path(self, digest: str) -> Path:
+    def safe_object_path(self, digest: str) -> Path:
         if not isinstance(digest, str) or not _SHA256.fullmatch(digest):
             raise RetentionSafetyError("deletion target is not a SHA-256 digest")
         root = Path(self.store.root)
@@ -511,14 +525,15 @@ class RetentionCollector:
 
 # {
 #   責務: [StoreUsage: Store使用量の内訳を計測結果として保持する（admissionも読むため公開）]
-#   フィールド: [total_bytes: 索引分と未索引分の合計byte, unindexed_bytes: 索引にないobjectのbyte,
-#     unindexed_digests: 索引にないobjectのdigest]
+#   フィールド: [total_bytes: 索引分・未索引分・trash残存分の合計byte, unindexed_bytes: 索引にないobjectのbyte,
+#     unindexed_digests: 索引にないobjectのdigest, trash_bytes: 削除途中でtrashに残るbyte]
 # }
 @dataclass(frozen=True)
 class StoreUsage:
     total_bytes: int
     unindexed_bytes: int
     unindexed_digests: frozenset[str]
+    trash_bytes: int = 0
 
 
 # {
