@@ -259,6 +259,8 @@
     {"site": "ai_game_player.applications.quality.data.report_processing:save_json_report", "data_class": "quality_report", "paths": []},
     {"site": "ai_game_player.admission_pending_store:PendingAdmissionStore", "data_class": null, "paths": [], "note": "中断したadmissionの回収用record。digest・entry_id・size・source_ref・pidだけを持ち、payloadは持たない。"},
     {"site": "ai_game_player.artifact_store:FileSystemArtifactStore", "data_class": null, "paths": ["payload", "metadata.json"], "note": "content-addressed store。classはartifact_typesで決まる。"},
+    {"site": "ai_game_player.artifact_trash:ArtifactTrash", "data_class": null, "paths": ["scan-cursor.json"], "note": "Artifact削除のintent record（.orphan-trash/）と回収の走査cursor。digest・種別・byte・分類名・時刻だけを持ち、payloadは持たない。"},
+    {"site": "ai_game_player.orphan_reconciler:OrphanReconciler", "data_class": null, "paths": [], "note": "orphan回収の走査cursorをtrash内へ書く。auditは戻り値で返し、payloadもpathも持たない。"},
     {"site": "ai_game_player.atomic_json:stage_json_write", "data_class": null, "paths": [], "note": "原子的JSON書込みの基盤。classは呼出側のwriterで決まる。"},
     {"site": "ai_game_player.atomic_json:write_json_array_atomically", "data_class": null, "paths": [], "note": "原子的JSON書込みの基盤。classは呼出側のwriterで決まる。"},
     {"site": "ai_game_player.bundle_self_check:run_bundle_self_check", "data_class": "crash_diagnostic", "paths": []},

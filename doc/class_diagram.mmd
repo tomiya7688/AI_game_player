@@ -221,6 +221,34 @@ classDiagram
         +_write_staged_file()
         +_fsync_directory()
     }
+    RetentionIndexError <|-- TrashIntentError
+    class TrashIntentError {
+    }
+    class TrashIntent {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
+    class TrashSweepReport {
+    }
+    class ArtifactTrash {
+        +__init__()
+        +exists()
+        +ensure()
+        +list_intents()
+        +residual_bytes()
+        +discard()
+        +sweep()
+        +audit_intents()
+        +acknowledge()
+        +_remove_entry()
+        +_finish()
+        +_entry_problem()
+        +_relative_source()
+        +_intent_path()
+        +_write_intent()
+        +_read_intent()
+    }
     class StagedJsonWrite {
         +publish()
         +discard()
@@ -1417,6 +1445,68 @@ classDiagram
         +optional()
         +recognize()
     }
+    class LiveReferenceSnapshot {
+    }
+    Protocol <|-- LiveReferenceSource
+    class LiveReferenceSource {
+        +snapshot()
+    }
+    class OrphanReconcilerConfig {
+        +__post_init__()
+    }
+    class OrphanCandidate {
+    }
+    class OrphanReconcilePlan {
+    }
+    class OrphanDeleteAudit {
+        +to_dict()
+    }
+    class OrphanReconcileReport {
+    }
+    class LiveReferences {
+    }
+    class BudgetReclaimReport {
+    }
+    class _Inspection {
+    }
+    class _Scan {
+    }
+    class OrphanReconciler {
+        +__init__()
+        +collect_live()
+        +plan()
+        +apply()
+        +reconcile()
+        +pending_audits()
+        +acknowledge()
+        +_trash()
+        +_now()
+        +_rate_limited()
+        +_empty_plan()
+        +_report()
+        +_read_scan()
+        +_list_keys()
+        +_classify()
+        +_decide()
+        +_grace_elapsed()
+        +_candidate()
+        +_corrupt()
+        +_inspect_object()
+        +_inspect_staging()
+        +_verify_payloads()
+        +_verify_one()
+        +_select_targets()
+        +_version()
+        +_read_cursor()
+        +_write_cursor()
+        +_apply_targets()
+        +_recheck()
+        +_discard()
+        +_data_class()
+        +_audits()
+    }
+    class _Applied {
+    }
     class OutcomeAssessment {
     }
     class OutcomeEvaluator {
@@ -1794,7 +1884,7 @@ classDiagram
         +set_protected()
         +collect()
         +_measure_usage()
-        +_safe_object_path()
+        +safe_object_path()
         +_now_ms()
     }
     class StoreUsage {

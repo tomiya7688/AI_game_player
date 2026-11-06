@@ -53,13 +53,13 @@ Protected記録はどの段階でも外しません。Protectedと外部参照�
 - 実行順は「計画 → 全削除先の安全検査 → 索引の原子的置換 → object削除」です。削除途中で停止しても、索引から外れたobjectがorphanとして残るだけで、索引や外部参照が存在しないobjectを指す状態は作りません。
 - 削除先は、Store配置（`root/先頭2文字/digest`）と実体pathが一致し、root・shard・object directoryのいずれもsymlinkでない場合だけ許可します。Windowsのdirectory junctionもsymlinkと同様に拒否します（Python 3.12以降は`os.path.isjunction`、3.10/3.11はreparse point属性で判定）。1件でも外れれば`RetentionSafetyError`で、索引を変更せず何も削除しません。`LocalRetentionFileSystem.remove_object`は削除直前にも同じ検査を繰り返しますが、検査と削除の間の差替え（TOCTOU）を完全には排除できないため、管理rootは同じユーザーの信頼できるprocessだけが書く前提です。
 - 索引にあるのにobjectやmetadataが欠落・破損している場合、計測段階で`RetentionIndexError`となり、GCは停止したままです。自動修復はせず、Reader/Recovery（#168）または手動確認で索引を直します。
-- 削除途中で停止して残ったorphanは、未索引objectとして容量に数え続けますが自動削除しません（orphan cleanupは残件）。
+- 削除は`.orphan-trash/`経由（intent→rename→rmtree、[Orphan Reconciliation](#orphan-reconciliationissue-790)）なので、途中で停止してもshardに半壊objectは残りません。crashで取り残された未索引object（orphan）は`OrphanReconciler`が回収します。trashに残るbyteも使用量（`StoreUsage.trash_bytes`）に含めます。
 - 同じrootへの`register`/`set_protected`/`collect`は、root直下の`.retention.lock`（OS advisory lock＋process内mutex、同一threadの再入可、`lock_timeout_seconds`で有界待ち）の中で実行されます（Issue #789）。`plan`/`can_admit`/`needs_collection`は助言用の読取でlockを取りません。`FileSystemArtifactStore.put`を直接呼ぶ書込みはlockの対象外です。
 
 ## 非対象と残り
 
 - near-duplicate、prioritized replay、clustering/prototype、value-aware compactionは #165。
-- orphanの自動削除（#790）は未実装です。Experience/Event Journalからの`live_references`収集と、どのSessionがいつ`collect`を呼ぶかは、Issue #788の[Runtime接続](#runtime-retention-adapterissue-788)で実装しました。
+- orphan回収のruntime配線（startup・session close・periodicからの呼出し、auditの永続化）は#225のPrivacy lifecycleで行います。Experience/Event Journalからの`live_references`収集と、どのSessionがいつ`collect`を呼ぶかは、Issue #788の[Runtime接続](#runtime-retention-adapterissue-788)で実装しました。
 
 ## Artifact Admission Transaction（Issue #789）
 
@@ -83,3 +83,14 @@ Protected記録はどの段階でも外しません。Protectedと外部参照�
 - **close**: `ManagedSessionRuntime.close()`がJournalを閉じる前に最終GCを1回行い、結果を`retention_close_result`へ残します。skipやpressureでもcloseは失敗しません。
 - **Trace**: GC結果はJournalに`retention.gc/v1`として記録します（GC回数・削除bytes・blocked refs・各latency・over-budget。digestとpathは含めません）。
 - **既知の制約**: GC 1回の計算量は索引全件（上限`max_entries`）を読む`plan`に依存します。走査量の分割は#164側の課題です。終了済みSessionのrootの掃除は後続Issueです。
+
+## Orphan Reconciliation（Issue #790）
+
+`orphan_reconciler.py`の`OrphanReconciler`が、索引にも参照にも無い未索引Artifact（crash由来のorphan）を状態分類し、安全なものだけを`artifact_trash.py`の`ArtifactTrash`経由で回収します。詳細は[設計](../design/issue-790-orphan-reconciliation.md)。
+
+- **状態**: `active_pending`（pending recordが参照）・`live_referenced`・`recent_unindexed`（grace未満・未来時刻）・`safe_orphan`・`corrupt_or_unknown`。`safe_orphan`だけを削除し、metadata破損・余分なfile・link・size/digest不一致・検証未実施は消さず診断として報告します。
+- **API**: `plan(trigger)`（dry-run。何も変更しない）→`apply(plan)`（再検査して削除）、`reconcile(trigger, dry_run=)`、`pending_audits()`/`acknowledge(ids)`、予算超過時の`reclaim_budget`（orphanの上乗せで正常な索引entryを消さないよう、先にorphanを回収し、回収できなければ`orphan_pressure`で`collect`しない）。
+- **安全**: live sourceの取得とpayloadのSHA-256検証はroot lock外、lock内は読取りと削除のみ（`max_lock_hold_ms`で有界）。`apply`は索引・pending・liveを取り直し、fingerprint（inode・size・mtime・ctime）とgraceを再確認し、計画外の対象は追加しません。不明（索引/pending/trash不正・live不完全・時計の巻き戻し）は削除0です。
+- **crash安全**: `ArtifactTrash.discard`は`pending` intent→`os.rename`→`renamed`（論理削除の完了点）→`rmtree`→`swept`の順で、各停止点から`sweep`が再開します。`LocalRetentionFileSystem.remove_object`もこの経路を使うので、`collect`・#789の補償・`recover_pending`の途中停止でもshardに半壊objectが残らず、`measure`を止めません。
+- **audit**: 削除ごとにintentから`OrphanDeleteAudit`（digest・artifact_type・data class・byte・理由・契機。pathとpayloadなし）を再生成でき、呼出元が永続化して`acknowledge`するまで残ります。
+- **配線は未実装**: startup/session close/periodicからの呼出しと`LiveReferenceSource`の実装（#788のLiveReferenceProviderをそのまま渡せる）は#225で行います。壊れた未索引objectは引き続き`measure`を止め、隔離（quarantine）は後続です。

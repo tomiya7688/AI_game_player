@@ -629,7 +629,9 @@ class ProductionDeletionTest(RetentionHarness):
             for path in SRC.rglob("*.py")
             if re.search(r"\.collect\(", path.read_text(encoding="utf-8"))
         )
-        self.assertEqual(["retention_adapter.py"], callers)
+        # orphan_reconciler.pyのreclaim_budgetは、complete=Trueのlive snapshotだけを渡してcollectする
+        # ライブラリAPI（Issue #790）。runtimeからの呼出しは後続Issueでadapter経由にする。
+        self.assertEqual(["orphan_reconciler.py", "retention_adapter.py"], callers)
 
     def test_t11_collect_always_receives_the_verified_live_references(self) -> None:
         recorded = self.persist(payload_of("a"), "entry.a")

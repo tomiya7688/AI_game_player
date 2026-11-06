@@ -134,6 +134,23 @@ admit・register・collect・recover・plan(手順2)・apply(手順2)は同じro
 
 不明は消さない: 索引/pending/trash intent/live不完全→全体削除0、候補個別の異常→その候補を残しdiagnostic、時刻が未来・時計の巻き戻し→保持、計画外は削除しない、所有者推定（「今回の失敗物」）で消さない（判定は状態だけ）、削除失敗で索引を書き換えない、trashがlinkなら何もしない、名前だけでtrash entryを消さない。
 
+## 実装で確定した点（設計との差分）
+
+実装中に次を確定し、上の本文より優先します。
+
+- `TrashIntent`に`acknowledged`を追加。`acknowledge`は、掃除前のintentは確認済みフラグだけ立て（掃除を妨げない）、`swept`済みなら削除します。`residual_bytes()`は「`swept`以外かつtrash entryが実在する」intentの`size_bytes`合計です（`pending`でも未renameなら元objectが未索引として数えられるので二重計上しません）。
+- trash sweepの内容検査（`payload`/`metadata.json`の通常fileだけ・sha256一致）は`safe_orphan`/`stale_staging`のintentに適用します。`retention_remove`は従来の`rmtree`と同じ安全性（実directoryであること）のみ要求します。
+- `OrphanCandidate`は`location`（`shard/名前`）と`kind`（`object`/`staging`）を持ちます。link・junctionのshardは`location=shard`の`corrupt_or_unknown`として列挙します。
+- 計画が`blocked_reason`付きなら`apply`は何も変更しません（sweep・recover_pendingも行わない）。`apply`時の停止（live不完全・巻き戻し・recover失敗）は、手順(1)(2)のsweepとrecover_pendingだけ実行した後に削除0で止まります。
+- `recover_pending`で記録が外れた`created_object=False`のobjectは、同じ`reconcile`の計画には`active_pending`として入っているため、**次回の`reconcile`**でgrace後に回収します。
+- `state_version`は索引・pending・live・設定と`targets`（位置+fingerprint）のhashです。`applied_version`は適用時に`plan.targets`を再検査した結果で同じ式から求めるので、対象が不変なら一致します。
+- live sourceは`complete`と`references`（tuple）を持つ値を返せばよく、#788の`LiveReferenceProvider`（`RetentionReferenceSnapshot`）をそのまま渡せます。
+- `reclaim_budget`は`RetentionCollector.collect`を呼ぶため、#788の不変条件テスト「本番コードで`.collect(`を呼ぶのはadapterだけ」の許可リストへ`orphan_reconciler.py`を追加しました。`complete=True`のsnapshotが得られない場合は`collect`しません。runtime配線（adapter経由でGCする）は後続です。
+- 走査cursorは`.orphan-trash/scan-cursor.json`（`{"schema_version":1,"last":"shard/名前"}`）です。壊れていれば先頭から走査します。
+
+- PRレビュー反映: live snapshotは別threadで期限付きに取得し（停止したsourceを待たない）、`reclaim_budget`は`reconcile`が止まったら`collect`せず、`collect`直前にlive集合を取り直す。`collect`は先頭で前回のtrash残りをsweepし、`plan()`はtrash残存byteを圧迫判定に含める。rename後のintent更新・後始末の失敗は論理削除済みとして扱い、audit（pendingでentry実在を含む）はintentから返す。stagingは削除前にshardがlink・junctionでないことを再確認する。
+- 残る制約（後続）: adapterのsnapshotの対象session・鮮度の検証と、`recover_pending`・全shard列挙のlock保持時間の分割は#225の配線時に扱う（現状は`max_lock_hold_ms`が効くのは削除ループ・sweepのみ）。
+
 ## 代替案と不採用理由
 
 - `discard_unindexed_object`/`remove_object`のrmtree直を残す: 途中停止で半壊objectが残りadmitを止め、再試行がidempotentでない。`remove_object`の中身をtrash経由に変え、全経路をcrash安全にする。
