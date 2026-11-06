@@ -7,7 +7,7 @@ import re
 import sqlite3
 import threading
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
@@ -23,6 +23,7 @@ EVENT_ENVELOPE_SCHEMA_VERSION = 1
 SQLITE_JOURNAL_SCHEMA_VERSION = 1
 SQLITE_JOURNAL_METADATA_ID = 1
 FIRST_EVENT_SEQUENCE = 1
+MAX_REFERENCE_BATCH_LIMIT = 100_000
 SQLITE_INTEGER_MAX = 9_223_372_036_854_775_807
 SQLITE_BUSY_TIMEOUT_MS = 5_000
 SQLITE_BUSY_TIMEOUT_SECONDS = SQLITE_BUSY_TIMEOUT_MS / 1_000
@@ -234,6 +235,18 @@ class EventEnvelope:
 
 
 # {
+#   責務: [JournalReferenceBatch: sequence順に読んだ範囲のArtifact参照だけを、読み終えた位置と一緒に返す]
+#   フィールド: [last_sequence: 参照の無いeventも含めて読んだ最後のsequence（1件も読まなければ要求したsequence）,
+#     refs: 範囲内のArtifact参照（sequence順・event内順）, exhausted: limit未満で読み終えたか（ちょうどlimit件なら、残りが無くてもFalse。次の呼出しの空読みで終端が分かる）]
+# }
+@dataclass(frozen=True)
+class JournalReferenceBatch:
+    last_sequence: int
+    refs: tuple[ArtifactReference, ...]
+    exhausted: bool
+
+
+# {
 #   責務: [EventJournal: 1 SessionのeventをSQLite WALへ連続番号付きで追記し、再open時に既存recordを検証する]
 #   フィールド: [_connection: Session databaseとのSQLite接続, _session_id/_next_sequence/_last_committed_sequence: 保存対象Session・次のevent番号・metadata上のcommit済み高水位値, _monotonic_epoch_id: instance内の経過時刻比較範囲, _database_schema_created: 初期化中に新規schemaをcommit済みか, _event_ids: 重複を拒否する既存event ID集合, _lock/_closed/_write_failed: 同一instanceの排他と利用可能状態]
 # }
@@ -266,6 +279,9 @@ class EventJournal:
         self._lock = threading.RLock()
         self._closed = False
         self._write_failed = False
+        self._reference_guard: (
+            Callable[[tuple[ArtifactReference, ...]], None] | None
+        ) = None
         self._event_ids: set[str] = set()
         self._monotonic_epoch_id = uuid4().hex
         self._database_schema_created = False
@@ -375,6 +391,10 @@ class EventJournal:
     ) -> EventEnvelope:
         with self._lock:
             self._ensure_writable()
+            guard = self._reference_guard
+            if guard is not None and artifact_refs:
+                # 参照付きappendだけをRetention側のgateで検査する（例外ならappendしない）
+                guard(tuple(artifact_refs))
             try:
                 if event_id is not None:
                     _require_nonempty_text(event_id, "event_id")
@@ -479,6 +499,75 @@ class EventJournal:
             raise EventJournalCorruptionError(
                 "saved event ID resolves to an invalid envelope"
             ) from error
+
+    # {
+    #   責務: [set_reference_guard: artifact参照付きappendの前に呼ぶ検査関数を設定または解除する]
+    #   処理: [guardはappendのlock内でartifact_refsが空でない時だけ呼ばれ、例外ならそのappendを拒否する。Noneで解除する]
+    #   引数: [guard: 参照tupleを受け取り、拒否するなら例外を送出する関数。Noneなら従来どおり]
+    #   戻り値: [なし]
+    #   補足: [guardはJournalのlock内で動くため、Journal lockより後に取るlockを取得してはならない]
+    # }
+    def set_reference_guard(
+        self, guard: Callable[[tuple[ArtifactReference, ...]], None] | None
+    ) -> None:
+        with self._lock:
+            self._reference_guard = guard
+
+    # {
+    #   責務: [artifact_refs_after: 指定sequenceより後のeventからArtifact参照だけを、有界件数でsequence順に返す]
+    #   処理: [lock内の1回のSELECTでlimit件までのenvelopeを読み、既存のEventEnvelope.from_dictで検証して参照だけを集める]
+    #   引数: [sequence: この値より大きいsequenceを読む（0以上）, limit: 読むevent数の上限（1〜100,000）]
+    #   戻り値: [JournalReferenceBatch: 読んだ最後のsequence・参照・読み切ったか]
+    #   エラー: [ValueError: sequence/limitが範囲外, EventJournalClosedError: close済み, EventJournalCorruptionError: 破損行]
+    # }
+    def artifact_refs_after(
+        self, sequence: int, *, limit: int
+    ) -> JournalReferenceBatch:
+        if type(sequence) is not int or sequence < 0:
+            raise ValueError("sequence must be a non-negative integer")
+        if type(limit) is not int or not 1 <= limit <= MAX_REFERENCE_BATCH_LIMIT:
+            raise ValueError(f"limit must be between 1 and {MAX_REFERENCE_BATCH_LIMIT}")
+        with self._lock:
+            connection = self._require_connection()
+            try:
+                rows = connection.execute(
+                    "SELECT sequence, envelope_json FROM events "
+                    "WHERE sequence > ? ORDER BY sequence LIMIT ?",
+                    (sequence, limit),
+                ).fetchall()
+            except sqlite3.Error as error:
+                raise EventJournalError(
+                    "event journal reference read failed"
+                ) from error
+        references: list[ArtifactReference] = []
+        last_sequence = sequence
+        for stored_sequence, encoded_event in rows:
+            try:
+                event = EventEnvelope.from_dict(
+                    _require_mapping(
+                        json.loads(encoded_event, parse_float=Decimal),
+                        "event envelope",
+                    )
+                )
+            except (
+                InvalidOperation,
+                json.JSONDecodeError,
+                RecursionError,
+                TypeError,
+                ValueError,
+            ) as error:
+                raise EventJournalCorruptionError(
+                    f"invalid event record after sequence {last_sequence}"
+                ) from error
+            if event.sequence != stored_sequence or stored_sequence <= last_sequence:
+                raise EventJournalCorruptionError(
+                    f"event sequence is inconsistent after {last_sequence}"
+                )
+            references.extend(event.artifact_refs)
+            last_sequence = stored_sequence
+        return JournalReferenceBatch(
+            last_sequence, tuple(references), len(rows) < limit
+        )
 
     # {
     #   責務: [flush: commit済みeventを含むWALをfull checkpointしてdatabase本体へ反映する]

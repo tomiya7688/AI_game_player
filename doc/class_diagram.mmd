@@ -688,12 +688,16 @@ classDiagram
         +to_dict()
         +from_dict()
     }
+    class JournalReferenceBatch {
+    }
     class EventJournal {
         +__init__()
         +session_id()
         +last_sequence()
         +append()
         +_read_event_by_id()
+        +set_reference_guard()
+        +artifact_refs_after()
         +flush()
         +close()
         +__enter__()
@@ -2042,6 +2046,99 @@ classDiagram
         +cleanup_expired()
         +_bounded_release()
     }
+    RuntimeError <|-- RetentionReferenceError
+    class RetentionReferenceError {
+    }
+    str <|-- RetentionTrigger
+    Enum <|-- RetentionTrigger
+    class RetentionTrigger {
+    }
+    class RetentionTriggerPolicy {
+        +__post_init__()
+    }
+    class RetentionReferenceSnapshot {
+        +__post_init__()
+    }
+    class SourceReading {
+    }
+    Protocol <|-- ReferenceSource
+    class ReferenceSource {
+        +read()
+    }
+    Protocol <|-- LiveReferenceProvider
+    class LiveReferenceProvider {
+        +snapshot()
+    }
+    class JournalReferenceSource {
+        +__init__()
+        +reference_count()
+        +read()
+    }
+    class ExperienceReferenceSource {
+        +__init__()
+        +mark_changed()
+        +read()
+    }
+    class PinToken {
+    }
+    class PinnedReferenceSource {
+        +__init__()
+        +version()
+        +pin()
+        +release()
+        +release_digest()
+        +digests()
+        +clear()
+    }
+    class CompositeReferenceProvider {
+        +__init__()
+        +note_recorded()
+        +snapshot()
+    }
+    class SkippedRetention {
+    }
+    class RuntimeRetentionReport {
+    }
+    class RetentionTraceEvent {
+        +to_payload()
+    }
+    class PersistedArtifact {
+    }
+    class RetentionStats {
+    }
+    class RetentionWorker {
+        +__init__()
+        +start()
+        +signal()
+        +stop()
+        +_loop()
+    }
+    class RuntimeRetentionAdapter {
+        +__init__()
+        +pressure()
+        +stats()
+        +reserve()
+        +release()
+        +persist()
+        +on_artifact_persisted()
+        +assert_recording()
+        +recording()
+        +request()
+        +deferred_delay_seconds()
+        +maybe_collect()
+        +close_session()
+        +count_worker_error()
+        +_count_skip()
+        +_is_due()
+        +_run()
+        +_count_skip_locked()
+        +_collect_once()
+        +_collect_locked()
+        +_with_pinned()
+        +_emit_trace()
+    }
+    class SessionRetentionConfig {
+    }
     class SessionRuntimeConfiguration {
     }
     class _PipelineResourceTrace {
@@ -2056,6 +2153,7 @@ classDiagram
         +load_execution_history()
         +complete_execution_observation()
         +assess_outcome()
+        +_close_retention()
         +close()
     }
     class RuntimeComposition {

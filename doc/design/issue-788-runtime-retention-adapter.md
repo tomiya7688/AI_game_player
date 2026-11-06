@@ -135,7 +135,7 @@ soft budget crossing は hot path で計測しない。adapter は「直近 GC �
 
 ### RetentionTraceEvent（Journal へ記録）
 
-`event_type="retention.gc/v1"`、`payload`: `trigger`、`outcome`（`collected`/`pressure`/`skipped`）、`skip_reason`、`gc_count`（累積）、`removed_entries`、`deleted_artifacts`、`removed_bytes`（`bytes_before - bytes_after`）、`bytes_after`、`blocked_refs`（`blocked_entries` のうち deferral 由来を除いた数）、`deferred_artifacts`、`over_budget`、`over_hard_limit`、`snapshot_generation`、`source_positions`、`lock_wait_ms`、`snapshot_ms`、`collect_ms`、`total_ms`、`gate_wait_ms`。digest 一覧・path は載せない。`artifact_refs` は空。Trace の記録は gate と root lock を解放した後に行い、記録失敗は `stats.trace_errors` に数えるだけで GC 結果を変えない。
+`event_type="retention.gc/v1"`、`payload`: `trigger`、`outcome`（`collected`/`pressure`/`skipped`）、`skip_reason`、`gc_count`（累積）、`removed_entries`、`deleted_artifacts`、`removed_bytes`（`bytes_before - bytes_after`）、`bytes_after`、`blocked_refs`（`blocked_entries` のうち deferral 由来を除いた数）、`deferred_artifacts`、`over_budget`、`over_hard_limit`、`snapshot_generation`、`source_positions`、`lock_wait_ms`、`snapshot_ms`、`collect_ms`、`total_ms`、`gate_wait_ms`。digest 一覧・path は載せない。`artifact_refs` は空。Trace の記録は gate と root lock を解放した後に行い、記録失敗は `stats.trace_errors` に数えるだけで GC 結果を変えない。削除判断に進まなかった skip（`not_due`/`coalesced`/`already_running`/`closed`/`store_absent`）は Journal に記録せず `stats.skipped` にだけ数える（毎 frame の呼出しで Journal を膨らませず、保存の無い Session の Journal を変えないため）。
 
 ## 手順
 
@@ -150,17 +150,17 @@ soft budget crossing は hot path で計測しない。adapter は「直近 GC �
 - root は `<game_directory>/session_artifacts/<session_id>/`。Session ごとに分ける。理由: 他 Session の Journal はこの adapter の snapshot に入らないため、root を共有すると他 Session の参照中 Artifact を消し得る。dedup は Session 内に限られる（容量増は許容し、範囲外の後続で扱う）。
 - root は最初の `persist()` で #789 の lock が作る。GC 時に root が無ければ `store_absent` で skip。
 - `SessionRetentionConfig(enabled=True, policy=RetentionPolicy(soft_budget_bytes=1 GiB, hard_limit_bytes=2 GiB), trigger=RetentionTriggerPolicy(), experience_paths=())`。`enabled=False` なら adapter を作らず、どの経路も `collect` を呼ばない。
-- 生成順序（`create_session_runtime` 内、`EventJournal` 生成の直後・pipeline factory の前）: `FileSystemArtifactStore(root)` 相当の参照 → `RetentionCollector` → `ArtifactAdmissionCoordinator` → provider → adapter → `journal.set_reference_guard`。どれもディスクへ書かない（root は作らない）。policy 不正などの構成エラーは Session 開始を失敗させ、既存の初期化失敗時の後始末（pipeline・Journal・provider の close）に合流する。pipeline factory への `retention_adapter` は受け付ける factory だけに渡す（既存 `_accepted_pipeline_arguments`）。背景 worker は `_managed_session` が `ManagedSessionRuntime` を返す直前に開始する。
+- 生成順序（`create_session_runtime` 内、`EventJournal` 生成の直後・pipeline factory の前）: `FileSystemArtifactStore(root)` 相当の参照 → `RetentionCollector` → `ArtifactAdmissionCoordinator` → provider → adapter → `journal.set_reference_guard`。どれもディスクへ書かない（root は作らない）。policy 不正などの構成エラーは Session 開始を失敗させ、既存の初期化失敗時の後始末（pipeline・Journal・provider の close）に合流する。pipeline factory への `retention_adapter` は受け付ける factory だけに渡す（既存 `_accepted_pipeline_arguments`）。背景 worker は、Artifact を一度も保存しない Session に idle thread を残さないよう、最初の `persist()`/`request()` で開始する（実装時に変更。生成は adapter の初期化時、開始は遅延）。`close_session()` が停止・join する。
 
 ### GC 1回の流れ（`maybe_collect`）
 
-1. `closed` なら `closed`。`_run_lock` を非 blocking で取り、取れなければ `already_running`（coalesce）。
+1. `closed`（open でない）なら `closed`。`_run_lock` を非 blocking で取り、取れなければ `already_running`（coalesce）。
 2. trigger 判定: `session_close`/`maintenance` は `min_interval_ms`・条件判定を**無条件に迂回**して実行する（直前の GC 直後でも実行）。それ以外は `min_interval_ms` 未満なら `coalesced`、条件（件数・推定使用量・周期）を満たさなければ `not_due`。
 3. **gate** を取る（process 内 `threading.Lock`。`recording()` と共有。待ち時間を `gate_wait_ms`）。
 4. root lock を取る: `coordination_lock()` は期限がコンストラクタ固定のため、外側は `retention_root_lock(Path(store.root), timeout_seconds=<trigger 種別の期限>)` で直接取る（同じ root key の lock なので、続く `collect` の `@_serialized` は同一threadの再入として深さを増やすだけ）。root が無ければ lock を取る前に `store_absent`（lock は root を作るため、先に存在を確認する）。期限切れは `lock_timeout`。
-5. `provider.snapshot()`。例外→`snapshot_failed`、`complete=False`→`snapshot_incomplete`、`session_id` 不一致→`session_mismatch`、`clock() - created_at_ms > snapshot_max_age_ms` または `generation < last_seen_generation`→`snapshot_stale`。collect の直前に source の増分読取をもう1回行い（gate 保持中なので通常は0件）、参照付き event が増えていれば `generation_mismatch`。いずれも削除しない。
+5. `provider.snapshot()`（`CompositeReferenceProvider` は source の例外をそのまま伝え、adapter が `snapshot_failed` にする）。例外→`snapshot_failed`、`complete=False`→`snapshot_incomplete`、`session_id` 不一致→`session_mismatch`、`clock() - created_at_ms > snapshot_max_age_ms` または `generation < last_seen_generation`→`snapshot_stale`。collect の直前に source の増分読取をもう1回行い（gate 保持中なので通常は0件）、参照付き event が増えていれば `generation_mismatch`。いずれも削除しない。
 6. live = snapshot の参照 ∪ その時点の pin（`_state_lock` 内で写す）。gate を持っていても `persist()` の pin は増え得るが、その digest の admit は root lock を待つため、GC が古い object を消した後に admit が新しく作り直す（参照切れにならない）。このため pin は generation に含めない。
-7. 作業上限: `collector.plan(live)` を求め、`deleted_artifacts` が上限以下ならそのまま。超えるなら `deleted_artifacts` の先頭（計画の決定的順序）から上限件を「今回分」とし、索引上の他の全 digest を live に加えた（= 今回分以外は削除不可にした。`ArtifactReference` は `store.read_metadata(d).to_reference()` で作る）上で次へ進む。live を増やすことは削除を減らす方向にしか働かないので安全。この絞った live で手順8の `collect` が計画を作り直し、索引置換→object削除の既存の原子的順序で適用する（索引と削除対象は常に同じ計画から作られ、「索引から外したのに消さない」「消したのに索引に残る」は起きない）。加えた件数を `deferred_artifacts` とし、0 でなければ次回を `persist_count` 相当として即 `request()` する。
+7. 作業上限: `collector.plan(live)` を求め、`deleted_artifacts` が上限以下ならそのまま。超えるなら `deleted_artifacts` の先頭（計画の決定的順序）から上限件を「今回分」とし、索引上の他の全 digest を live に加えた（= 今回分以外は削除不可にした）上で次へ進む。追加する参照は、Collector が `sha256` しか使わないため、`store.read_metadata` を索引全件に対して読まず、digest だけが意味を持つ固定の参照（`retention.deferred`、`application/octet-stream`）にした（実装時に変更。メタデータ読取の O(N) 増加を避ける）。live を増やすことは削除を減らす方向にしか働かないので安全。この絞った live で手順8の `collect` が計画を作り直し、索引置換→object削除の既存の原子的順序で適用する（索引と削除対象は常に同じ計画から作られ、「索引から外したのに消さない」「消したのに索引に残る」は起きない）。加えた件数を `deferred_artifacts` とし、0 でなければ次回を `persist_count` 相当として即 `request()` する。
 8. `collector.collect(live)`（同じ root lock 内の再入）。`RetentionIndexError`→`index_error`、`RetentionSafetyError`→`safety_error`（Collector の契約で索引・object は不変、または途中停止でも orphan のみ）。
 9. 結果から `pressure` を決め、計数をリセット（推定使用量 = `bytes_after`）。
 10. root lock・gate を解放し、Trace を記録。
@@ -227,7 +227,7 @@ CLOSED: maybe_collect/request は `closed`、persist は RuntimeError、release 
 | T6 | over-budget だが全て Protected/live | 削除0、`pressure="over_budget"`/`over_hard_limit`、Trace `outcome=pressure` |
 | T7 | trigger coalescing で per-frame GC しない | 1,000回の `request()`/`maybe_collect(persist_count)` を短時間に呼び、`min_interval_ms` 内の GC は1回、他は `coalesced`/`not_due`。`request()` が blocking しない（疑似 clock） |
 | T8 | integration path で RetentionCollector が実際に呼ばれる | `tests/test_runtime_retention_integration.py`: `create_session_runtime` → `persist`＋Journal 記録 → close で Collector の `collect` が検証済み live 付きで呼ばれ、Journal に `retention.gc/v1` が残る |
-| T9 | 作業上限 | 削除候補 300件で1回目は 256件、`deferred_artifacts=44`、次回で残りが消える。上限で残した digest は `blocked_refs` に入らない |
+| T9 | 作業上限 | 削除候補が上限を超える時、1回目は上限件数だけ消し、`deferred_artifacts` に残りを数え、次回で残りが消える。上限で残した digest は `blocked_refs` に入らない（試験は Collector の計画が索引全件の metadata を読むため 30件・上限25件・見送り5件に縮小。分岐は 300件/256件/44件と同じ） |
 | T10 | Journal 増分読出し | `artifact_refs_after` の順序・limit・破損行・closed。adapter の source が2回目以降は増分だけを読む（読出し件数を計測） |
 | T11 | production deletion は snapshot 必須 | adapter 以外の本番コードに `.collect(` が無いことの検査、adapter が `live_references` 省略で呼ばないこと |
 | T12 | Trace の項目 | GC 回数・removed bytes・blocked refs・各 latency・over-budget が payload にあり、digest・path が無い。Trace 記録失敗で GC 結果が変わらない |
@@ -260,7 +260,19 @@ CLOSED: maybe_collect/request は `closed`、persist は RuntimeError、release 
 2. **Store root は Session 単位**: 他 Session の参照を snapshot に含められないため。終了済み Session の root の掃除は後続Issue（本PRで起票しない。実装PRで起票する）。
 3. **既定は有効**: Session root にはこの adapter 経由の保存しか入らないため、既定有効でも他データを消さない。policy の既定値は Experience 用途の保守値（soft 1GiB/hard 2GiB、TTL なし）で、data inventory の型別 TTL（#224 `ttl_ms_by_artifact_type()`）を `ttl_ms_by_type` へ渡す。
 4. **Experience source は設定時のみ**: 本番 Session に Experience writer が無いため。producer 追加時に `experience_paths` を設定する。
-5. **trigger 既定値**: 5秒・64件・5分・256件は、#164 の索引上限（10万件）と Windows の rmtree 1件数 ms 程度から、1回の GC を概ね1秒以内に収める値として決めた。実測は実装時に Trace で確認し設計書へ記録する。
+5. **trigger 既定値と実測**: 5秒・64件・5分・256件は、#164 の索引上限（10万件）と Windows の rmtree 1件数 ms 程度から決めた。実装時の実測（このPC、Windows、ローカルdisk）では `RetentionCollector.plan` が 300 entries で約 6.3 秒（1 entry あたり約 21ms、metadata 読取と未索引走査が支配）で、GC 1回は `plan` を2回（上限判定用と `collect` 内）行うため、その約2倍かかる。設計時の「1回の GC を概ね1秒以内」は索引が約 20 件程度までの目安であり、大きい索引では背景 worker の1回が数十秒になり得る。hot path（`request`）は待たないが、`recording()`/`persist()` は GC 実行中の root lock/gate を `timeout` まで待つ。対策（計画の増分化・metadata の cache）は #164 側の課題として後続 Issue に分ける。上限判定のための事前 `plan` を省く最適化（`collect` へ計画を渡す）は Collector の契約変更になるため本 Issue では行わない。
+
+## 実装時の確定事項（2026-11-07）
+
+- **変更点**: 背景 worker の開始を最初の保存/要求まで遅らせた、作業上限の補助 live を固定の参照にした、`CompositeReferenceProvider` は source の例外を伝える、判定に進まなかった skip は Journal へ記録しない。いずれも上記本文へ反映した。
+- **Journal 読取の分離**: `artifact_refs_after` は SELECT だけを Journal の lock 内で行い、行の検証（`EventEnvelope.from_dict`）は lock の外で行う（lock 保持時間を短くするため。読み出した行は不変）。
+- **`on_artifact_persisted(protected=True)`**: admit が既に `request.protected` で登録しているため、`persist()` は `protected=False` で呼ぶ。外部 producer が後から Protected にしたい時だけ `protected=True` を渡し、`set_protected` を呼ぶ。
+- **pin の参照解決**: pin 中でも object がまだ無い digest（admit 前）は、削除対象になり得ないため live への追加を飛ばす。
+- **見送り分の再実行**: 見送りがあると `deferred_artifacts` を数え、次回を `persist_count` 相当として `request()` する。要求は最短間隔（`min_interval_ms`）を迂回しない。間隔内で `coalesced` になった場合に取りこぼさないよう、背景 worker は見送りが残る間、最短間隔の残り時間で起き直して再実行する（`deferred_delay_seconds`）。見送りが無くなれば通常の周期に戻る。連続実行は最短間隔で頻度が抑えられ、残りが無くなれば止まる。
+- **`exhausted` の意味**: `artifact_refs_after` はちょうど `limit` 件を読んだ時は残りが無くても `exhausted=False` になり、次の呼出しの空読みで終端が分かる（追加の SELECT を1回増やさないため）。source は `journal_catchup_pending` として次回に回すだけで、削除はしない。
+- **guard の入力**: guard は Envelope の検証前に呼ばれるため、`assert_recording` は参照の型と digest だけを副作用なしで検査する（ArtifactReference でない値は拒否）。
+- **close と worker**: worker の停止が期限内に終わらなくても、最終 GC は run lock（worker の GC が持つ）を期限付きで取るため同時には走らない。取れなければ `already_running` で見送り、`last_close_result` に残す。
+- **実測**: 上記「未決事項」5。
 
 ## 設計レビュー（packet-01 SHA256 5C4DE971…、packet-02 SHA256 8B134C53…）
 
