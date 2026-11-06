@@ -159,9 +159,7 @@ class AdmissionTestCase(unittest.TestCase):
         file_system=None,
         policy=None,
         records=None,
-        # 並行テストは排他と容量上限を検証する。待ち時間が負荷で尽きると別の失敗になるため長く取る。
-        # タイムアウト自体の挙動は LockTimeoutAndTraceTest が短い値を明示して検証する。
-        lock_timeout_seconds: float = 60.0,
+        lock_timeout_seconds: float = 5.0,
         trace=True,
     ) -> ArtifactAdmissionCoordinator:
         collector = RetentionCollector(
@@ -302,6 +300,12 @@ class HardLimitTest(AdmissionTestCase):
 
 
 class ConcurrencyTest(AdmissionTestCase):
+    def make_coordinator(self, **kwargs) -> ArtifactAdmissionCoordinator:
+        # 並行テストは排他と容量上限を検証する。待ち時間が負荷で尽きると別の失敗になるため長く取る。
+        # タイムアウト自体の挙動は LockTimeoutAndTraceTest が短い値を明示して検証する。
+        kwargs.setdefault("lock_timeout_seconds", 60.0)
+        return super().make_coordinator(**kwargs)
+
     def run_in_threads(self, jobs):
         barrier = threading.Barrier(len(jobs))
         results: list = [None] * len(jobs)
