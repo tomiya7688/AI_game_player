@@ -131,6 +131,7 @@ class WorkflowRunGateTests(unittest.TestCase):
         measurement_only = {
             ".github/workflows/windows-long-comparison.yml",
             ".github/workflows/resource-stability-ci.yml",
+            ".github/workflows/resource-stability-deep.yml",
         }
         self.assertTrue(measurement_only <= actual)
         self.assertEqual(actual - measurement_only, REQUIRED_WORKFLOW_PATHS)

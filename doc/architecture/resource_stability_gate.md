@@ -45,7 +45,8 @@ flowchart LR
 
 ## CI
 
-- `.github/workflows/resource-stability-ci.yml`: fast gateを`ubuntu-latest`/`windows-latest`で常時、deepは週次とdispatch。
+- `.github/workflows/resource-stability-ci.yml`: fast gateを`ubuntu-latest`/`windows-latest`で常時。
+- `.github/workflows/resource-stability-deep.yml`: deepは週次とdispatchのみ。PR・pushのcheck一覧にskippedとして現れ、マージgateを止めないよう別workflowに分けた。
 - `language-ci.yml`の`windows-e2e`: 600秒campaignを`--layer integration`で包み、`build/resource-stability`をartifact保存。最初は`enforcement.integration: observe`。
 - required checksの集合は変えません。候補job名は`Resource stability fast gate (ubuntu-latest)`・`Resource stability fast gate (windows-latest)`で、追加はownerの判断です。
 
