@@ -38,6 +38,7 @@ DEFAULT_PROFILE = REPO_ROOT / "config" / "resource_stability_profile.json"
 DEFAULT_OUTPUT = REPO_ROOT / "build" / "resource-stability" / "report.json"
 DEFAULT_SAMPLES = REPO_ROOT / "build" / "resource-stability" / "samples.jsonl"
 EXIT_OK, EXIT_FAIL, EXIT_INVALID = 0, 1, 2
+TEMP_SCAN_EVERY = 5
 
 
 # {
@@ -304,6 +305,9 @@ def observe_command(
     started = time.monotonic()
     proc = subprocess.Popen(list(command), env=env)  # nosemgrep
     tree = resource_probes.ProcessTreeGauges(proc.pid)
+    # 観測側は観測対象より低い優先度で動かす(対象はPopen時に既に通常優先度で起動済み)
+    resource_probes.lower_current_priority()
+    last_temp = temp_gauge.read()
     step = 0
     warmup = float(cfg["warmup_seconds"])
     timed_out = False
@@ -314,10 +318,13 @@ def observe_command(
             _terminate_tree(proc, tree)
             break
         step += 1
+        # temp rootの走査はIOを伴うため TEMP_SCAN_EVERY 標本に1回だけ行い、間は直近の走査値を使う
+        if step % TEMP_SCAN_EVERY == 1:
+            last_temp = temp_gauge.read()
         emit(
             "warmup" if elapsed < warmup else "steady",
             step,
-            {**tree.read(), **temp_gauge.read()},
+            {**tree.read(), **last_temp},
         )
         time.sleep(interval)
     exit_code = proc.wait()

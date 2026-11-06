@@ -28,6 +28,23 @@ PROCESS_METRICS = (
 
 
 # {
+#   責務: [lower_current_priority: 観測側processの優先度を下げ, 観測対象へ負荷を掛けない]
+#   処理: [Windowsは BELOW_NORMAL_PRIORITY_CLASS, POSIXは nice を上げる。失敗しても観測は続ける]
+#   引数: []
+#   戻り値: []
+#   副作用: [自processの優先度を下げる(子processへ継承されるため, 観測対象の起動後に呼ぶ)]
+# }
+def lower_current_priority() -> None:
+    try:
+        if IS_WINDOWS:
+            _kernel32.SetPriorityClass(_kernel32.GetCurrentProcess(), 0x4000)
+        elif hasattr(os, "nice"):
+            os.nice(5)
+    except OSError:
+        pass
+
+
+# {
 #   責務: [Support: metricがrun単位で測れるか(measured)と測れない理由(unsupported_reason)]
 #   フィールド: [status: measured/unsupported, reason: 固定語彙の理由]
 # }
@@ -94,6 +111,7 @@ if IS_WINDOWS:
     _kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
     _kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
     _kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+    _kernel32.SetPriorityClass.argtypes = [wintypes.HANDLE, wintypes.DWORD]
     _kernel32.GetExitCodeProcess.argtypes = [
         wintypes.HANDLE,
         ctypes.POINTER(wintypes.DWORD),

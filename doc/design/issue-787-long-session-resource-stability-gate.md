@@ -176,6 +176,7 @@ list-scenarios
 ```
 
 - 実装での追加引数: `--profile-file`（別profile。hard limitは常にコードで検査）、`--timeout-seconds`（integrationで自分が起動した木だけ打切る）。fast層は全scenarioを実行し、`--output`/`--samples`は先頭scenario（既定`clean`）のreport・samples、全scenarioは`<outputの親>/scenarios/<name>.report.json`・`.samples.jsonl`、集約は`suite.json`（各scenarioの期待と結果、canary未検出は`code: canary_not_detected`）に保存する。
+- 観測側の負荷軽減（CI実測で`windows-e2e`のcampaignにlease期限切れが出たため追加）: observerは観測対象の起動後に自分の優先度を下げ、temp rootの走査（IOを伴う）は5標本に1回だけ行い間は直近値を使う。
 - 終了コード（上から優先）: **2**=引数・profile・入力の不正（層×profileの不正組合せ、header欠落・未知schema、語彙外ID）→ **1**=観測対象commandが非0、canaryが検出されない、またはprofileの`enforcement.<layer>`が`enforce`でverdictがfail → **0**=pass、または`enforcement.<layer>`が`observe`でverdictがfail（`gate_effective=false`、reportに`fail`と`reasons`を残し、GitHub Actionsでは`::warning`で失敗理由を出す）。**CLIに`--mode`は無い**ため、profileを`enforce`へ切り替えれば同じcommandのまま強制になる（commandとprofileの食い違いが起きない）。fast層とcanaryはprofile上`enforce`固定で、`observe`への変更は`profile_invalid`。
 - `COMMAND`の終了コードは`scenario_error`の根拠として記録し、Gateの終了コードに潰さず別fieldに残す。runnerは観測対象を自分で起動した場合だけ、timeout時にその木を終了する（他processは触らない）。
 
