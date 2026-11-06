@@ -197111,6 +197111,19 @@
           "level": 0,
           "line": 6,
           "local_dependencies": [],
+          "module": "importlib.util",
+          "names": [
+            {
+              "alias": null,
+              "name": "importlib.util"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
           "module": "io",
           "names": [
             {
@@ -197122,7 +197135,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "json",
           "names": [
@@ -197135,7 +197148,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "os",
           "names": [
@@ -197148,7 +197161,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "re",
           "names": [
@@ -197161,7 +197174,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "sys",
           "names": [
@@ -197174,7 +197187,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [],
           "module": "tempfile",
           "names": [
@@ -197187,7 +197200,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [],
           "module": "textwrap",
           "names": [
@@ -197200,7 +197213,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -197213,7 +197226,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -197226,7 +197239,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -197239,26 +197252,13 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
               "alias": null,
               "name": "mock"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 18,
-          "local_dependencies": [],
-          "module": "jsonschema",
-          "names": [
-            {
-              "alias": null,
-              "name": "jsonschema"
             }
           ]
         },
@@ -197310,15 +197310,70 @@
               "name": "run_resource_stability"
             }
           ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 41,
+          "local_dependencies": [],
+          "module": "jsonschema",
+          "names": [
+            {
+              "alias": null,
+              "name": "jsonschema"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 271,
+          "local_dependencies": [],
+          "module": "jsonschema",
+          "names": [
+            {
+              "alias": null,
+              "name": "jsonschema"
+            }
+          ]
         }
       ],
       "module": "tests.test_resource_stability_cli",
       "path": "tests/test_resource_stability_cli.py",
       "source_location": {
-        "end_line": 477,
+        "end_line": 501,
         "start_line": 1
       },
       "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "validate_schema",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "instance"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "schema"
+            }
+          ],
+          "qualified_name": "validate_schema",
+          "return_annotation": "None",
+          "signature": "(instance: Any, schema: dict[str, Any]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 43,
+            "start_line": 38
+          }
+        },
         {
           "bases": [],
           "data_model": null,
@@ -197338,8 +197393,8 @@
           "signature": "(*argv: str) -> tuple[int, str]",
           "source_location": {
             "column": 0,
-            "end_line": 41,
-            "start_line": 37
+            "end_line": 50,
+            "start_line": 46
           }
         },
         {
@@ -197360,8 +197415,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 256,
-            "start_line": 44
+            "end_line": 265,
+            "start_line": 53
           }
         },
         {
@@ -197385,8 +197440,8 @@
           "signature": "(cls) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 50,
-            "start_line": 46
+            "end_line": 59,
+            "start_line": 55
           }
         },
         {
@@ -197410,8 +197465,8 @@
           "signature": "(cls) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 53
+            "end_line": 63,
+            "start_line": 62
           }
         },
         {
@@ -197451,8 +197506,8 @@
           "signature": "(self, name: str, behavior: sc.Behavior | None = …, seed: int = …) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 68,
-            "start_line": 56
+            "end_line": 77,
+            "start_line": 65
           }
         },
         {
@@ -197474,8 +197529,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 75,
-            "start_line": 70
+            "end_line": 84,
+            "start_line": 79
           }
         },
         {
@@ -197497,8 +197552,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 86,
-            "start_line": 77
+            "end_line": 95,
+            "start_line": 86
           }
         },
         {
@@ -197520,8 +197575,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 97,
-            "start_line": 88
+            "end_line": 106,
+            "start_line": 97
           }
         },
         {
@@ -197543,8 +197598,8 @@
           "signature": "(report: dict[str, Any]) -> dict[str, Any]",
           "source_location": {
             "column": 8,
-            "end_line": 94,
-            "start_line": 89
+            "end_line": 103,
+            "start_line": 98
           }
         },
         {
@@ -197566,8 +197621,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 109,
-            "start_line": 99
+            "end_line": 118,
+            "start_line": 108
           }
         },
         {
@@ -197589,8 +197644,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 111
+            "end_line": 130,
+            "start_line": 120
           }
         },
         {
@@ -197612,8 +197667,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 133,
-            "start_line": 123
+            "end_line": 142,
+            "start_line": 132
           }
         },
         {
@@ -197635,8 +197690,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 158,
-            "start_line": 135
+            "end_line": 167,
+            "start_line": 144
           }
         },
         {
@@ -197658,8 +197713,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 160
+            "end_line": 191,
+            "start_line": 169
           }
         },
         {
@@ -197681,8 +197736,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 206,
-            "start_line": 184
+            "end_line": 215,
+            "start_line": 193
           }
         },
         {
@@ -197704,8 +197759,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 236,
-            "start_line": 208
+            "end_line": 245,
+            "start_line": 217
           }
         },
         {
@@ -197727,8 +197782,55 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 256,
-            "start_line": 238
+            "end_line": 265,
+            "start_line": 247
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "unittest.skipUnless(HAS_JSONSCHEMA, REDACTED)"
+          ],
+          "kind": "class",
+          "name": "SchemaTest",
+          "parameters": [],
+          "qualified_name": "SchemaTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 280,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_schemas_are_valid_and_reject_broken_documents",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SchemaTest.test_schemas_are_valid_and_reject_broken_documents",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 280,
+            "start_line": 270
           }
         },
         {
@@ -197749,8 +197851,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 391,
-            "start_line": 259
+            "end_line": 415,
+            "start_line": 283
           }
         },
         {
@@ -197772,8 +197874,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 296,
-            "start_line": 260
+            "end_line": 320,
+            "start_line": 284
           }
         },
         {
@@ -197795,8 +197897,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 312,
-            "start_line": 298
+            "end_line": 336,
+            "start_line": 322
           }
         },
         {
@@ -197818,8 +197920,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 318,
-            "start_line": 314
+            "end_line": 342,
+            "start_line": 338
           }
         },
         {
@@ -197841,8 +197943,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 343,
-            "start_line": 320
+            "end_line": 367,
+            "start_line": 344
           }
         },
         {
@@ -197864,8 +197966,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 376,
-            "start_line": 345
+            "end_line": 400,
+            "start_line": 369
           }
         },
         {
@@ -197893,8 +197995,8 @@
           "signature": "(*args: Any, **kwargs: Any) -> dict[str, Any]",
           "source_location": {
             "column": 8,
-            "end_line": 351,
-            "start_line": 349
+            "end_line": 375,
+            "start_line": 373
           }
         },
         {
@@ -197916,8 +198018,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 391,
-            "start_line": 378
+            "end_line": 415,
+            "start_line": 402
           }
         },
         {
@@ -197940,8 +198042,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 473,
-            "start_line": 397
+            "end_line": 497,
+            "start_line": 421
           }
         },
         {
@@ -197965,8 +198067,8 @@
           "signature": "(cls) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 406,
-            "start_line": 399
+            "end_line": 430,
+            "start_line": 423
           }
         },
         {
@@ -197990,8 +198092,8 @@
           "signature": "(cls) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 410,
-            "start_line": 409
+            "end_line": 434,
+            "start_line": 433
           }
         },
         {
@@ -198025,8 +198127,8 @@
           "signature": "(self, script: str, *args: str) -> tuple[dict[str, Any], dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 423,
-            "start_line": 412
+            "end_line": 447,
+            "start_line": 436
           }
         },
         {
@@ -198048,8 +198150,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 433,
-            "start_line": 425
+            "end_line": 457,
+            "start_line": 449
           }
         },
         {
@@ -198071,8 +198173,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 456,
-            "start_line": 435
+            "end_line": 480,
+            "start_line": 459
           }
         },
         {
@@ -198094,8 +198196,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 473,
-            "start_line": 458
+            "end_line": 497,
+            "start_line": 482
           }
         }
       ]

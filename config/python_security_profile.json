@@ -87,6 +87,15 @@
       "reason": "Planner workerを固定argv（sys.executable・固定module・作業directory・数値予算）で起動し、shellを使いません。入出力はDEVNULLで、結果はファイル契約側で検証します。",
       "expires": "2027-05-31",
       "issue": "#114"
+    },
+    {
+      "tool": "bandit",
+      "rule": "B603",
+      "path": "src/ai_game_player/runtime/resource_probes.py",
+      "match": "subprocess.run(",
+      "reason": "nvidia-smiを固定argv(リスト・shellなし)で呼びます。引数に利用者入力は入らず、未導入・失敗はunsupported(tool_missing/probe_error)として扱います。",
+      "expires": "2027-05-31",
+      "issue": "#787"
     }
   ]
 }

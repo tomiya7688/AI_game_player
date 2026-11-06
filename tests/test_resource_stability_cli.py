@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import importlib.util
 import io
 import json
 import os
@@ -15,12 +16,12 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
-import jsonschema
 
 from ai_game_player.runtime import resource_stability as rs
 from tools import resource_stability_scenarios as sc
 from tools import run_resource_stability as cli
 
+HAS_JSONSCHEMA = importlib.util.find_spec("jsonschema") is not None
 REPO = Path(__file__).resolve().parents[1]
 REPORT_SCHEMA = json.loads(
     (REPO / "config" / "resource_stability_report.schema.json").read_text(
@@ -32,6 +33,14 @@ SAMPLE_SCHEMA = json.loads(
         encoding="utf-8"
     )
 )
+
+
+def validate_schema(instance: Any, schema: dict[str, Any]) -> None:
+    # jsonschemaは開発依存。無い環境ではSchemaTestがskipされ、ここは何もしない
+    if HAS_JSONSCHEMA:
+        import jsonschema
+
+        jsonschema.validate(instance, schema)
 
 
 def run_cli(*argv: str) -> tuple[int, str]:
@@ -134,7 +143,7 @@ class ScenarioTest(unittest.TestCase):
 
     def test_report_matches_schema_and_has_issue_evidence(self) -> None:
         report = self.report("clean")
-        jsonschema.validate(report, REPORT_SCHEMA)
+        validate_schema(report, REPORT_SCHEMA)
         for key in (
             "runtime",
             "code",
@@ -155,7 +164,7 @@ class ScenarioTest(unittest.TestCase):
             "clean", sc.get_behavior("clean"), self.cfg, "fast", 1, "linux", self.work
         )
         for row in rows:
-            jsonschema.validate(row, SAMPLE_SCHEMA)
+            validate_schema(row, SAMPLE_SCHEMA)
 
     def test_report_and_samples_have_no_environment_values_or_paths(self) -> None:
         report = self.report("clean")
@@ -225,7 +234,7 @@ class ScenarioTest(unittest.TestCase):
         report = rs.evaluate_rows(
             cli.load_profile(cli.DEFAULT_PROFILE), rows, cli.environment_info()
         )
-        jsonschema.validate(report, REPORT_SCHEMA)
+        validate_schema(report, REPORT_SCHEMA)
         self.assertEqual(report["run"]["layer"], "real_hardware")
         self.assertIn(
             "gpu.process_vram_bytes", report["coverage"]["unsupported_required"]
@@ -254,6 +263,21 @@ class ScenarioTest(unittest.TestCase):
             rs.evaluate_rows(self.profile, rows, cli.environment_info())["verdict"],
             "fail",
         )
+
+
+@unittest.skipUnless(HAS_JSONSCHEMA, "jsonschema is a development dependency")
+class SchemaTest(unittest.TestCase):
+    def test_schemas_are_valid_and_reject_broken_documents(self) -> None:
+        import jsonschema
+
+        jsonschema.Draft202012Validator.check_schema(REPORT_SCHEMA)
+        jsonschema.Draft202012Validator.check_schema(SAMPLE_SCHEMA)
+        with self.assertRaises(jsonschema.ValidationError):
+            jsonschema.validate(
+                {"schema": "resource-stability-report/v1"}, REPORT_SCHEMA
+            )
+        with self.assertRaises(jsonschema.ValidationError):
+            jsonschema.validate({"kind": "sample"}, SAMPLE_SCHEMA)
 
 
 class CliContractTest(unittest.TestCase):
@@ -416,9 +440,9 @@ class IntegrationObservationTest(unittest.TestCase):
             self.cfg, "pr", [sys.executable, str(path), *args], self.work, 1, timeout=60
         )
         for row in rows:
-            jsonschema.validate(row, SAMPLE_SCHEMA)
+            validate_schema(row, SAMPLE_SCHEMA)
         report = rs.evaluate_rows(self.profile, rows, cli.environment_info())
-        jsonschema.validate(report, REPORT_SCHEMA)
+        validate_schema(report, REPORT_SCHEMA)
         self.assertEqual(exit_code, 0)
         return report, rows[-1]
 
