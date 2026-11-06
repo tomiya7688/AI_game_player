@@ -1,3 +1,9 @@
+## 2026-11-07 Session Resource Registry / Cleanup Coordinator（Issue #786）
+
+- `runtime/resource_lifecycle.py`に`SessionResourceRegistry`・`CleanupCoordinator`・typed lease/snapshot（`ResourceLease`、`ResourcePressureSnapshot` v1、`CleanupReport`、`ResourceLifecycleSnapshot` schema 1）を追加。Session/Generation/Task単位の一括解放、二重解放の防止、stale generationの借用拒否、借用中の解放保留、pressure/期限切れの上限付き解放（期限切れ→priority→古い順）、解放件数・推定bytes・所要時間のTrace（`resource.cleanup/v1`）を提供します。[契約](architecture/runtime_resource_lifecycle.md)、[設計](design/issue-786-session-resource-registry.md)。
+- `ManagedSessionRuntime`がRegistryを1つ所有し（`resources`）、`close()`の先頭で閉じ、各stepを`task_scope`で包み、世代を`RunController.rearm_token`へ同期します。Registryの失敗・打ち切りでも後続のpipeline/provider/journalのcloseは続行します。
+- 範囲外（残件）: pressure発生源の接続（#425/#546）、実owner（#571/#534/#334）のAdapter登録、長時間増加の判定（#787）。
+
 ## 2026-11-05 Windows長枠3 Provider比較の設計（Issue #795）
 
 - Cycling・Baseline・Belief Plannerを、同一VM・同一seed集合・同一wall予算（各600秒）で比較するRunner/Reportの設計書を追加（実装は後続PR）。既存`CampaignRunner`はABSTAIN保留を即失敗にするため流用せず、短比較の`run_episode`にdeadlineを足して使う方針。[設計](design/issue-795-windows-long-comparison.md)。

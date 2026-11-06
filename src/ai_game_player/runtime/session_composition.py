@@ -5,6 +5,7 @@ from __future__ import annotations
 import inspect
 import json
 import os
+import threading
 import time
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import ExitStack, contextmanager
@@ -25,6 +26,10 @@ from ai_game_player.decision_orchestrator import DecisionOrchestrator
 from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
+from ai_game_player.runtime.resource_lifecycle import (
+    ResourceLifecycleError,
+    SessionResourceRegistry,
+)
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.knowledge_scope import KnowledgeScope
 from ai_game_player.learning_identity import LearningIdentityPolicy
@@ -278,14 +283,49 @@ class SessionRuntimeConfiguration:
 
 
 # {
+#   責務: [_PipelineResourceTrace: Resource TraceをPipelineのruntime log/event journalへ書く]
+#   フィールド: [_pipeline: 出力先を持つPipeline(属性は書込時に解決する)]
+# }
+class _PipelineResourceTrace:
+    def __init__(self, pipeline: Any) -> None:
+        self._pipeline = pipeline
+
+    # {
+    #   責務: [record: payload(ID・量・状態・時間・例外型名のみ)を1件記録する]
+    #   引数: [event: event名, payload: JSON化できる値]
+    #   戻り値: []
+    # }
+    def record(self, event: str, payload: Mapping[str, Any]) -> None:
+        runtime_log = getattr(self._pipeline, "runtime_log", None)
+        if runtime_log is not None:
+            runtime_log.write(event, "", payload)
+            return
+        journal = getattr(self._pipeline, "event_journal", None)
+        if journal is not None:
+            journal.append(
+                "runtime.log",
+                status="ok",
+                payload={
+                    "legacy_record": {
+                        "event": event,
+                        "message": "",
+                        "context": dict(payload),
+                    }
+                },
+            )
+
+
+# {
 #   責務: [ManagedSessionRuntime: GameSessionControllerが1Session中に共有するpipelineとproviderの寿命を管理する]
-#   フィールド: [pipeline: 判断・実行のsession runtime, _provider: pipelineとloop評価が共有するprovider]
+#   フィールド: [pipeline: 判断・実行のsession runtime, _provider: pipelineとloop評価が共有するprovider,
+#     resources: Session内resourceのlease Registry(closeの先頭で閉じる), _run_control: 世代(rearm_token)の正本]
 # }
 class ManagedSessionRuntime:
     # {
     #   責務: [__init__: Session Controllerが所有するPipelineとProviderを関連付ける]
     #   処理: [shutdown成功状態を個別に初期化し、失敗したresourceだけを再試行可能にする]
-    #   引数: [pipeline: session中に再利用する判断・実行pipeline, provider: pipelineへ注入したsession scoped provider]
+    #   引数: [pipeline: session中に再利用する判断・実行pipeline, provider: pipelineへ注入したsession scoped provider,
+    #     adaptation: light適応worker, resources: 共有するRegistry(省略時は内部生成), run_control: 世代同期元(省略可)]
     #   戻り値: []
     # }
     def __init__(
@@ -293,7 +333,27 @@ class ManagedSessionRuntime:
         pipeline: DecisionPipeline,
         provider: Any,
         adaptation: SessionLightAdaptation | None = None,
+        *,
+        resources: SessionResourceRegistry | None = None,
+        run_control: RunController | None = None,
     ) -> None:
+        # 世代の正本はRunController.rearm_token。それを持たない旧テスト用controllerでは同期しない
+        if not isinstance(getattr(run_control, "rearm_token", None), int):
+            run_control = None
+        self._run_control = run_control
+        self._step_lock = threading.Lock()
+        self._step_count = 0
+        self.resources = (
+            resources
+            if resources is not None
+            else SessionResourceRegistry(
+                uuid4().hex,
+                trace_sink=_PipelineResourceTrace(pipeline),
+                initial_generation=run_control.rearm_token
+                if run_control is not None
+                else 0,
+            )
+        )
         self.pipeline = pipeline
         self._provider = provider
         self._pipeline_closed = False
@@ -311,7 +371,8 @@ class ManagedSessionRuntime:
     def run(self, **arguments: Any) -> ActionDecision | DecisionDisposition:
         token = self.adaptation.begin_step() if self.adaptation is not None else None
         try:
-            result = self.orchestrator.run(**arguments)
+            with self._step_scope():
+                result = self.orchestrator.run(**arguments)
             if isinstance(result, ExecutionResult):
                 raise RuntimeError("decision-only orchestration returned an execution")
             return result
@@ -330,7 +391,8 @@ class ManagedSessionRuntime:
     ) -> ExecutionResult | DecisionDisposition:
         token = self.adaptation.begin_step() if self.adaptation is not None else None
         try:
-            result = self.orchestrator.run(execute=True, **arguments)
+            with self._step_scope():
+                result = self.orchestrator.run(execute=True, **arguments)
             if isinstance(result, ActionDecision):
                 raise RuntimeError(
                     "execution orchestration returned an unexecuted selection"
@@ -339,6 +401,28 @@ class ManagedSessionRuntime:
         finally:
             if token is not None and self.adaptation is not None:
                 self.adaptation.finish_step(token)
+
+    # {
+    #   責務: [_step_scope: 世代をrearm_tokenへ同期し、1 stepをtask_scopeで包む]
+    #   処理: [rearm_tokenがRegistryの世代より大きければadvance_generationで旧世代資源を解放する]
+    #   引数: []
+    #   戻り値: [ContextManager: step終了時にTASK資源を解放する]
+    #   エラー: [ResourceLifecycleError: Registryが閉じている場合]
+    # }
+    def _step_scope(self) -> Any:
+        if self._run_control is not None:
+            token = self._run_control.rearm_token
+            if token > self.resources.current_generation:
+                try:
+                    self.resources.advance_generation(token)
+                except ResourceLifecycleError as exc:
+                    # 並行stepが先に同じ世代へ進めた場合は正常(他のcodeは閉鎖等の異常として伝播)
+                    if exc.code != "stale_generation":
+                        raise
+        with self._step_lock:
+            self._step_count += 1
+            task_id = f"step-{self._step_count}"
+        return self.resources.task_scope(task_id)
 
     # {
     #   責務: [load_execution_history: Pipelineが提供するSession実行履歴を返し、旧factoryにmetrics APIがなければ空履歴を返す]
@@ -392,13 +476,25 @@ class ManagedSessionRuntime:
 
     # {
     #   責務: [close: session終了時にPipelineとProviderのresourceを解放する]
-    #   処理: [実入力executorを止め、Provider終了失敗を記録した後でJournalを閉じ、失敗resourceを再試行可能にする]
+    #   処理: [最初にResource Registryを閉じ、実入力executorを止め、Provider終了失敗を記録した後でJournalを閉じ、失敗resourceを再試行可能にする]
     #   引数: []
     #   戻り値: []
     #   エラー: [RuntimeError: いずれかのresource解放に失敗した場合]
     # }
     def close(self) -> None:
         errors: list[Exception] = []
+        # Registryはjournalが開いている間(先頭)で閉じる。失敗しても後続のcloseは中断しない
+        try:
+            report = self.resources.close_session()
+            if report.failed or report.deferred or report.truncated:
+                errors.append(
+                    RuntimeError(
+                        "resource cleanup incomplete: "
+                        f"failed={report.failed} deferred={report.deferred} truncated={report.truncated}"
+                    )
+                )
+        except Exception as exc:
+            errors.append(exc)
         if not self._adaptation_closed and self.adaptation is not None:
             try:
                 self.adaptation.close()
@@ -799,7 +895,9 @@ def _managed_session(
                 identity=configuration.learning_identity,
                 budget=configuration.adaptation_budget,
             )
-        return ManagedSessionRuntime(pipeline, provider, adaptation)
+        return ManagedSessionRuntime(
+            pipeline, provider, adaptation, run_control=controller
+        )
     except Exception:
         try:
             pipeline.close()
