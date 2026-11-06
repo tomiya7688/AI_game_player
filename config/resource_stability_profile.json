@@ -1,0 +1,566 @@
+{
+  "schema": "resource-stability-profile/v1",
+  "layers": {
+    "fast": {
+      "run_profiles": {
+        "fast": {
+          "warmup_steps": 500,
+          "warmup_seconds": 0,
+          "segments": 4,
+          "min_samples_per_segment": 8,
+          "sessions": 5,
+          "steps_per_session": 20000,
+          "sample_every_steps": 100,
+          "settle_ms": 500
+        },
+        "deep": {
+          "warmup_steps": 5000,
+          "warmup_seconds": 0,
+          "segments": 4,
+          "min_samples_per_segment": 8,
+          "sessions": 5,
+          "steps_per_session": 200000,
+          "sample_every_steps": 1000,
+          "settle_ms": 500
+        }
+      },
+      "metrics": {
+        "registry.active_leases": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "registry.releasing_leases": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "registry.failed_leases": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "registry.kind.model_cache.count": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "registry.kind.model_cache.bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 1048576
+          },
+          "recovery": {
+            "rel": 0.02,
+            "abs": 1048576
+          }
+        },
+        "registry.max_cleanup_latency_ms": {
+          "required_on": [
+            "any"
+          ],
+          "class": "latency",
+          "ceiling": 2000
+        },
+        "os.handle_count": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 16
+          },
+          "recovery": {
+            "abs": 16
+          }
+        },
+        "os.gdi_objects": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "os.user_objects": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "temp.file_count": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "temp.bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 1048576
+          },
+          "recovery": {
+            "rel": 0.02,
+            "abs": 1048576
+          }
+        },
+        "queue.length.main": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 2
+          },
+          "recovery": {
+            "abs": 2
+          }
+        },
+        "task.pending_count": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 2
+          },
+          "recovery": {
+            "abs": 2
+          }
+        },
+        "mem.resident_bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          },
+          "judge": false
+        },
+        "native.alloc_count": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          },
+          "judge": false
+        },
+        "native.copy_count": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          },
+          "judge": false
+        }
+      },
+      "must_judge": {
+        "any": [
+          "registry.active_leases",
+          "registry.failed_leases",
+          "os.handle_count",
+          "temp.file_count"
+        ]
+      }
+    },
+    "integration": {
+      "run_profiles": {
+        "pr": {
+          "warmup_steps": 0,
+          "warmup_seconds": 60,
+          "segments": 4,
+          "min_samples_per_segment": 8,
+          "sessions": 1,
+          "interval_seconds": 1.0,
+          "settle_ms": 500
+        },
+        "deep": {
+          "warmup_steps": 0,
+          "warmup_seconds": 120,
+          "segments": 4,
+          "min_samples_per_segment": 8,
+          "sessions": 1,
+          "interval_seconds": 2.0,
+          "settle_ms": 500
+        }
+      },
+      "metrics": {
+        "mem.resident_bytes": {
+          "required_on": [
+            "any"
+          ],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          }
+        },
+        "mem.private_bytes": {
+          "required_on": [
+            "any"
+          ],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          }
+        },
+        "mem.os_peak_bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          },
+          "judge": false
+        },
+        "os.handle_count": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 16
+          },
+          "recovery": {
+            "abs": 16
+          }
+        },
+        "os.gdi_objects": {
+          "required_on": [
+            "windows"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "os.user_objects": {
+          "required_on": [
+            "windows"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "temp.file_count": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 16
+          },
+          "recovery": {
+            "abs": 16
+          }
+        },
+        "temp.bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 1048576
+          },
+          "recovery": {
+            "rel": 0.02,
+            "abs": 1048576
+          }
+        }
+      },
+      "must_judge": {
+        "any": [
+          "mem.resident_bytes",
+          "mem.private_bytes",
+          "os.handle_count",
+          "temp.file_count"
+        ],
+        "windows": [
+          "os.gdi_objects",
+          "os.user_objects"
+        ]
+      }
+    },
+    "real_hardware": {
+      "run_profiles": {
+        "deep": {
+          "warmup_steps": 500,
+          "warmup_seconds": 0,
+          "segments": 4,
+          "min_samples_per_segment": 8,
+          "sessions": 4,
+          "steps_per_session": 5000,
+          "sample_every_steps": 25,
+          "settle_ms": 500
+        }
+      },
+      "metrics": {
+        "mem.resident_bytes": {
+          "required_on": [
+            "any"
+          ],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          }
+        },
+        "mem.private_bytes": {
+          "required_on": [
+            "any"
+          ],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          }
+        },
+        "mem.os_peak_bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          },
+          "judge": false
+        },
+        "os.handle_count": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 16
+          },
+          "recovery": {
+            "abs": 16
+          }
+        },
+        "os.gdi_objects": {
+          "required_on": [
+            "windows"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "os.user_objects": {
+          "required_on": [
+            "windows"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "temp.file_count": {
+          "required_on": [
+            "any"
+          ],
+          "class": "count",
+          "tolerance": {
+            "abs": 16
+          },
+          "recovery": {
+            "abs": 16
+          }
+        },
+        "temp.bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 1048576
+          },
+          "recovery": {
+            "rel": 0.02,
+            "abs": 1048576
+          }
+        },
+        "gpu.process_vram_bytes": {
+          "required_on": [
+            "any"
+          ],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          }
+        },
+        "gpu.device_vram_bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          },
+          "judge": "exclusive_gpu"
+        },
+        "registry.active_leases": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "registry.releasing_leases": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "registry.failed_leases": {
+          "required_on": [],
+          "class": "count",
+          "tolerance": {
+            "abs": 0
+          },
+          "recovery": {
+            "abs": 0
+          }
+        },
+        "registry.max_cleanup_latency_ms": {
+          "required_on": [],
+          "class": "latency",
+          "ceiling": 2000
+        },
+        "py.heap_traced_bytes": {
+          "required_on": [],
+          "class": "bytes",
+          "tolerance": {
+            "rel": 0.02,
+            "abs": 8388608
+          },
+          "recovery": {
+            "rel": 0.03,
+            "abs": 16777216
+          },
+          "judge": false
+        }
+      },
+      "must_judge": {
+        "any": [
+          "mem.resident_bytes",
+          "mem.private_bytes",
+          "os.handle_count",
+          "temp.file_count",
+          "gpu.process_vram_bytes"
+        ],
+        "windows": [
+          "os.gdi_objects",
+          "os.user_objects"
+        ]
+      }
+    }
+  },
+  "enforcement": {
+    "fast": "enforce",
+    "integration": "observe",
+    "real_hardware": "enforce"
+  }
+}

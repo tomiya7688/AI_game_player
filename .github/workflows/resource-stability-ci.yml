@@ -1,0 +1,39 @@
+name: resource-stability-ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fast-gate:
+    name: Resource stability fast gate (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Run deterministic leak scenarios and canaries
+        shell: pwsh
+        env:
+          PYTHONPATH: "src"
+        run: python tools/run_resource_stability.py run --layer fast --run-profile fast
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resource-stability-fast-${{ matrix.os }}
+          path: |
+            build/resource-stability
+            !build/resource-stability/work
+          if-no-files-found: error

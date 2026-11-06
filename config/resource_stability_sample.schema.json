@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kadoka.dev/schemas/resource-stability-sample-v1.schema.json",
+  "title": "Resource stability samples.jsonl row v1",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "schema",
+        "kind",
+        "run_id",
+        "layer",
+        "run_profile",
+        "host_profile",
+        "scenario",
+        "seed",
+        "metrics",
+        "declarations"
+      ],
+      "properties": {
+        "schema": {
+          "const": "resource-stability-sample/v1"
+        },
+        "kind": {
+          "const": "header"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "layer": {
+          "enum": [
+            "fast",
+            "integration",
+            "real_hardware"
+          ]
+        },
+        "run_profile": {
+          "enum": [
+            "fast",
+            "pr",
+            "deep"
+          ]
+        },
+        "host_profile": {
+          "type": "string"
+        },
+        "scenario": {
+          "type": "string"
+        },
+        "seed": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "source",
+              "class",
+              "unit",
+              "status"
+            ],
+            "properties": {
+              "source": {
+                "enum": [
+                  "process",
+                  "external",
+                  "registry_snapshot",
+                  "synthetic"
+                ]
+              },
+              "class": {
+                "enum": [
+                  "bytes",
+                  "count",
+                  "latency"
+                ]
+              },
+              "unit": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "measured",
+                  "unsupported"
+                ]
+              },
+              "unsupported_reason": {
+                "enum": [
+                  "platform",
+                  "no_counter",
+                  "tool_missing",
+                  "access_denied",
+                  "probe_error",
+                  "registry_not_connected",
+                  "snapshot_version",
+                  "scan_truncated"
+                ]
+              }
+            },
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "unsupported"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "unsupported_reason"
+              ]
+            }
+          }
+        },
+        "declarations": {
+          "type": "object",
+          "required": [
+            "declared_retained",
+            "declared_ceiling",
+            "declared_fill_steps",
+            "exclusive_gpu"
+          ],
+          "properties": {
+            "declared_retained": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "declared_ceiling": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "declared_fill_steps": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "exclusive_gpu": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "schema",
+        "kind",
+        "run_id",
+        "session_index",
+        "phase",
+        "step",
+        "t_monotonic_ns",
+        "values"
+      ],
+      "properties": {
+        "schema": {
+          "const": "resource-stability-sample/v1"
+        },
+        "kind": {
+          "const": "sample"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "session_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "phase": {
+          "enum": [
+            "warmup",
+            "steady",
+            "closing",
+            "post_close",
+            "pre_open"
+          ]
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "t_monotonic_ns": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "integer",
+              "number",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "schema",
+        "kind",
+        "run_id"
+      ],
+      "properties": {
+        "schema": {
+          "const": "resource-stability-sample/v1"
+        },
+        "kind": {
+          "const": "footer"
+        },
+        "run_id": {
+          "type": "string"
+        },
+        "duration_seconds": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "orphan_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "command_exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "sessions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "index"
+            ]
+          }
+        },
+        "total_steps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sampling_limit_reached": {
+          "type": "boolean"
+        }
+      }
+    }
+  ]
+}

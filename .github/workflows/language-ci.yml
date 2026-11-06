@@ -374,13 +374,21 @@ jobs:
         shell: pwsh
         env:
           PYTHONPATH: "src;."
-        run: python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence --save-browser-diagnostics --save-heartbeat-diagnostics
+        run: python -u -X faulthandler tools/run_resource_stability.py run --layer integration --run-profile pr -- python -u -X faulthandler tools/run_2048_campaign.py --profile pr --save-failure-evidence --save-browser-diagnostics --save-heartbeat-diagnostics
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: kadoka-windows-e2e-trace
           path: build/e2e
           if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kadoka-windows-resource-stability
+          path: |
+            build/resource-stability/report.json
+            build/resource-stability/samples.jsonl
+          if-no-files-found: error
 
   windows-planning-comparison:
     name: Windows planning comparison (seed ${{ matrix.seed }})
