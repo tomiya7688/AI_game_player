@@ -173,3 +173,11 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 ## 未決事項
 
 なし。技術的に決まる事項は決定済み: seed数8（verdict最小n、既存479–481を含む479–486）、週1回cron、episode seed間隔1000、hard timeout 780秒、Bonferroni 3対比、一次指標`episode_mean_score`。#802が先にmainへ入った場合のみ、指標名を同文書へ揃える軽微な追従が必要。
+
+## 実装メモ（実装PRで確定した点）
+
+- workflowの2段目のjob名は`block`（job名`run`は`workflow_security_check`が`run:`行として読むため避けた）。`plan`が`manifest.json`をartifact `windows-long-manifest`に出し、matrixは`{seed, index}`（indexが6順列の巡回に使うblock番号）。
+- provider単位のhard timeout（780秒）は、providerを子process（`--worker`）で実行して親が`wait(timeout)`し、超過時はpsutilでprocess木を回収して`failed`/`hard_timeout`にする。木を回収できなかったpidは`leftover_pids`に残し、blockを`invalid`（終了コード1）にする。workerがreportを残さず落ちた場合は`fatal:worker_no_report`、途中のまま落ちた場合は`fatal:worker_exit`でfailedにする。
+- `run_episode`の`stop_reason`は`terminal`/`wall_budget_reached`/`attempt_cap_reached`。致命扱いのepisode失敗は`stop_probe`/`stale_generation_probe`段階とcleanup失敗で、runを`failed`にして直ちに止める。
+- 各run-reportは`condition_components`（git commit、source/game lock/native DLL/harnessのSHA256、Tesseract版、Python版、固定profile）を持ち、`condition_fingerprint`はその正準JSONのSHA256。集計側では少数派のfingerprintを持つblockを`invalid`にする。
+- 感度分析の「score欠測を0点に置換」は、入力なしを含むunknown scoreのrunを0として差を取る参考値で、`verdict`は付けない。

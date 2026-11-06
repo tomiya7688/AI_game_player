@@ -1,3 +1,8 @@
+## 2026-11-07 Windows長枠3 Provider比較の実装（Issue #795）
+
+- `tools/compare_2048_windows_long.py`（provider順の6順列巡回、600秒内のepisode反復、recovery 2回、780秒hard timeoutの子process回収、hardware・条件fingerprint照合）、`tools/windows_long_comparison_stats.py`（指標・Wilson区間・bootstrap・符号反転検定、コード定数の閾値）、`tools/aggregate_2048_windows_long.py`（期待manifestを母数にした比較表・対比・感度分析・終了コード0/1/2）を追加。`run_episode`へ任意の`deadline_monotonic`を追加（`None`なら従来の短比較と同じ）。
+- 別workflow `windows-long-comparison.yml`（`workflow_dispatch`＋週1回、required checks・rulesetは変更なし）。未計測は`unknown`、失敗・打切り・欠測は母数に残る。実測は手動実行後に#567へ記録。[設計](design/issue-795-windows-long-comparison.md)、[説明](architecture/windows_long_comparison.md)。
+
 ## 2026-11-05 Windows長枠3 Provider比較の設計（Issue #795）
 
 - Cycling・Baseline・Belief Plannerを、同一VM・同一seed集合・同一wall予算（各600秒）で比較するRunner/Reportの設計書を追加（実装は後続PR）。既存`CampaignRunner`はABSTAIN保留を即失敗にするため流用せず、短比較の`run_episode`にdeadlineを足して使う方針。[設計](design/issue-795-windows-long-comparison.md)。

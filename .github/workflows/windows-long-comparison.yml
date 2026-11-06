@@ -1,0 +1,144 @@
+name: windows-long-comparison
+
+# Issue #795: Windows実ゲームでCycling・Baseline・Belief Plannerを各600秒、同条件で比較する測定。
+# 必須gateではない(REQUIRED_WORKFLOW_PATHSに含めない)。短枠比較・Cycling 600秒gateは language-ci のまま。
+on:
+  workflow_dispatch:
+    inputs:
+      seed_start:
+        description: "最初のbase seed"
+        default: "479"
+      seed_count:
+        description: "block数(1-32。verdictには8以上が必要)"
+        default: "8"
+      ref_class:
+        description: "main / pr / manual"
+        default: "manual"
+  schedule:
+    - cron: '23 21 * * 0'
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan expected blocks
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - id: plan
+        name: Write the expected manifest and the block matrix
+        shell: bash
+        env:
+          SEED_START: ${{ inputs.seed_start || '479' }}
+          SEED_COUNT: ${{ inputs.seed_count || '8' }}
+          REF_CLASS: ${{ inputs.ref_class || 'main' }}
+          PYTHONPATH: "src:."
+        run: |
+          set -euo pipefail
+          mkdir -p build/windows-long-plan
+          matrix="$(python tools/aggregate_2048_windows_long.py plan --seed-start "$SEED_START" --seed-count "$SEED_COUNT" --ref-class "$REF_CLASS" --git-commit "$(git rev-parse HEAD)" --output build/windows-long-plan/manifest.json)"
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-long-manifest
+          path: build/windows-long-plan/manifest.json
+          if-no-files-found: error
+
+  block:
+    name: Windows long block (seed ${{ matrix.seed }})
+    needs: plan
+    runs-on: windows-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: ./.github/actions/python-trust-floor
+      - name: Install optional comparison OCR and process sampler
+        id: comparison_dependencies
+        shell: pwsh
+        run: |
+          python -m pip install -e ".[ocr,browser-validation]" psutil==7.1.0
+          if ($LASTEXITCODE -ne 0) { throw "Comparison Python dependencies failed" }
+          choco install tesseract --no-progress --yes
+          if ($LASTEXITCODE -ne 0) { throw "Comparison OCR executable install failed" }
+          $ocr = Join-Path $env:ProgramFiles "Tesseract-OCR\tesseract.exe"
+          if (-not (Test-Path $ocr)) { throw "Comparison OCR executable missing" }
+          "TESSERACT_CMD=$ocr" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          (Split-Path $ocr) | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+      - name: Build Native Runtime with owned WGC capture
+        id: comparison_native
+        shell: pwsh
+        run: |
+          cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) { throw "Native configure failed" }
+          cmake --build build/native --config Release --parallel
+          if ($LASTEXITCODE -ne 0) { throw "Native build failed" }
+          $runtime = Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
+          if (-not $runtime) { throw "Native runtime missing" }
+          "KADOKA_NATIVE_RUNTIME=$($runtime.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Run the three providers sequentially on this VM
+        if: ${{ steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
+        shell: pwsh
+        env:
+          PYTHONPATH: "src;."
+          BASE_SEED: ${{ matrix.seed }}
+          BLOCK_INDEX: ${{ matrix.index }}
+          REF_CLASS: ${{ inputs.ref_class || 'main' }}
+        run: |
+          python -u -X faulthandler tools/compare_2048_windows_long.py --base-seed $env:BASE_SEED --block-index $env:BLOCK_INDEX --ref-class $env:REF_CLASS --allow-live-input --output "build/windows-long/block-$env:BASE_SEED"
+          if ($LASTEXITCODE -ne 0) { throw "Long comparison block did not complete cleanly (exit $LASTEXITCODE); report is still uploaded" }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-long-block-${{ matrix.seed }}
+          path: build/windows-long
+          if-no-files-found: warn
+
+  aggregate:
+    name: Aggregate comparison report
+    needs: [plan, block]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/download-artifact@v4
+        with:
+          path: build/windows-long-artifacts
+      - name: Aggregate against the expected manifest
+        shell: bash
+        env:
+          PYTHONPATH: "src:."
+        run: |
+          set +e
+          python tools/aggregate_2048_windows_long.py aggregate --manifest build/windows-long-artifacts/windows-long-manifest/manifest.json --artifacts build/windows-long-artifacts --output build/windows-long-report
+          code=$?
+          if [ -f build/windows-long-report/report.md ]; then cat build/windows-long-report/report.md >> "$GITHUB_STEP_SUMMARY"; fi
+          echo "aggregate_exit_code=$code"
+          exit "$code"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-long-report
+          path: build/windows-long-report
+          if-no-files-found: warn

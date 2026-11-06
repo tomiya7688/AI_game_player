@@ -280,3 +280,5 @@ before-spawnは全72件でp50 2.16085ms/p95(nearest-rank)6.0003ms/max6.7896ms、
 16空セル・見出し/NewGame・Score0は実画素で確認できました。元frame保全後のCDPはreadyState complete/visible/focused、grid/tile rootあり・tile_count0・HTMLActuator constructor falseを記録し、server summaryにはhtml_actuator/grid/tileのresponse rowがありません。これは事後観測で、server書込みはbrowser受領の証明ではありません。Grid/Tile constructorやResourceTimingは37bbではまだ測っていません。空heartbeat ringもSAFE_IDLE未初期化と整合し、active heartbeat欠落とは断定しません。既存[Issue459](https://github.com/tomiya7688/AI_game_player/issues/459)で起動/lease原因の未確定条件を保持します。
 
 次の私有HTTPサーバーの有限accept queueとpostfailure ResourceTimingは新profileとして検証します。Linuxのbounded burst機構試験や同じempty表示を作るcounterfactual fixtureだけで、37bbの根本原因やWindowsでの解消を証明しません。元400ms/3s/4s/5s/.75s/45s、未知拒否・実入力・Stop・所有対象の基準は維持します。
+
+同一Windowsでの長枠(各600秒)3 Provider比較は、短比較と別trackの[Windows長枠比較](windows_long_comparison.md)(Issue #795)で測定します。n小の結果を有意性として扱わない方針は同文書の統計節に従います。
