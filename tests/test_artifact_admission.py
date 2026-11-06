@@ -159,7 +159,9 @@ class AdmissionTestCase(unittest.TestCase):
         file_system=None,
         policy=None,
         records=None,
-        lock_timeout_seconds: float = 5.0,
+        # 並行テストは排他と容量上限を検証する。待ち時間が負荷で尽きると別の失敗になるため長く取る。
+        # タイムアウト自体の挙動は LockTimeoutAndTraceTest が短い値を明示して検証する。
+        lock_timeout_seconds: float = 60.0,
         trace=True,
     ) -> ArtifactAdmissionCoordinator:
         collector = RetentionCollector(
@@ -353,13 +355,14 @@ class ConcurrencyTest(AdmissionTestCase):
         ]
         results = self.run_in_threads(jobs)
         succeeded = [r for r in results if not isinstance(r, BaseException)]
-        self.assertEqual(len(succeeded), 3)
+        self.assertEqual(len(succeeded), 3, [repr(r) for r in results])
         self.assertTrue(
             all(
                 isinstance(r, RetentionCapacityError)
                 for r in results
                 if r not in succeeded
-            )
+            ),
+            [repr(r) for r in results],
         )
         self.assertEqual(len(self.object_digests()), 3)
         self.assertEqual(len(self.entries()), 3)
