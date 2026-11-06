@@ -1,3 +1,9 @@
+## 2026-11-05 Windows長枠3 Provider比較の設計（Issue #795）
+
+- Cycling・Baseline・Belief Plannerを、同一VM・同一seed集合・同一wall予算（各600秒）で比較するRunner/Reportの設計書を追加（実装は後続PR）。既存`CampaignRunner`はABSTAIN保留を即失敗にするため流用せず、短比較の`run_episode`にdeadlineを足して使う方針。[設計](design/issue-795-windows-long-comparison.md)。
+- 失敗・打切り・欠測を母数に含め、未計測は`unknown`（0にしない）。対応ありbootstrap区間・符号反転検定・Bonferroni補正、最小8 block、verdictは条件を満たす時だけで、緩和手段を持たない。
+- 長枠は`workflow_dispatch`＋週1回の別workflowに置き、required checks・rulesetは変更しない。
+
 ## 2026-11-05 Observation Lease失効の根因修正（Issue #794）
 
 - CI E2Eの`runtime_not_active (lease_expired)`の因果を2件の自然失敗ringで特定: CPU-boundな認識処理とのGIL競合でheartbeatの永続読取・書込が数百msに伸び、「完了後に0.25秒待つ」周期のため更新間隔が761.5ms/749.7ms＋書込となって0.75秒TTLを超えた。[設計](design/issue-794-observation-lease.md)。
@@ -155,6 +161,10 @@ plugin_manifest_schema          1
 ## Unreleased
 
 - Issue #787（設計のみ）: Long-session Resource Stability Gateの設計書を追加。warmup分離・区間中央値とTheil-Senの傾き・Session終了後の回収・複数Session反復のbaseline driftで資源の非有界増加を判定し、測定不能を成功扱いしない（unsupported語彙・`no_judged_metrics`）。fast（fake資源世界とcanary）・integration（既存campaignを外部から観測）・real_hardware（#250へ同一schema）の3層、report/sample schema、CI組込み方針（required checksは設計のみ）を定める。実装は後続PR。[設計](design/issue-787-long-session-resource-stability-gate.md)
+- Issue #791（設計のみ）: 2048の空盤面・HTMLActuator欠落を、Frame・HTTP・JS・DOMの証拠を起動世代の相関IDと親processの単調時計で結び、境界順の原因カテゴリへ分類する診断（`reference-startup-correlation/v1`、`classify_startup_failure`、証拠欠落時は`evidence_incomplete`でfail-closed）と、起動時間p50/p95・失敗率のcohort別集計の実装Packetを追加。根因未確定のため製品の挙動修正は行わず、修正の条件を定めました。実装は後続PRです。[設計](design/issue-791-2048-empty-board-diagnosis.md)
+- Issue #790（設計のみ）: crash由来の未索引Artifactを、pending admission・live reference・grace periodと照合して5状態に分類し、`safe_orphan`だけをtrash経由で原子的に回収する`OrphanReconciler`の実装Packetを追加（dry-run/apply一致、fail-closed、delete audit、予算超過時に正常dataを先に消さない順序）。実装は#789（PR #821）のマージ後。[設計](design/issue-790-orphan-reconciliation.md)
+- Issue #788（設計のみ）: Runtime Retention Adapterの実装前設計書を追加。Session単位のArtifact Storeへ#164 `RetentionCollector`を接続し、Event Journal（sequence増分の参照索引）・Experience・保存中pinからlive reference snapshotを作って必ず`collect`へ渡す。snapshot失敗・不完全・stale・世代不一致・lock待ち超過は削除0（fail-closed）、gate→root lock→journal lockの順序で参照追加とGCを直列化、trigger（soft budget・件数・周期・close・maintenance）に最短間隔と1回の削除上限を持たせ背景workerで実行、`retention.gc/v1`をJournalへTraceする。#789（PR #821、マージ済み）のroot lockとadmissionを再利用する（Spec-Status: READY）。[設計](design/issue-788-runtime-retention-adapter.md)
+- Issue #786（設計のみ）: Session内のruntime resourceの所有者・lease・解放経路を一元管理する`SessionResourceRegistry`/`CleanupCoordinator`の設計書を追加。task/generation/session scopeの一括解放、stale generation・二重解放・解放失敗の負例、pressure時の上限付きeviction順序、#571/#534/#334のowner Adapter、#787へのsnapshot接続点を定めました。実装は後続PRです。[設計](design/issue-786-session-resource-registry.md)
 - Issue #812: Windows planning comparisonでplannerの入力が0のまま断続的に失敗する問題（`compute_budget`で11/12 decisionが保留）に対し、予算や判定を緩めず、最初の観測前にworkerの起動往復が通常と同じ`SearchBudget`で連続2回成立するまで最大30秒待つ`planner_readiness`ゲート（`ai_game_player.planning_readiness`）を追加。ゲートは実Pipelineと分離した使い捨てplannerと固定の合成盤面を使い、入力・Safety・Stopへ触れない。期限切れは`failure_stage=planner_readiness`で入力0のまま失敗（fail-closed）。`invalid_frame`は保存frame無しを示す診断で原因ではない。[設計](design/issue-812-invalid-frame-planner-readiness.md)。
 - Issue #806: Provider wire schema v1の送信data class列挙（`privacy.data_classes`・`declared_data_classes`）へ`ui_metadata`と`model_output`を追加（v1の互換拡張。既存のmanifest/requestは有効、新classを使う要求は旧schemaで拒否）。列挙は`remote_eligible_classes()`と一致し、`OllamaProvider`の送信3箇所の実payloadの全fieldをdata classへ対応付ける契約test（未分類fieldで失敗）を追加。`_request_decision`のtransmitterへ`model_output`を宣言。送信条件・既定（opt-in、loopback）は不変で、consent判定は#226。候補の参考知識の分類はDG-3として#226へ引き継ぎ。[設計](design/issue-806-provider-wire-data-classes.md)
 - Issue #817: reference game HTTPサーバーの並行10 scriptテストが、サーバーのカウンター更新前に判定する競合と、2秒の接続上限で不安定だった問題を、期限付きポーリングと15秒上限で解消（製品コード不変）。[設計](design/issue-817-http-test-race.md)
