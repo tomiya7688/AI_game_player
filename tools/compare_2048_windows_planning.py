@@ -513,6 +513,16 @@ def run_episode(
             if failure_frame is not None
             else "header",
         )
+        header = result["failure_header"]
+        if isinstance(header, dict) and header.get("status") == "ready":
+            # 相関記録へ渡す、既に出力済みのFrame/PNG digestだけ。
+            try:
+                episode._failure_header_digests = {
+                    "frame_sha256": header.get("frame_sha256"),
+                    "png_sha256": header.get("png_sha256"),
+                }
+            except Exception:
+                pass
         collect = getattr(episode, "collect_failure_diagnostics", None)
         if callable(collect):
             score_header = result.get("score_evaluation", {}).get("failure_header", {})
@@ -554,6 +564,12 @@ def run_episode(
             }
         }
         if episode is not None:
+            # close前に起動時間の要約を取る（明示診断時だけ。診断無効ならNone）。
+            summary_reader = getattr(episode, "startup_summary", None)
+            if callable(summary_reader):
+                startup_summary = summary_reader()
+                if startup_summary is not None:
+                    result["startup_summary"] = startup_summary
             try:
                 episode.close()
             except Exception as error:

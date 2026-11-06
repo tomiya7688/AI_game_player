@@ -60,10 +60,11 @@ PYTHONPATH=src:. python -m tools.summarize_2048_startup_runs \
 | `server.request_line_errors` | int（飽和） | 要求行の解析失敗数 |
 | `server.requests_parsed` | int（飽和） | 要求行を解析できた要求の総数（allowlist外の `/favicon.ico` 等を含む） |
 | `server.requests_in_flight` | int（gauge） | 解析済みで応答の記録が終わっていない要求数 |
+| `expected_body_sha256` | object | 固定12資源の期待本文SHA（pageはseed付き応答のbyte列）。分類の「SHA不一致」に使う |
 | `server.resources.<name>` | 既存counter＋追加 | 固定12名を診断有効時に**全て0で初期化**する（未要求でもentryがある）。追加は `failed_request_phase`・`failed_headers_phase`・`failed_body_phase`（phase別の失敗数。既存の `last_failed_phase` は残すが分類には使わない）と `first_started_ms`・`first_headers_ms`・`first_completed_ms`・`first_failed_ms`（無ければnull） |
 | `server.recording_incomplete` | bool | 既存のlatch |
 | `server.snapshots_equal` | bool | CDPの前と後に取ったserver snapshotが同一か |
-| `frame` | object | `frame_sha256`・`png_sha256`（既存header値の写し）、取得時刻 `captured_ms`（取得元が時刻を持たなければnull）、保全時刻 `preserved_ms`、保全Frameの `empty_board`（既存認識器の16空セル判定、閾値不変）と `board_accepted`（その時点の認識が盤面を受理したか） |
+| `frame` | object | `frame_sha256`・`png_sha256`（既存header値の写し。無ければnull）、取得時刻 `captured_ms`（Sourceが失敗時に残した撮影時刻。無ければnull）、保全時刻 `preserved_ms`（Frame保全後・CDP前に診断収集が始まった時刻）、`empty_board`（Sourceが残した既存認識器のstateが `unavailable_reason=empty_nonterminal`。閾値不変）と `board_accepted`（同stateの `state_available` がtrue）。stateが残っていなければどちらもnullにして `frame_result` 違反にする |
 | `cdp` | object | `started_ms`・`finished_ms`・既存のrender/timing結果のsha256 |
 | `target_matches_generation` | bool | CDPの対象URLがこの世代のserver URLと完全一致したか（URL自体は出さない） |
 | `browser_version` | 文字列（64字まで） | browser実行ファイルのfile version。取得不能ならnull |
@@ -98,6 +99,7 @@ PYTHONPATH=src:. python -m tools.summarize_2048_startup_runs \
 
 - 分類の前に全fieldを検証する。違反は `evidence_incomplete` とし、`missing` に固定名を入れる: `schema`（不一致・旧schema）、`correlation_id`（節間の不一致）、`target_generation`（`target_matches_generation`≠true）、`recording_incomplete`、`snapshot_changed`（`snapshots_equal`≠true または `requests_in_flight`>0）、`connection_balance`（受理数 ≠ 要求行なし(閉)+要求行待ち(開)+解析失敗+`requests_parsed`）、`field_range`（counterが0〜2^31-2の整数でない。飽和値は判別不能）、`time_order`（時刻が0〜3,600,000の有限値でない、resourceの `started≤headers≤completed` 違反、Frame取得→保全→CDP開始→CDP終了の順の違反、`captured_ms` がnull）、`outcome_balance`（resourceの `completed`+phase別失敗の合計が `requests_started` を超える）、`frame_result`（`empty_board`/`board_accepted` がbooleanでない）。同一resourceの `completed`>0 と失敗>0の同時成立は再要求として正当であり矛盾にしない。
 - 候補category: 1と8は `control_required=true`。browserの投機的preconnectは要求行なし接続を正常時にも作り得るため、category 1は、同じcohort（同一event・seed・`browser_version`）の成功episodeすべての `server_connection_summary` で要求行なし接続が0であることを集計で示すまで根因と呼ばない。category 8は、Frame取得時点のDOMを観測していないため本設計の範囲では対照で確定できない。確定にはFrame取得と同時刻のDOM観測が必要で、それは後続Issueで扱う（確定できないまま根因と呼ばない）。
+- CDPを観測できなかった（`cdp.status`が`observed`でない）場合、constructor/DOM境界（6〜8）は評価せず、1〜5と9にも該当しなければ `evidence_incomplete`（`missing=[cdp_unavailable]`）にする。
 - Resource Timingの `entry_count=0`・API無しはcategoryの根拠に使わず、`next_check` の補足にだけ入れる（entry無しを成功や原因と扱わない）。
 - この関数は判定の記録だけを行い、入力・Planner・lease・Stop・失敗判定には戻さない。
 
@@ -105,13 +107,13 @@ PYTHONPATH=src:. python -m tools.summarize_2048_startup_runs \
 
 1. **server世代の記録**（`tools/reference_browser_diagnostics.py`・`tools/reference_game_2048_launcher.py`）
    - `ResourceResponseCounts` を診断有効時に固定12名で0初期化し、`t0`・時刻field・phase別失敗counterを追加する。`started`/`headers_completed`/`record`/`failed` で最初の時刻だけを書く。時刻取得や記録の例外は既存どおり `recording_incomplete` をlatchし、元の送信例外を上書きしない。
-   - 接続counterとgaugeは明示診断時だけ有効。`ReferenceGameHTTPServer` を変えず、launcher内で診断用subclassを作り `process_request` で受理数と要求行待ちgaugeを増やす。handlerの `handle_one_request` で要求行を読んだ時点でgaugeを減らし、空なら `connections_without_request_line`、`parse_request` がfalseなら `request_line_errors`、trueなら `requests_parsed` と `requests_in_flight` を増やし、応答の記録後に `requests_in_flight` を減らす。全counterは1つのlockで更新し、snapshotも同じlockで取る。backlog 32・HTTP/1.0・daemon handler・close/port解放・finite listenは変えない。診断無効時のclass・挙動は現状と同一。
+   - 接続counterとgaugeは明示診断時だけ有効。`ReferenceGameHTTPServer` を変えず（subclassも作らず）、診断有効時だけserver instanceの `process_request` を包んで受理数と要求行待ちgaugeを増やす。handlerの `handle_one_request` で要求行を読んだ時点でgaugeを減らし、空なら `connections_without_request_line`、`parse_request` がfalseなら `request_line_errors`、trueなら `requests_parsed` と `requests_in_flight` を増やし、応答の記録後に `requests_in_flight` を減らす。全counterは1つのlockで更新し、snapshotも同じlockで取る。backlog 32・HTTP/1.0・daemon handler・close/port解放・finite listenは変えない。診断無効時のclass・挙動は現状と同一（instanceの包みも作らない）。handlerの `handle_one_request` / `parse_request` の上書きは、無効時に親をそのまま呼ぶだけである。
 2. **Frame・CDPとの結合**（`tools/planning_failure_header.py`・`tools/reference_episode_failure_diagnostics.py`・`tools/run_2048_campaign.py`・`tools/compare_2048_windows_planning.py`）
    - 失敗headerは `captured_ms`・`preserved_ms` と、保全Frameに既存認識器をそのまま適用した `empty_board`・`board_accepted` を記録する（閾値・認識の挙動は変えない）。server snapshotをCDPの直前と直後に取り、CDPは前後で `started_ms`/`finished_ms` を記録する。順序は既存どおり「Frame保全→heartbeat→CDP（1回限り）」。
    - `correlation` 節を組み立てて `classify_startup_failure` の結果を加え、既存の `failure-diagnostics.json` に保存する。各episodeのreportへ `startup_summary` を出す。失敗の種類・終了コード・reportの成否は変えない。
 3. **分類関数**（新規 `tools/reference_startup_correlation.py`）: 上表を固定順で評価する純粋関数。入力は辞書だけで、I/O・時計・乱数を使わない。
 4. **集計tool**（新規 `tools/summarize_2048_startup_runs.py`）: `--cohort 名前=ディレクトリ` を複数受け取り、各ディレクトリ配下の既存reportの `startup_summary` と `failure-diagnostics.json` だけを読む（network無し、symlink・巨大ファイルは拒否）。cohortごとに、`first_board_accepted_ms` のp50/p95（成功episode）、空盤面失敗の件数/試行数、categoryの内訳、成功episodeの要求行なし接続の分布を出す。cohortの採用規則: 1 cohortの全episodeは同じ `ci_context`（event・run_id・run_attempt・sha）でなければ拒否する。失敗episodeを除外せず失敗率の分子に数え、p50/p95には入れず件数を併記する。`evidence_incomplete` の記録はcategory内訳で別に数え、そのcounterや時刻を他の集計に使わない。`run_attempt`>1のcohortには `retry_only=true` を付け、失敗率の改善の証拠と表示しない。`ci_context` が無い（手元実行）cohortは `attempt_unknown=true` とし比較を `reference_only` にする。比較する2 cohortの成功episodeが各10件未満、または `browser_version` が異なる場合も `comparison=reference_only`。
-5. **既存Linux probe**（`tools/probe_reference_browser_resources.py`）: 10条件のreportに各条件の `classify_startup_failure` 結果を加える。開発専用・Playwright任意依存のまま、CI必須にしない。
+5. **既存Linux probe**（`tools/probe_reference_browser_resources.py`）: 変更しない。probeは独自のfixture serverを使い相関ID・server counterを持たないため、分類は常に `evidence_incomplete` になり情報を増やさない。abort/404/空bodyの見た目の再現は従来の保存結果を参照する。
 6. **文書**: `doc/architecture/reference_browser_post_failure_diagnostics.md` に相関記録とカテゴリ表、`doc/architecture/reference_http_accept_queue.md` に接続counterを追記。`doc/versions.md`。
 7. **修正の判断（今回は修正しない）**: 37c30統合後の再発は確認範囲で見つからず、確定した根因が無い。根因の無い修正（期限延長・retry・reload・Chrome flag・空盤面の許可）は失敗を隠すため行わない。Windowsで再発し、categoryが1〜9のいずれかに確定し（候補の1・8は対照条件を満たし）、そのcategoryを決定論的に再現する負例を作れた場合だけ、後続Issueで最小修正を行う。例: 1/2ならserverの受理経路、3〜5ならhandlerの送信経路・配信内容、6〜8はbrowser側の境界の追加切り分け。
 
@@ -126,16 +128,16 @@ PYTHONPATH=src:. python -m tools.summarize_2048_startup_runs \
 | # | 試験（`tests/`） | 対応する受入条件 |
 |---|---|---|
 | T1 | `test_reference_startup_correlation.py`: 各category 0〜10の最小記録で期待category・boundaryになる。同時に成立し得る組（例: 欠落script AがRST後に要求行なし、欠落script Bがheader前失敗→1と3）で先の境界が勝ち、後段は `all_matching` に残る。`main_css` だけの失敗は `other_resource_failures` に入り分類を止めない。404・SHA不一致は5 | AC1 |
-| T2 | 同: 37bb seed481の実記録（旧schema、本文値はlog由来の公開済みcounterのみ）を固定fixtureにし、`evidence_incomplete` と `missing=[requests_started,...]` になる。原因を命名しない | AC1, AC3 |
+| T2 | 同: 37bb seed481の旧schema記録（公開済みcounterのみ、3 scriptの行が無い）を固定fixtureにし、`evidence_incomplete` で `missing` に `schema` と `field_range` を含む。原因を命名しない | AC1, AC3 |
 | T3 | 同: 相関ID不一致・`target_matches_generation=false`・CDP時刻がFrameより前・`recording_incomplete`・飽和counter・負/非finite時刻・`snapshots_equal=false`・`requests_in_flight>0`・接続の収支不一致・完了+失敗が開始数超過・`empty_board` 非boolean がそれぞれ `evidence_incomplete`（固定 `missing` 名つき）。完了1件と失敗1件が開始2件と並ぶ再要求は正当として分類される | AC3 |
 | T4 | `test_reference_game_http_server.py`: loopbackで実socketを開いて要求行を送らず閉じる→`connections_accepted=1`・`connections_without_request_line=1`、解析系counterは不変。閉じずに保持中のsnapshotでは `connections_awaiting_request_line=1`。allowlist外のGETは `requests_parsed` だけを増やす。欠落script付きの記録で分類1・`control_required=true` | AC2 |
 | T5 | 同: テスト用handler subclassで `html_actuator.js` のheader送信前に例外→ `failed phase=headers`、時刻は `first_failed_ms` のみ。分類は3。body途中の例外で4。同resourceにheader前失敗→body失敗の順で起きてもphase別counterが両方残り、分類は先の境界3テスト用subclassは `tests/` 内だけに置き、製品に故障注入flagを足さない | AC2 |
 | T6 | 同: 診断有効時は固定12名が0で初期化される（未要求scriptもentryあり）。診断無効時は接続counter・時刻fieldが存在せず、server class・backlog 32・応答byte列が現状と同一 | AC4 |
 | T7 | 同: 時刻・counter記録の例外注入で元の送信例外が保たれ `recording_incomplete=true` | AC3, AC4 |
-| T8 | `test_reference_episode_failure_diagnostics.py`: Frame保全前はCDPを呼ばず、`correlation` 節の時刻順がFrame→CDPで、server snapshotがCDP前後で取られ、`empty_board`・`board_accepted` が記録され、byte上限超過時は既存の縮退形になる。成功episodeにも `startup_summary`（`first_board_accepted_ms`・接続counter・`browser_version`・`ci_context`）が出る | AC3 |
+| T8 | `test_reference_episode_failure_diagnostics.py`: Frame保全前はCDPを呼ばず、`correlation` 節の時刻順がFrame→CDPで、server snapshotがCDP前後で取られ、`empty_board`・`board_accepted` が記録され、byte上限超過時は既存の縮退形になる。成功episodeにも `startup_summary`（episode directoryの `startup-summary.json` に保存し、comparisonのresultにも同じ辞書を入れる。`first_board_accepted_ms`・接続counter・`browser_version`・`ci_context`）が出る | AC3 |
 | T9 | `test_summarize_2048_startup_runs.py`: 疑似reportで p50/p95・失敗率・category内訳がcohortごとに出る。cohortを合算しない。失敗episodeは失敗率に入りp50/p95に入らない。`evidence_incomplete` は別計上。`run_attempt`>1は `retry_only=true`、`ci_context` 無しは `attempt_unknown`、成功10件未満や `browser_version` 違いは `reference_only`。異なる `ci_context` が混ざったcohortは拒否 | AC5 |
 | T10 | 既存の入力・Stop・lease・Planner・score・45秒期限の関連テスト（`test_2048_campaign*`、`test_compare_2048_windows_planning*`）が無変更で通る。`finish_task.bat` 全体 | AC4 |
-| T11（任意・手動） | Linuxの `probe_reference_browser_resources` 10条件で abort/404/空bodyのcategoryを記録（Playwright/Chromiumが要るためCI非必須、受入判定の根拠に使わない。実施時は条件ごとの期待/実測を `doc/validation/` に保存、未実施なら理由をPRに書く） | 参考 |
+| T11（取り下げ） | 手順5のとおり、probeは変更しないため対応する試験は無い | - |
 
 テストは決定的・外部network不要（loopbackのみ）。時刻は注入可能な時計で固定する。
 

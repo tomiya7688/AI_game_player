@@ -6,6 +6,7 @@ import ctypes
 import hashlib
 from functools import partial
 import os
+import secrets
 import shutil
 import subprocess
 import tempfile
@@ -80,6 +81,93 @@ class PageResponseCounts:
             return f"game_page_http_200={self._ok}, game_page_http_other={self._other}"
 
 
+# {
+#   責務: [_expected_body_digests: 固定12資源の期待本文SHA256を、固定済みsourceから計算する],
+#   処理: [pageはseed付き応答があればそのbyte列、無ければindex.html。他はsource配下の固定相対pathを読む。読めない資源は含めない],
+#   引数: [source_path: materialize済みのgame directory, seeded_response: seed付きindexのbyte列またはNone]
+#   戻り値: [dict[str, str]: 資源名からSHA256。検証できない資源は欠落させる]
+# }
+def _expected_body_digests(
+    source_path: Path, seeded_response: bytes | None
+) -> dict[str, str]:
+    from tools.reference_browser_diagnostics import RESOURCE_NAMES
+
+    digests: dict[str, str] = {}
+    paths = {
+        name: url_path
+        for url_path, name in RESOURCE_NAMES.items()
+        if url_path not in ("/", "/index.html")
+    }
+    paths["page"] = "/index.html"
+    for name, url_path in paths.items():
+        try:
+            if name == "page" and seeded_response is not None:
+                digests[name] = hashlib.sha256(seeded_response).hexdigest()
+                continue
+            file_path = source_path / url_path.lstrip("/")
+            if file_path.is_file() and file_path.stat().st_size <= 1_048_576:
+                digests[name] = hashlib.sha256(file_path.read_bytes()).hexdigest()
+        except OSError:
+            continue
+    return digests
+
+
+# {
+#   責務: [browser_file_version: browser実行ファイルのWindows file versionを文字列で返す],
+#   処理: [version.dllのGetFileVersionInfoで固定ファイル情報を読む。Windows以外・取得不能・形式不正はNone],
+#   引数: [path: browser実行ファイルのpath]
+#   戻り値: [str | None: 64字までの"a.b.c.d"形式、取得不能ならNone]
+# }
+def browser_file_version(path: Path) -> str | None:
+    if os.name != "nt":
+        return None
+    try:
+        from ctypes import wintypes
+
+        api = getattr(ctypes, "WinDLL")("version", use_last_error=True)
+        api.GetFileVersionInfoSizeW.argtypes = [
+            wintypes.LPCWSTR,
+            ctypes.POINTER(wintypes.DWORD),
+        ]
+        api.GetFileVersionInfoSizeW.restype = wintypes.DWORD
+        api.GetFileVersionInfoW.argtypes = [
+            wintypes.LPCWSTR,
+            wintypes.DWORD,
+            wintypes.DWORD,
+            ctypes.c_void_p,
+        ]
+        api.GetFileVersionInfoW.restype = wintypes.BOOL
+        api.VerQueryValueW.argtypes = [
+            ctypes.c_void_p,
+            wintypes.LPCWSTR,
+            ctypes.POINTER(ctypes.c_void_p),
+            ctypes.POINTER(wintypes.UINT),
+        ]
+        api.VerQueryValueW.restype = wintypes.BOOL
+        size = api.GetFileVersionInfoSizeW(str(path), None)
+        if not 0 < size <= 1_048_576:
+            return None
+        buffer = ctypes.create_string_buffer(size)
+        if not api.GetFileVersionInfoW(str(path), 0, size, buffer):
+            return None
+        pointer = ctypes.c_void_p()
+        length = wintypes.UINT()
+        if (
+            not api.VerQueryValueW(
+                buffer, "\\", ctypes.byref(pointer), ctypes.byref(length)
+            )
+            or length.value < 52
+        ):
+            return None
+        values = ctypes.cast(pointer, ctypes.POINTER(wintypes.DWORD))
+        if values[0] != 0xFEEF04BD:
+            return None
+        ms, ls = values[4], values[5]
+        return f"{ms >> 16}.{ms & 0xFFFF}.{ls >> 16}.{ls & 0xFFFF}"[:64]
+    except Exception:
+        return None
+
+
 class LoopbackStaticServer:
     """Serve one materialized game directory on a private, ephemeral localhost port."""
 
@@ -93,12 +181,46 @@ class LoopbackStaticServer:
         self.test_seed_metadata: dict | None = None
         self.post_failure_render_diagnostics = False
         self._resource_responses = None
+        self._correlation_id: str | None = None
+        self._expected_sha256: dict[str, str] = {}
 
     def resource_response_summary(self) -> dict[str, object]:
         """Return optional allowlist write counts; never claim browser receipt."""
         with self._lifecycle_lock:
             counts = self._resource_responses
         return counts.snapshot() if counts is not None else {"status": "not_enabled"}
+
+    # {
+    #   責務: [correlation_snapshot: 明示診断時の起動世代ID・server counter・期待本文SHAを一度に返す],
+    #   処理: [lifecycle lock内で世代の参照を取り、counterのsnapshotは専用lockで取る],
+    #   引数: []
+    #   戻り値: [dict | None: 相関記録が無効、または未起動ならNone。URLや本文は含まない]
+    # }
+    def correlation_snapshot(self) -> dict[str, object] | None:
+        with self._lifecycle_lock:
+            counts = self._resource_responses
+            correlation_id = self._correlation_id
+            expected = dict(self._expected_sha256)
+        if counts is None or correlation_id is None:
+            return None
+        return {
+            "correlation_id": correlation_id,
+            "server": counts.snapshot(),
+            "expected_body_sha256": expected,
+            "now_ms": counts.now_ms(),
+        }
+
+    # {
+    #   責務: [relative_ms: 親processの単調時計(ns)を、この世代のserver開始からの相対msへ変換する],
+    #   引数: [monotonic_ns: time.monotonic_ns()と同じ時計の値]
+    #   戻り値: [float | None: 小数1桁のms。相関記録が無効ならNone。範囲外は丸めず返し、分類側で拒否する]
+    # }
+    def relative_ms(self, monotonic_ns: int) -> float | None:
+        with self._lifecycle_lock:
+            counts = self._resource_responses
+        if counts is None:
+            return None
+        return counts.relative_ms(monotonic_ns)
 
     def page_response_summary(self) -> str:
         """Return GET-page HTTP response counts, not proof of browser receipt or rendering.
@@ -140,10 +262,45 @@ class LoopbackStaticServer:
                 RESOURCE_NAMES,
             )
 
-            resource_responses = ResourceResponseCounts()
+            resource_responses = ResourceResponseCounts(correlation=True)
             resource_names = RESOURCE_NAMES
 
         class QuietRequestHandler(SimpleHTTPRequestHandler):
+            # {
+            #   責務: [handle_one_request: 明示診断時だけ、要求行を読む前後の接続状態を数える],
+            #   処理: [要求行待ちを宣言し、parse_requestで解析済み/解析失敗へ遷移しなければ空/失敗として数える。診断無効時は親の処理だけを呼ぶ],
+            #   引数: [self: handler],
+            #   戻り値: [None]
+            #   エラー: [親の例外はそのまま再送出し、counter更新の失敗で上書きしない]
+            # }
+            def handle_one_request(self) -> None:
+                if resource_responses is None:
+                    super().handle_one_request()
+                    return
+                self._startup_state = "awaiting"
+                self.raw_requestline = b""
+                try:
+                    super().handle_one_request()
+                finally:
+                    state = self._startup_state
+                    if state == "awaiting":
+                        # 要求行が空のまま閉じた、または解析前に失敗した。
+                        state = "empty" if not self.raw_requestline else "error"
+                        self._startup_state = state
+                        resource_responses.connection_event(state)
+                    elif state == "parsed":
+                        resource_responses.connection_event("done")
+
+            def parse_request(self) -> bool:
+                parsed = super().parse_request()
+                if (
+                    resource_responses is not None
+                    and getattr(self, "_startup_state", None) == "awaiting"
+                ):
+                    self._startup_state = "parsed" if parsed else "error"
+                    resource_responses.connection_event(self._startup_state)
+                return parsed
+
             def do_GET(self) -> None:
                 self._response_status = 0
                 self._resource_name = resource_names.get(self.path.partition("?")[0])
@@ -251,6 +408,15 @@ class LoopbackStaticServer:
 
         handler = partial(QuietRequestHandler, directory=str(source_path))
         server = ReferenceGameHTTPServer(("127.0.0.1", 0), handler)
+        if resource_responses is not None:
+            # 受理数だけを数える。classとlistenの設定は変えず、instanceの受理経路だけを包む。
+            original_process_request = server.process_request
+
+            def counting_process_request(request, client_address) -> None:
+                resource_responses.connection_event("accepted")
+                original_process_request(request, client_address)
+
+            server.process_request = counting_process_request
         thread = threading.Thread(
             target=server.serve_forever, name="2048-static-server", daemon=True
         )
@@ -261,6 +427,14 @@ class LoopbackStaticServer:
             raise
         self._page_responses = page_responses
         self._resource_responses = resource_responses
+        self._correlation_id = (
+            secrets.token_hex(16) if resource_responses is not None else None
+        )
+        self._expected_sha256 = (
+            _expected_body_digests(source_path, seeded_response)
+            if resource_responses is not None
+            else {}
+        )
         self._server = server
         self._thread = thread
         self._url = f"http://127.0.0.1:{server.server_address[1]}/"
@@ -523,6 +697,7 @@ class ReferenceGame2048Launcher:
         self.cache_root = cache_root
         self.browser_path = browser_path
         self.source_path: Path | None = None
+        self.browser_executable: Path | None = None
         self.server = LoopbackStaticServer()
         self.server.post_failure_render_diagnostics = post_failure_render_diagnostics
         self.browser: BrowserWindowSession | None = None
@@ -551,6 +726,7 @@ class ReferenceGame2048Launcher:
         try:
             self.source_path = PinnedGameSource(self.cache_root).materialize()
             browser_path = self.browser_path or find_browser_executable()
+            self.browser_executable = browser_path
             self.server.start(self.source_path)
             self.browser = BrowserWindowSession(browser_path, self.source_path)
             self.browser.failure_evidence = self.failure_evidence
@@ -590,15 +766,42 @@ class ReferenceGame2048Launcher:
         """Forward the post-failure-only diagnostic without changing episode status."""
         if self.browser is None:
             return {"status": "unavailable", "reason": "owner_unavailable"}
-        result = self.browser.collect_failure_render_diagnostics(
-            failure_confirmed=failure_confirmed, frame_preserved=frame_preserved
-        )
-        if (
+        enabled = (
             failure_confirmed is True
             and frame_preserved is True
             and self.post_failure_render_diagnostics
-        ):
+        )
+        # CDPの前後に同じserver世代のsnapshotを取り、その間に変化が無いことを確認する。
+        before = self.server.correlation_snapshot() if enabled else None
+        started_ms = before["now_ms"] if before is not None else None
+        result = self.browser.collect_failure_render_diagnostics(
+            failure_confirmed=failure_confirmed, frame_preserved=frame_preserved
+        )
+        if enabled:
             result["server_responses"] = self.server.resource_response_summary()
+            after = self.server.correlation_snapshot()
+            if before is not None and after is not None:
+                result["correlation_parts"] = {
+                    "correlation_id": before["correlation_id"],
+                    "server": {
+                        **after["server"],
+                        "snapshots_equal": (before["server"] == after["server"]),
+                    },
+                    "expected_body_sha256": before["expected_body_sha256"],
+                    "cdp_started_ms": started_ms,
+                    "cdp_finished_ms": after["now_ms"],
+                    # inspect_failed_browserは対象URLの完全一致を要求するため、
+                    # 観測できた時だけ、この世代のURLと一致したと言える。
+                    "target_matches_generation": (
+                        result.get("status") == "observed"
+                        and self.browser._diagnostic_url == self.server._url
+                    ),
+                    "browser_version": (
+                        browser_file_version(self.browser_executable)
+                        if self.browser_executable is not None
+                        else None
+                    ),
+                }
         return result
 
     def wait_until_closed(self) -> int:
