@@ -320,3 +320,15 @@ non_provider_core_ms = max(0, total_step_ms - provider_ms)
 - 測定期間全体でrunnerが遅い場合は退行と区別できず、従来どおり不合格になる。測定時間は約5倍（ローカルWindowsで約17秒→約96秒）。
 
 Level 1 / 2048 runner完成後は、同じNoisy Providerを実ゲームにも常設接続する。攻略scoreはGateにせず、crash、candidate grounding違反、Safety bypass、execution failure、回復不能stall等をhard failureとする。
+
+## 長時間Session資源安定性Gate
+
+`windows-e2e`の600秒campaignは`tools/run_resource_stability.py run --layer integration --run-profile pr -- <campaign command>`で包まれ、process tree（RSS・private bytes・handle・GDI/USER）とrun専用`TEMP`を1秒間隔で標本化します。reportとsamplesは`build/resource-stability`にartifact（`kadoka-windows-resource-stability`）として保存されます。最初は`config/resource_stability_profile.json`の`enforcement.integration`が`observe`で、失敗は`::warning`と`report.json`の`reasons`に出るだけでjobの結果は変わりません（観測対象commandの失敗は従来どおりjobを落とします）。
+
+`enforce`へ切り替える条件は、同一HEADを含む連続3回のCI実測がpassし、下の表へ値を記録することです（切替は別PRでprofileの1行）。
+
+| 実測日 | commit | tail_growth(handle) | 判定 | 備考 |
+|---|---|---|---|---|
+| （CI実測待ち） | | | | 実装PRの時点では未計測 |
+
+fast gateは`python tools/run_resource_stability.py run --layer fast --run-profile fast`（`PYTHONPATH=src`）で、Windowsローカルの実測は約12秒です。
