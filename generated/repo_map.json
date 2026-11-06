@@ -104713,7 +104713,7 @@
       "module": "tests.test_artifact_admission",
       "path": "tests/test_artifact_admission.py",
       "source_location": {
-        "end_line": 1096,
+        "end_line": 1103,
         "start_line": 1
       },
       "symbols": [
@@ -105611,8 +105611,37 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 472,
+            "end_line": 479,
             "start_line": 302
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "make_coordinator",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "ConcurrencyTest.make_coordinator",
+          "return_annotation": "ArtifactAdmissionCoordinator",
+          "signature": "(self, **kwargs) -> ArtifactAdmissionCoordinator",
+          "source_location": {
+            "column": 4,
+            "end_line": 307,
+            "start_line": 303
           }
         },
         {
@@ -105640,8 +105669,8 @@
           "signature": "(self, jobs)",
           "source_location": {
             "column": 4,
-            "end_line": 323,
-            "start_line": 303
+            "end_line": 329,
+            "start_line": 309
           }
         },
         {
@@ -105669,8 +105698,8 @@
           "signature": "(index, job)",
           "source_location": {
             "column": 8,
-            "end_line": 312,
-            "start_line": 307
+            "end_line": 318,
+            "start_line": 313
           }
         },
         {
@@ -105692,8 +105721,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 341,
-            "start_line": 325
+            "end_line": 347,
+            "start_line": 331
           }
         },
         {
@@ -105715,8 +105744,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 365,
-            "start_line": 343
+            "end_line": 372,
+            "start_line": 349
           }
         },
         {
@@ -105738,8 +105767,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 384,
-            "start_line": 367
+            "end_line": 391,
+            "start_line": 374
           }
         },
         {
@@ -105761,8 +105790,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 416,
-            "start_line": 386
+            "end_line": 423,
+            "start_line": 393
           }
         },
         {
@@ -105784,8 +105813,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 472,
-            "start_line": 418
+            "end_line": 479,
+            "start_line": 425
           }
         },
         {
@@ -105806,8 +105835,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 645,
-            "start_line": 475
+            "end_line": 652,
+            "start_line": 482
           }
         },
         {
@@ -105829,8 +105858,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 489,
-            "start_line": 476
+            "end_line": 496,
+            "start_line": 483
           }
         },
         {
@@ -105852,8 +105881,8 @@
           "signature": "(port)",
           "source_location": {
             "column": 8,
-            "end_line": 480,
-            "start_line": 479
+            "end_line": 487,
+            "start_line": 486
           }
         },
         {
@@ -105875,8 +105904,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 500,
-            "start_line": 491
+            "end_line": 507,
+            "start_line": 498
           }
         },
         {
@@ -105898,8 +105927,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 517,
-            "start_line": 502
+            "end_line": 524,
+            "start_line": 509
           }
         },
         {
@@ -105921,8 +105950,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 531,
-            "start_line": 519
+            "end_line": 538,
+            "start_line": 526
           }
         },
         {
@@ -105944,8 +105973,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 545,
-            "start_line": 533
+            "end_line": 552,
+            "start_line": 540
           }
         },
         {
@@ -105967,8 +105996,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 557,
-            "start_line": 547
+            "end_line": 564,
+            "start_line": 554
           }
         },
         {
@@ -105990,8 +106019,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 574,
-            "start_line": 559
+            "end_line": 581,
+            "start_line": 566
           }
         },
         {
@@ -106013,8 +106042,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 589,
-            "start_line": 576
+            "end_line": 596,
+            "start_line": 583
           }
         },
         {
@@ -106036,8 +106065,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 603,
-            "start_line": 591
+            "end_line": 610,
+            "start_line": 598
           }
         },
         {
@@ -106059,8 +106088,8 @@
           "signature": "(port)",
           "source_location": {
             "column": 8,
-            "end_line": 596,
-            "start_line": 594
+            "end_line": 603,
+            "start_line": 601
           }
         },
         {
@@ -106082,8 +106111,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 629,
-            "start_line": 605
+            "end_line": 636,
+            "start_line": 612
           }
         },
         {
@@ -106105,8 +106134,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 645,
-            "start_line": 631
+            "end_line": 652,
+            "start_line": 638
           }
         },
         {
@@ -106127,8 +106156,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 812,
-            "start_line": 648
+            "end_line": 819,
+            "start_line": 655
           }
         },
         {
@@ -106162,8 +106191,8 @@
           "signature": "(self, payload: bytes, **overrides) -> PendingAdmission",
           "source_location": {
             "column": 4,
-            "end_line": 664,
-            "start_line": 649
+            "end_line": 671,
+            "start_line": 656
           }
         },
         {
@@ -106185,8 +106214,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 709,
-            "start_line": 666
+            "end_line": 716,
+            "start_line": 673
           }
         },
         {
@@ -106208,8 +106237,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 754,
-            "start_line": 711
+            "end_line": 761,
+            "start_line": 718
           }
         },
         {
@@ -106231,8 +106260,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 769,
-            "start_line": 756
+            "end_line": 776,
+            "start_line": 763
           }
         },
         {
@@ -106254,8 +106283,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 788,
-            "start_line": 771
+            "end_line": 795,
+            "start_line": 778
           }
         },
         {
@@ -106277,8 +106306,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 804,
-            "start_line": 790
+            "end_line": 811,
+            "start_line": 797
           }
         },
         {
@@ -106300,8 +106329,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 812,
-            "start_line": 806
+            "end_line": 819,
+            "start_line": 813
           }
         },
         {
@@ -106322,8 +106351,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 958,
-            "start_line": 815
+            "end_line": 965,
+            "start_line": 822
           }
         },
         {
@@ -106345,8 +106374,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 830,
-            "start_line": 816
+            "end_line": 837,
+            "start_line": 823
           }
         },
         {
@@ -106368,8 +106397,8 @@
           "signature": "(port)",
           "source_location": {
             "column": 8,
-            "end_line": 824,
-            "start_line": 822
+            "end_line": 831,
+            "start_line": 829
           }
         },
         {
@@ -106391,8 +106420,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 842,
-            "start_line": 832
+            "end_line": 849,
+            "start_line": 839
           }
         },
         {
@@ -106414,8 +106443,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 853,
-            "start_line": 844
+            "end_line": 860,
+            "start_line": 851
           }
         },
         {
@@ -106437,8 +106466,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 868,
-            "start_line": 855
+            "end_line": 875,
+            "start_line": 862
           }
         },
         {
@@ -106460,8 +106489,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 883,
-            "start_line": 870
+            "end_line": 890,
+            "start_line": 877
           }
         },
         {
@@ -106483,8 +106512,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 897,
-            "start_line": 885
+            "end_line": 904,
+            "start_line": 892
           }
         },
         {
@@ -106506,8 +106535,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 908,
-            "start_line": 899
+            "end_line": 915,
+            "start_line": 906
           }
         },
         {
@@ -106529,8 +106558,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 916,
-            "start_line": 910
+            "end_line": 923,
+            "start_line": 917
           }
         },
         {
@@ -106552,8 +106581,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 931,
-            "start_line": 918
+            "end_line": 938,
+            "start_line": 925
           }
         },
         {
@@ -106575,8 +106604,8 @@
           "signature": "(port)",
           "source_location": {
             "column": 8,
-            "end_line": 926,
-            "start_line": 921
+            "end_line": 933,
+            "start_line": 928
           }
         },
         {
@@ -106598,8 +106627,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 942,
-            "start_line": 933
+            "end_line": 949,
+            "start_line": 940
           }
         },
         {
@@ -106621,8 +106650,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 958,
-            "start_line": 944
+            "end_line": 965,
+            "start_line": 951
           }
         },
         {
@@ -106644,8 +106673,8 @@
           "signature": "(port)",
           "source_location": {
             "column": 8,
-            "end_line": 953,
-            "start_line": 951
+            "end_line": 960,
+            "start_line": 958
           }
         },
         {
@@ -106666,8 +106695,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1039,
-            "start_line": 961
+            "end_line": 1046,
+            "start_line": 968
           }
         },
         {
@@ -106689,8 +106718,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 981,
-            "start_line": 962
+            "end_line": 988,
+            "start_line": 969
           }
         },
         {
@@ -106712,8 +106741,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1009,
-            "start_line": 983
+            "end_line": 1016,
+            "start_line": 990
           }
         },
         {
@@ -106735,8 +106764,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1022,
-            "start_line": 1011
+            "end_line": 1029,
+            "start_line": 1018
           }
         },
         {
@@ -106758,8 +106787,8 @@
           "signature": "(event)",
           "source_location": {
             "column": 8,
-            "end_line": 1013,
-            "start_line": 1012
+            "end_line": 1020,
+            "start_line": 1019
           }
         },
         {
@@ -106781,8 +106810,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1039,
-            "start_line": 1024
+            "end_line": 1046,
+            "start_line": 1031
           }
         },
         {
@@ -106803,8 +106832,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1092,
-            "start_line": 1042
+            "end_line": 1099,
+            "start_line": 1049
           }
         },
         {
@@ -106832,8 +106861,8 @@
           "signature": "(self, **overrides) -> dict",
           "source_location": {
             "column": 4,
-            "end_line": 1055,
-            "start_line": 1043
+            "end_line": 1062,
+            "start_line": 1050
           }
         },
         {
@@ -106855,8 +106884,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1059,
-            "start_line": 1057
+            "end_line": 1066,
+            "start_line": 1064
           }
         },
         {
@@ -106878,8 +106907,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1081,
-            "start_line": 1061
+            "end_line": 1088,
+            "start_line": 1068
           }
         },
         {
@@ -106901,8 +106930,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1092,
-            "start_line": 1083
+            "end_line": 1099,
+            "start_line": 1090
           }
         }
       ]
