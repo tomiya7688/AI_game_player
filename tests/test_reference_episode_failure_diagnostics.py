@@ -352,7 +352,13 @@ class CorrelationSectionTests(unittest.TestCase):
         episode.launcher = SimpleNamespace(server=server, browser_executable=None)
         episode.source = SimpleNamespace(first_board_accepted_ns=5)
         with patch.dict(
-            "os.environ", {"GITHUB_EVENT_NAME": "pull_request", "GITHUB_RUN_ID": "9"}
+            "os.environ",
+            {
+                "GITHUB_EVENT_NAME": "pull_request",
+                "GITHUB_RUN_ID": "9",
+                "GITHUB_RUN_ATTEMPT": "",
+                "GITHUB_SHA": "",
+            },
         ):
             summary = episode.startup_summary()
         self.assertEqual(summary["first_board_accepted_ms"], 1234.5)
