@@ -394,7 +394,8 @@ def _settle(
     while time.monotonic() < deadline:
         time.sleep(0.1)
         current = gauge.read()
-        if current == previous:
+        # 欠測(None)同士の一致は安定とみなさない(読取が回復するまで待つ)
+        if current == previous and None not in current.values():
             return current, False
         previous = current
     return previous, True

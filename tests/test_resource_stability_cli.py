@@ -329,6 +329,31 @@ class SettleTest(unittest.TestCase):
         self.assertIsNotNone(value["temp.file_count"])
 
 
+class SettleMissingValueTest(unittest.TestCase):
+    def test_missing_values_are_not_a_stable_reading(self) -> None:
+        readings = [
+            {"temp.file_count": None},
+            {"temp.file_count": None},
+            {"temp.file_count": 2},
+            {"temp.file_count": 2},
+        ]
+
+        class Recovering:
+            def read(self) -> dict[str, int | None]:
+                return readings.pop(0) if len(readings) > 1 else readings[0]
+
+        value, timeout = cli._settle(Recovering(), 5.0)  # type: ignore[arg-type]
+        self.assertEqual((value, timeout), ({"temp.file_count": 2}, False))
+
+    def test_persistent_missing_values_time_out_as_missing(self) -> None:
+        class Broken:
+            def read(self) -> dict[str, int | None]:
+                return {"temp.file_count": None}
+
+        value, timeout = cli._settle(Broken(), 0.3)  # type: ignore[arg-type]
+        self.assertEqual((value, timeout), ({"temp.file_count": None}, True))
+
+
 class CliContractTest(unittest.TestCase):
     def test_exit_codes_for_invalid_inputs(self) -> None:
         self.assertEqual(run_cli("run", "--layer", "fast", "--run-profile", "pr")[0], 2)

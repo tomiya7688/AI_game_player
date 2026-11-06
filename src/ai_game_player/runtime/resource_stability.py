@@ -982,11 +982,8 @@ def _report(
                 "enforcement": enforcement,
                 "gate_effective": enforcement == "enforce",
                 "duration_seconds": run.footer.get("duration_seconds"),
-                # 実行したstep数(footerのtotal_steps)。無ければ標本の座標数(実行規模ではない)
-                "steps": run.footer.get(
-                    "total_steps",
-                    len({(s["session_index"], s["step"]) for s in run.samples}),
-                ),
+                # 実行したstep数(footerのtotal_steps)。不明ならnull(標本数はsampling.samples_totalで別に報告)
+                "steps": run.footer.get("total_steps"),
                 "sessions": len(run.sessions),
                 "command_exit_code": run.footer.get("command_exit_code"),
             },

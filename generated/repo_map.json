@@ -80485,7 +80485,7 @@
       "module": "ai_game_player.runtime.resource_probes",
       "path": "src/ai_game_player/runtime/resource_probes.py",
       "source_location": {
-        "end_line": 669,
+        "end_line": 672,
         "start_line": 1
       },
       "symbols": [
@@ -81101,7 +81101,7 @@
           "signature": "(pid: int) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 459,
+            "end_line": 462,
             "start_line": 458
           }
         },
@@ -81121,8 +81121,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 512,
-            "start_line": 466
+            "end_line": 515,
+            "start_line": 469
           }
         },
         {
@@ -81168,8 +81168,8 @@
           "signature": "(self, root: Path | str, max_files: int = …, max_seconds: float = …, clock: Callable[[], float] = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 478,
-            "start_line": 467
+            "end_line": 481,
+            "start_line": 470
           }
         },
         {
@@ -81191,8 +81191,8 @@
           "signature": "(self) -> dict[str, int | None]",
           "source_location": {
             "column": 4,
-            "end_line": 512,
-            "start_line": 480
+            "end_line": 515,
+            "start_line": 483
           }
         },
         {
@@ -81220,8 +81220,8 @@
           "signature": "(output: str, pids: set[int]) -> int | None",
           "source_location": {
             "column": 0,
-            "end_line": 533,
-            "start_line": 521
+            "end_line": 536,
+            "start_line": 524
           }
         },
         {
@@ -81240,8 +81240,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 605,
-            "start_line": 540
+            "end_line": 608,
+            "start_line": 543
           }
         },
         {
@@ -81275,8 +81275,8 @@
           "signature": "(self, pids: Callable[[], set[int]], runner: Callable[[list[str]], str] | None = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 547,
-            "start_line": 541
+            "end_line": 550,
+            "start_line": 544
           }
         },
         {
@@ -81300,8 +81300,8 @@
           "signature": "(argv: list[str]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 553,
-            "start_line": 550
+            "end_line": 556,
+            "start_line": 553
           }
         },
         {
@@ -81323,8 +81323,8 @@
           "signature": "(self) -> dict[str, Support]",
           "source_location": {
             "column": 4,
-            "end_line": 577,
-            "start_line": 555
+            "end_line": 580,
+            "start_line": 558
           }
         },
         {
@@ -81346,8 +81346,8 @@
           "signature": "(self) -> dict[str, int | None]",
           "source_location": {
             "column": 4,
-            "end_line": 605,
-            "start_line": 579
+            "end_line": 608,
+            "start_line": 582
           }
         },
         {
@@ -81366,8 +81366,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 629,
-            "start_line": 612
+            "end_line": 632,
+            "start_line": 615
           }
         },
         {
@@ -81389,8 +81389,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 614,
-            "start_line": 613
+            "end_line": 617,
+            "start_line": 616
           }
         },
         {
@@ -81412,8 +81412,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 619,
-            "start_line": 616
+            "end_line": 622,
+            "start_line": 619
           }
         },
         {
@@ -81435,8 +81435,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 624,
-            "start_line": 621
+            "end_line": 627,
+            "start_line": 624
           }
         },
         {
@@ -81458,8 +81458,8 @@
           "signature": "(self) -> dict[str, int | None]",
           "source_location": {
             "column": 4,
-            "end_line": 629,
-            "start_line": 626
+            "end_line": 632,
+            "start_line": 629
           }
         },
         {
@@ -81478,8 +81478,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 669,
-            "start_line": 636
+            "end_line": 672,
+            "start_line": 639
           }
         },
         {
@@ -81507,8 +81507,8 @@
           "signature": "(self, snapshot: Mapping[str, Any] | None) -> tuple[Support, dict[str, int | float | None]]",
           "source_location": {
             "column": 4,
-            "end_line": 669,
-            "start_line": 646
+            "end_line": 672,
+            "start_line": 649
           }
         }
       ]
@@ -81606,7 +81606,7 @@
       "module": "ai_game_player.runtime.resource_stability",
       "path": "src/ai_game_player/runtime/resource_stability.py",
       "source_location": {
-        "end_line": 1041,
+        "end_line": 1038,
         "start_line": 1
       },
       "symbols": [
@@ -82766,7 +82766,7 @@
           "signature": "(run: _Run, metrics: dict[str, Any], sessions_report: dict[int, dict[str, Any]], baseline_drift: dict[str, Any], coverage: dict[str, Any], environment: Mapping[str, Any], generated_at_utc: str) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 1011,
+            "end_line": 1008,
             "start_line": 944
           }
         },
@@ -82789,8 +82789,8 @@
           "signature": "(value: Any) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 1022,
-            "start_line": 1015
+            "end_line": 1019,
+            "start_line": 1012
           }
         },
         {
@@ -82836,8 +82836,8 @@
           "signature": "(profile: dict[str, Any], rows: Sequence[Any], environment: Mapping[str, Any] | None = …, generated_at_utc: str = …, judge: Callable[..., dict[str, Any]] | None = …) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 1041,
-            "start_line": 1031
+            "end_line": 1038,
+            "start_line": 1028
           }
         }
       ]
@@ -197909,6 +197909,19 @@
           "level": 0,
           "line": 9,
           "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
           "module": "unittest",
           "names": [
             {
@@ -197920,7 +197933,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -197933,7 +197946,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -197946,7 +197959,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -197963,7 +197976,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 47,
+          "line": 48,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -197976,7 +197989,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 279,
+          "line": 295,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -197994,7 +198007,7 @@
       "module": "tests.test_resource_probes",
       "path": "tests/test_resource_probes.py",
       "source_location": {
-        "end_line": 302,
+        "end_line": 318,
         "start_line": 1
       },
       "symbols": [
@@ -198016,8 +198029,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 98,
-            "start_line": 34
+            "end_line": 99,
+            "start_line": 35
           }
         },
         {
@@ -198041,8 +198054,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 43,
-            "start_line": 36
+            "end_line": 44,
+            "start_line": 37
           }
         },
         {
@@ -198066,8 +198079,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 60,
-            "start_line": 46
+            "end_line": 61,
+            "start_line": 47
           }
         },
         {
@@ -198091,8 +198104,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 63
+            "end_line": 68,
+            "start_line": 64
           }
         },
         {
@@ -198116,8 +198129,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 78,
-            "start_line": 70
+            "end_line": 79,
+            "start_line": 71
           }
         },
         {
@@ -198139,8 +198152,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 80
+            "end_line": 83,
+            "start_line": 81
           }
         },
         {
@@ -198162,8 +198175,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 98,
-            "start_line": 84
+            "end_line": 99,
+            "start_line": 85
           }
         },
         {
@@ -198184,8 +198197,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 119,
-            "start_line": 101
+            "end_line": 120,
+            "start_line": 102
           }
         },
         {
@@ -198207,8 +198220,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 119,
-            "start_line": 102
+            "end_line": 120,
+            "start_line": 103
           }
         },
         {
@@ -198230,8 +198243,8 @@
           "signature": "(pid: int) -> dict[str, int | None]",
           "source_location": {
             "column": 8,
-            "end_line": 107,
-            "start_line": 106
+            "end_line": 108,
+            "start_line": 107
           }
         },
         {
@@ -198252,8 +198265,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 122
+            "end_line": 154,
+            "start_line": 123
           }
         },
         {
@@ -198275,8 +198288,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 131,
-            "start_line": 123
+            "end_line": 132,
+            "start_line": 124
           }
         },
         {
@@ -198298,8 +198311,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 141,
-            "start_line": 133
+            "end_line": 142,
+            "start_line": 134
           }
         },
         {
@@ -198321,8 +198334,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 153,
-            "start_line": 143
+            "end_line": 154,
+            "start_line": 144
           }
         },
         {
@@ -198343,8 +198356,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 199,
-            "start_line": 156
+            "end_line": 200,
+            "start_line": 157
           }
         },
         {
@@ -198366,8 +198379,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 162,
-            "start_line": 157
+            "end_line": 163,
+            "start_line": 158
           }
         },
         {
@@ -198389,8 +198402,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 175,
-            "start_line": 164
+            "end_line": 176,
+            "start_line": 165
           }
         },
         {
@@ -198412,8 +198425,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 177
+            "end_line": 187,
+            "start_line": 178
           }
         },
         {
@@ -198435,8 +198448,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 199,
-            "start_line": 188
+            "end_line": 200,
+            "start_line": 189
           }
         },
         {
@@ -198458,8 +198471,8 @@
           "signature": "(path: str)",
           "source_location": {
             "column": 12,
-            "end_line": 196,
-            "start_line": 193
+            "end_line": 197,
+            "start_line": 194
           }
         },
         {
@@ -198480,8 +198493,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 209,
-            "start_line": 202
+            "end_line": 210,
+            "start_line": 203
           }
         },
         {
@@ -198503,8 +198516,55 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 209,
-            "start_line": 203
+            "end_line": 210,
+            "start_line": 204
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ZombieTest",
+          "parameters": [],
+          "qualified_name": "ZombieTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 225,
+            "start_line": 213
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "unittest.skipUnless(sys.platform.startswith(REDACTED), REDACTED)"
+          ],
+          "kind": "method",
+          "name": "test_zombie_child_is_not_alive_and_not_counted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ZombieTest.test_zombie_child_is_not_alive_and_not_counted",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 225,
+            "start_line": 215
           }
         },
         {
@@ -198525,8 +198585,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 252,
-            "start_line": 212
+            "end_line": 268,
+            "start_line": 228
           }
         },
         {
@@ -198548,8 +198608,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 217,
-            "start_line": 213
+            "end_line": 233,
+            "start_line": 229
           }
         },
         {
@@ -198571,8 +198631,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 220,
-            "start_line": 219
+            "end_line": 236,
+            "start_line": 235
           }
         },
         {
@@ -198594,8 +198654,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 222
+            "end_line": 256,
+            "start_line": 238
           }
         },
         {
@@ -198617,8 +198677,8 @@
           "signature": "(argv: list[str]) -> str",
           "source_location": {
             "column": 8,
-            "end_line": 224,
-            "start_line": 223
+            "end_line": 240,
+            "start_line": 239
           }
         },
         {
@@ -198640,8 +198700,8 @@
           "signature": "(argv: list[str]) -> str",
           "source_location": {
             "column": 8,
-            "end_line": 227,
-            "start_line": 226
+            "end_line": 243,
+            "start_line": 242
           }
         },
         {
@@ -198663,8 +198723,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 252,
-            "start_line": 242
+            "end_line": 268,
+            "start_line": 258
           }
         },
         {
@@ -198686,8 +198746,8 @@
           "signature": "(argv: list[str]) -> str",
           "source_location": {
             "column": 8,
-            "end_line": 248,
-            "start_line": 243
+            "end_line": 264,
+            "start_line": 259
           }
         },
         {
@@ -198708,8 +198768,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 287,
-            "start_line": 255
+            "end_line": 303,
+            "start_line": 271
           }
         },
         {
@@ -198731,8 +198791,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 263,
-            "start_line": 256
+            "end_line": 279,
+            "start_line": 272
           }
         },
         {
@@ -198754,8 +198814,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 276,
-            "start_line": 265
+            "end_line": 292,
+            "start_line": 281
           }
         },
         {
@@ -198777,8 +198837,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 287,
-            "start_line": 278
+            "end_line": 303,
+            "start_line": 294
           }
         },
         {
@@ -198799,8 +198859,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 298,
-            "start_line": 290
+            "end_line": 314,
+            "start_line": 306
           }
         },
         {
@@ -198822,8 +198882,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 298,
-            "start_line": 291
+            "end_line": 314,
+            "start_line": 307
           }
         }
       ]
@@ -198960,7 +199020,7 @@
       "module": "tests.test_resource_stability",
       "path": "tests/test_resource_stability.py",
       "source_location": {
-        "end_line": 522,
+        "end_line": 527,
         "start_line": 1
       },
       "symbols": [
@@ -199870,7 +199930,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 299,
+            "end_line": 304,
             "start_line": 271
           }
         },
@@ -199954,6 +200014,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_unknown_step_count_is_null_not_the_sample_count",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ExitAndSamplingTest.test_unknown_step_count_is_null_not_the_sample_count",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 288,
+            "start_line": 285
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_total_steps_is_reported_and_runtime_has_required_fields",
           "parameters": [
             {
@@ -199968,8 +200051,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 290,
-            "start_line": 285
+            "end_line": 295,
+            "start_line": 290
           }
         },
         {
@@ -199991,8 +200074,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 299,
-            "start_line": 292
+            "end_line": 304,
+            "start_line": 297
           }
         },
         {
@@ -200013,8 +200096,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 378,
-            "start_line": 302
+            "end_line": 383,
+            "start_line": 307
           }
         },
         {
@@ -200036,8 +200119,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 309,
-            "start_line": 303
+            "end_line": 314,
+            "start_line": 308
           }
         },
         {
@@ -200059,8 +200142,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 321,
-            "start_line": 311
+            "end_line": 326,
+            "start_line": 316
           }
         },
         {
@@ -200082,8 +200165,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 330,
-            "start_line": 323
+            "end_line": 335,
+            "start_line": 328
           }
         },
         {
@@ -200105,8 +200188,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 335,
-            "start_line": 332
+            "end_line": 340,
+            "start_line": 337
           }
         },
         {
@@ -200128,8 +200211,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 358,
-            "start_line": 337
+            "end_line": 363,
+            "start_line": 342
           }
         },
         {
@@ -200151,8 +200234,8 @@
           "signature": "(period: int) -> ValueFn",
           "source_location": {
             "column": 8,
-            "end_line": 348,
-            "start_line": 338
+            "end_line": 353,
+            "start_line": 343
           }
         },
         {
@@ -200186,8 +200269,8 @@
           "signature": "(session: int, step: int, metric: str) -> float | None",
           "source_location": {
             "column": 12,
-            "end_line": 346,
-            "start_line": 339
+            "end_line": 351,
+            "start_line": 344
           }
         },
         {
@@ -200209,8 +200292,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 362,
-            "start_line": 360
+            "end_line": 367,
+            "start_line": 365
           }
         },
         {
@@ -200232,8 +200315,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 372,
-            "start_line": 364
+            "end_line": 377,
+            "start_line": 369
           }
         },
         {
@@ -200267,8 +200350,8 @@
           "signature": "(session: int, step: int, metric: str) -> float | None",
           "source_location": {
             "column": 8,
-            "end_line": 369,
-            "start_line": 366
+            "end_line": 374,
+            "start_line": 371
           }
         },
         {
@@ -200290,8 +200373,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 378,
-            "start_line": 374
+            "end_line": 383,
+            "start_line": 379
           }
         },
         {
@@ -200312,8 +200395,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 518,
-            "start_line": 381
+            "end_line": 523,
+            "start_line": 386
           }
         },
         {
@@ -200341,8 +200424,8 @@
           "signature": "(self, change: Callable[[dict[str, Any]], None]) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 385,
-            "start_line": 382
+            "end_line": 390,
+            "start_line": 387
           }
         },
         {
@@ -200364,8 +200447,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 388,
-            "start_line": 387
+            "end_line": 393,
+            "start_line": 392
           }
         },
         {
@@ -200387,8 +200470,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 421,
-            "start_line": 390
+            "end_line": 426,
+            "start_line": 395
           }
         },
         {
@@ -200410,8 +200493,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 438,
-            "start_line": 423
+            "end_line": 443,
+            "start_line": 428
           }
         },
         {
@@ -200433,8 +200516,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 464,
-            "start_line": 440
+            "end_line": 469,
+            "start_line": 445
           }
         },
         {
@@ -200456,8 +200539,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 469,
-            "start_line": 466
+            "end_line": 474,
+            "start_line": 471
           }
         },
         {
@@ -200479,8 +200562,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 481,
-            "start_line": 471
+            "end_line": 486,
+            "start_line": 476
           }
         },
         {
@@ -200502,8 +200585,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 498,
-            "start_line": 483
+            "end_line": 503,
+            "start_line": 488
           }
         },
         {
@@ -200525,8 +200608,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 510,
-            "start_line": 500
+            "end_line": 515,
+            "start_line": 505
           }
         },
         {
@@ -200548,8 +200631,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 518,
-            "start_line": 512
+            "end_line": 523,
+            "start_line": 517
           }
         }
       ]
@@ -200825,7 +200908,7 @@
       "module": "tests.test_resource_stability_cli",
       "path": "tests/test_resource_stability_cli.py",
       "source_location": {
-        "end_line": 550,
+        "end_line": 575,
         "start_line": 1
       },
       "symbols": [
@@ -201511,6 +201594,160 @@
           },
           "decorators": [],
           "kind": "class",
+          "name": "SettleMissingValueTest",
+          "parameters": [],
+          "qualified_name": "SettleMissingValueTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 354,
+            "start_line": 332
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_missing_values_are_not_a_stable_reading",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SettleMissingValueTest.test_missing_values_are_not_a_stable_reading",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 346,
+            "start_line": 333
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Recovering",
+          "parameters": [],
+          "qualified_name": "SettleMissingValueTest.test_missing_values_are_not_a_stable_reading.Recovering",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 343,
+            "start_line": 341
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SettleMissingValueTest.test_missing_values_are_not_a_stable_reading.Recovering.read",
+          "return_annotation": "dict[str, int | None]",
+          "signature": "(self) -> dict[str, int | None]",
+          "source_location": {
+            "column": 12,
+            "end_line": 343,
+            "start_line": 342
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_persistent_missing_values_time_out_as_missing",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SettleMissingValueTest.test_persistent_missing_values_time_out_as_missing",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 354,
+            "start_line": 348
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Broken",
+          "parameters": [],
+          "qualified_name": "SettleMissingValueTest.test_persistent_missing_values_time_out_as_missing.Broken",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 351,
+            "start_line": 349
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "read",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "SettleMissingValueTest.test_persistent_missing_values_time_out_as_missing.Broken.read",
+          "return_annotation": "dict[str, int | None]",
+          "signature": "(self) -> dict[str, int | None]",
+          "source_location": {
+            "column": 12,
+            "end_line": 351,
+            "start_line": 350
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
           "name": "CliContractTest",
           "parameters": [],
           "qualified_name": "CliContractTest",
@@ -201518,8 +201755,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 464,
-            "start_line": 332
+            "end_line": 489,
+            "start_line": 357
           }
         },
         {
@@ -201541,8 +201778,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 369,
-            "start_line": 333
+            "end_line": 394,
+            "start_line": 358
           }
         },
         {
@@ -201564,8 +201801,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 385,
-            "start_line": 371
+            "end_line": 410,
+            "start_line": 396
           }
         },
         {
@@ -201587,8 +201824,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 391,
-            "start_line": 387
+            "end_line": 416,
+            "start_line": 412
           }
         },
         {
@@ -201610,8 +201847,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 416,
-            "start_line": 393
+            "end_line": 441,
+            "start_line": 418
           }
         },
         {
@@ -201633,8 +201870,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 449,
-            "start_line": 418
+            "end_line": 474,
+            "start_line": 443
           }
         },
         {
@@ -201662,8 +201899,8 @@
           "signature": "(*args: Any, **kwargs: Any) -> dict[str, Any]",
           "source_location": {
             "column": 8,
-            "end_line": 424,
-            "start_line": 422
+            "end_line": 449,
+            "start_line": 447
           }
         },
         {
@@ -201685,8 +201922,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 464,
-            "start_line": 451
+            "end_line": 489,
+            "start_line": 476
           }
         },
         {
@@ -201709,8 +201946,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 546,
-            "start_line": 470
+            "end_line": 571,
+            "start_line": 495
           }
         },
         {
@@ -201734,8 +201971,8 @@
           "signature": "(cls) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 479,
-            "start_line": 472
+            "end_line": 504,
+            "start_line": 497
           }
         },
         {
@@ -201759,8 +201996,8 @@
           "signature": "(cls) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 483,
-            "start_line": 482
+            "end_line": 508,
+            "start_line": 507
           }
         },
         {
@@ -201794,8 +202031,8 @@
           "signature": "(self, script: str, *args: str) -> tuple[dict[str, Any], dict[str, Any]]",
           "source_location": {
             "column": 4,
-            "end_line": 496,
-            "start_line": 485
+            "end_line": 521,
+            "start_line": 510
           }
         },
         {
@@ -201817,8 +202054,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 506,
-            "start_line": 498
+            "end_line": 531,
+            "start_line": 523
           }
         },
         {
@@ -201840,8 +202077,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 529,
-            "start_line": 508
+            "end_line": 554,
+            "start_line": 533
           }
         },
         {
@@ -201863,8 +202100,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 546,
-            "start_line": 531
+            "end_line": 571,
+            "start_line": 556
           }
         }
       ]
@@ -271270,7 +271507,7 @@
       "module": "tools.run_resource_stability",
       "path": "tools/run_resource_stability.py",
       "source_location": {
-        "end_line": 535,
+        "end_line": 536,
         "start_line": 1
       },
       "symbols": [
@@ -271739,7 +271976,7 @@
           "signature": "(gauge: resource_probes.TempTreeGauge, seconds: float) -> tuple[dict[str, int | None], bool]",
           "source_location": {
             "column": 0,
-            "end_line": 400,
+            "end_line": 401,
             "start_line": 389
           }
         },
@@ -271768,8 +272005,8 @@
           "signature": "(proc: subprocess.Popen[bytes], tree: resource_probes.ProcessTreeGauges) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 413,
-            "start_line": 403
+            "end_line": 414,
+            "start_line": 404
           }
         },
         {
@@ -271803,8 +272040,8 @@
           "signature": "(args: argparse.Namespace, profile: dict[str, Any], command: list[str]) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 436,
-            "start_line": 416
+            "end_line": 437,
+            "start_line": 417
           }
         },
         {
@@ -271832,8 +272069,8 @@
           "signature": "(report: dict[str, Any], command_exit: int | None) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 450,
-            "start_line": 439
+            "end_line": 451,
+            "start_line": 440
           }
         },
         {
@@ -271861,8 +272098,8 @@
           "signature": "(args: argparse.Namespace, profile: dict[str, Any]) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 462,
-            "start_line": 453
+            "end_line": 463,
+            "start_line": 454
           }
         },
         {
@@ -271877,8 +272114,8 @@
           "signature": "() -> argparse.ArgumentParser",
           "source_location": {
             "column": 0,
-            "end_line": 499,
-            "start_line": 465
+            "end_line": 500,
+            "start_line": 466
           }
         },
         {
@@ -271900,8 +272137,8 @@
           "signature": "(argv: Sequence[str] | None = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 531,
-            "start_line": 508
+            "end_line": 532,
+            "start_line": 509
           }
         }
       ]

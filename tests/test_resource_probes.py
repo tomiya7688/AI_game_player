@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import unittest.mock
 from pathlib import Path
@@ -207,6 +208,21 @@ class ReparentedDescendantTest(unittest.TestCase):
         )
         gauge.seen.add((me, probes.process_creation_time(me)))
         self.assertEqual(gauge.read()["os.handle_count"], 10)
+
+
+class ZombieTest(unittest.TestCase):
+    @unittest.skipUnless(sys.platform.startswith("linux"), "Linux only")
+    def test_zombie_child_is_not_alive_and_not_counted(self) -> None:
+        child = subprocess.Popen([sys.executable, "-c", "pass"])  # nosemgrep
+        try:
+            deadline = time.monotonic() + 5
+            while probes._linux_state(child.pid) != "Z" and time.monotonic() < deadline:
+                time.sleep(0.05)  # 親が回収するまで終了済みのまま残る
+            created = probes.process_creation_time(child.pid)
+            self.assertFalse(probes.is_alive(child.pid, created))
+            self.assertFalse(probes._exists(child.pid))
+        finally:
+            child.wait()
 
 
 class GpuProbeTest(unittest.TestCase):

@@ -456,6 +456,9 @@ class ProcessTreeGauges:
 
 
 def _exists(pid: int) -> bool:
+    # Linuxのzombieは終了済み(回収待ち)として存在しない扱いにする
+    if IS_LINUX and _linux_state(pid) == "Z":
+        return False
     return process_creation_time(pid) != 0
 
 

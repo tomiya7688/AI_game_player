@@ -282,6 +282,11 @@ class ExitAndSamplingTest(unittest.TestCase):
         report = evaluate([*make_rows(), self.footer(sampling_limit_reached=True)])
         self.assertIn("scenario_error", codes(report))
 
+    def test_unknown_step_count_is_null_not_the_sample_count(self) -> None:
+        report = evaluate(make_rows())
+        self.assertIsNone(report["run"]["steps"])
+        self.assertGreater(report["sampling"]["samples_total"], 0)
+
     def test_total_steps_is_reported_and_runtime_has_required_fields(self) -> None:
         report = evaluate([*make_rows(), self.footer(total_steps=5000)])
         self.assertEqual(report["run"]["steps"], 5000)
