@@ -850,9 +850,9 @@ class RetentionWorker:
                 continue
             try:
                 self._adapter.maybe_collect(trigger)
-            except Exception:
-                # worker自体は止めない（結果はadapterのstatsとTraceに残る）
-                continue
+            except Exception as error:
+                # worker自体は止めない。想定外の例外はskip件数として数える
+                self._adapter.count_worker_error(trigger, error)
 
 
 # {
@@ -1201,6 +1201,17 @@ class RuntimeRetentionAdapter:
             self._state = _STATE_CLOSED
             self.last_close_result = result
         return result
+
+    # {
+    #   責務: [count_worker_error: 背景workerで想定外の例外が出たことをskip件数へ数える]
+    #   処理: [safety_errorとして理由別件数に加算する(削除は行われていない)]
+    #   引数: [trigger: 起動理由, error: 発生した例外]
+    #   戻り値: [なし]
+    # }
+    def count_worker_error(self, trigger: RetentionTrigger, error: Exception) -> None:
+        self._count_skip(
+            SkippedRetention(trigger, "safety_error", type(error).__name__)
+        )
 
     # {
     #   責務: [_count_skip: skipをstatsへ数えて返す]

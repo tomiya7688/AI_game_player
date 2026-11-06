@@ -80739,7 +80739,7 @@
       "module": "ai_game_player.runtime.retention_adapter",
       "path": "src/ai_game_player/runtime/retention_adapter.py",
       "source_location": {
-        "end_line": 1527,
+        "end_line": 1538,
         "start_line": 1
       },
       "symbols": [
@@ -81976,7 +81976,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1504,
+            "end_line": 1515,
             "start_line": 866
           }
         },
@@ -82434,6 +82434,41 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "count_worker_error",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "RetentionTrigger",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "trigger"
+            },
+            {
+              "annotation": "Exception",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "RuntimeRetentionAdapter.count_worker_error",
+          "return_annotation": "None",
+          "signature": "(self, trigger: RetentionTrigger, error: Exception) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 1214,
+            "start_line": 1211
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "_count_skip",
           "parameters": [
             {
@@ -82454,8 +82489,8 @@
           "signature": "(self, skipped: SkippedRetention) -> SkippedRetention",
           "source_location": {
             "column": 4,
-            "end_line": 1214,
-            "start_line": 1211
+            "end_line": 1225,
+            "start_line": 1222
           }
         },
         {
@@ -82489,8 +82524,8 @@
           "signature": "(self, trigger: RetentionTrigger, now: int) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 1231,
-            "start_line": 1222
+            "end_line": 1242,
+            "start_line": 1233
           }
         },
         {
@@ -82518,8 +82553,8 @@
           "signature": "(self, trigger: RetentionTrigger) -> RuntimeRetentionReport | SkippedRetention",
           "source_location": {
             "column": 4,
-            "end_line": 1274,
-            "start_line": 1239
+            "end_line": 1285,
+            "start_line": 1250
           }
         },
         {
@@ -82547,8 +82582,8 @@
           "signature": "(self, skipped: SkippedRetention) -> SkippedRetention",
           "source_location": {
             "column": 4,
-            "end_line": 1284,
-            "start_line": 1282
+            "end_line": 1295,
+            "start_line": 1293
           }
         },
         {
@@ -82588,8 +82623,8 @@
           "signature": "(self, trigger: RetentionTrigger, timeout_seconds: float, metrics: dict[str, float]) -> RuntimeRetentionReport | SkippedRetention",
           "source_location": {
             "column": 4,
-            "end_line": 1320,
-            "start_line": 1292
+            "end_line": 1331,
+            "start_line": 1303
           }
         },
         {
@@ -82623,8 +82658,8 @@
           "signature": "(self, trigger: RetentionTrigger, metrics: dict[str, float]) -> RuntimeRetentionReport | SkippedRetention",
           "source_location": {
             "column": 4,
-            "end_line": 1433,
-            "start_line": 1330
+            "end_line": 1444,
+            "start_line": 1341
           }
         },
         {
@@ -82652,8 +82687,8 @@
           "signature": "(self, references: tuple[ArtifactReference, ...]) -> tuple[ArtifactReference, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 1451,
-            "start_line": 1441
+            "end_line": 1462,
+            "start_line": 1452
           }
         },
         {
@@ -82687,8 +82722,8 @@
           "signature": "(self, result: RuntimeRetentionReport | SkippedRetention, metrics: Mapping[str, float]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1504,
-            "start_line": 1459
+            "end_line": 1515,
+            "start_line": 1470
           }
         },
         {
@@ -82710,8 +82745,8 @@
           "signature": "(digest: str) -> ArtifactReference",
           "source_location": {
             "column": 0,
-            "end_line": 1516,
-            "start_line": 1513
+            "end_line": 1527,
+            "start_line": 1524
           }
         },
         {
@@ -82733,8 +82768,8 @@
           "signature": "(metrics: Mapping[str, float]) -> dict[str, float]",
           "source_location": {
             "column": 0,
-            "end_line": 1527,
-            "start_line": 1525
+            "end_line": 1538,
+            "start_line": 1536
           }
         }
       ]
