@@ -160,6 +160,7 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #791（設計のみ）: 2048の空盤面・HTMLActuator欠落を、Frame・HTTP・JS・DOMの証拠を起動世代の相関IDと親processの単調時計で結び、境界順の原因カテゴリへ分類する診断（`reference-startup-correlation/v1`、`classify_startup_failure`、証拠欠落時は`evidence_incomplete`でfail-closed）と、起動時間p50/p95・失敗率のcohort別集計の実装Packetを追加。根因未確定のため製品の挙動修正は行わず、修正の条件を定めました。実装は後続PRです。[設計](design/issue-791-2048-empty-board-diagnosis.md)
 - Issue #790（設計のみ）: crash由来の未索引Artifactを、pending admission・live reference・grace periodと照合して5状態に分類し、`safe_orphan`だけをtrash経由で原子的に回収する`OrphanReconciler`の実装Packetを追加（dry-run/apply一致、fail-closed、delete audit、予算超過時に正常dataを先に消さない順序）。実装は#789（PR #821）のマージ後。[設計](design/issue-790-orphan-reconciliation.md)
 - Issue #788（設計のみ）: Runtime Retention Adapterの実装前設計書を追加。Session単位のArtifact Storeへ#164 `RetentionCollector`を接続し、Event Journal（sequence増分の参照索引）・Experience・保存中pinからlive reference snapshotを作って必ず`collect`へ渡す。snapshot失敗・不完全・stale・世代不一致・lock待ち超過は削除0（fail-closed）、gate→root lock→journal lockの順序で参照追加とGCを直列化、trigger（soft budget・件数・周期・close・maintenance）に最短間隔と1回の削除上限を持たせ背景workerで実行、`retention.gc/v1`をJournalへTraceする。#789（PR #821、マージ済み）のroot lockとadmissionを再利用する（Spec-Status: READY）。[設計](design/issue-788-runtime-retention-adapter.md)
 - Issue #786（設計のみ）: Session内のruntime resourceの所有者・lease・解放経路を一元管理する`SessionResourceRegistry`/`CleanupCoordinator`の設計書を追加。task/generation/session scopeの一括解放、stale generation・二重解放・解放失敗の負例、pressure時の上限付きeviction順序、#571/#534/#334のowner Adapter、#787へのsnapshot接続点を定めました。実装は後続PRです。[設計](design/issue-786-session-resource-registry.md)
