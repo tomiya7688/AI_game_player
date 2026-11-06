@@ -415,6 +415,7 @@ def episode_record(index: int, seed: int, result: dict[str, Any]) -> dict[str, A
         "failure": failure,
         "cleanup_failure": result.get("cleanup_failure")
         or result.get("journal_cleanup_failure"),
+        "resource_failure": result.get("resource_failure"),
         "stopped_input_rejected": bool(result.get("stopped_input_rejected")),
         "stale_generation_rejected": bool(result.get("stale_generation_rejected")),
     }
@@ -556,6 +557,33 @@ def run_metrics(provider: str, episodes: list[dict[str, Any]]) -> dict[str, Any]
 
 # 致命扱いにするepisode失敗段階(Stop/旧世代probeの失敗は成功に数えない)。
 FATAL_FAILURE_STAGES = frozenset({"stop_probe", "stale_generation_probe"})
+# SafetyGuardが実行を拒否した時のRuntimeError文言の先頭(action_executor.execute)。
+SAFETY_BLOCK_PREFIX = "SafetyGuard blocked action"
+
+
+# {
+#   責務: [
+#     fatal_reason: episode記録が致命(run即時failed)に当たるかを判定する
+#   ]
+#   処理: [
+#     1: Stop/旧世代probe失敗、cleanup失敗、SafetyGuard拒否を致命にする
+#   ]
+#   引数: [
+#     record: episode記録
+#   ]
+#   戻り値: [
+#     str|None: "fatal:<理由>"。致命でなければNone
+#   ]
+# }
+def fatal_reason(record: dict[str, Any]) -> str | None:
+    if record.get("failure_stage") in FATAL_FAILURE_STAGES:
+        return "fatal:" + str(record["failure_stage"])
+    if record.get("cleanup_failure"):
+        return "fatal:cleanup"
+    message = str((record.get("failure") or {}).get("message") or "")
+    if message.startswith(SAFETY_BLOCK_PREFIX):
+        return "fatal:safety_guard"
+    return None
 
 
 # {
@@ -580,10 +608,9 @@ def classify_run(episodes: list[dict[str, Any]], stop_reason: str) -> tuple[str,
     ):
         return "failed", stop_reason
     for episode in episodes:
-        if episode["failure_stage"] in FATAL_FAILURE_STAGES:
-            return "failed", "fatal:" + str(episode["failure_stage"])
-        if episode.get("cleanup_failure"):
-            return "failed", "fatal:cleanup"
+        fatal = fatal_reason(episode)
+        if fatal is not None:
+            return "failed", fatal
     if sum(e["actions"] for e in episodes) == 0:
         return "failed", stop_reason
     if any(e["episode_status"] != "completed" for e in episodes):

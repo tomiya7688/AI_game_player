@@ -91,6 +91,25 @@ class RunMetricsTests(unittest.TestCase):
             (mixed["terminal_episodes"], mixed["censored_episodes"]), (2, 1)
         )
 
+    def test_safety_guard_rejection_is_fatal_and_resource_failure_is_recorded(self):
+        blocked = episode(
+            episode_status="failed",
+            failure_stage="decision_execution",
+            failure={
+                "type": "RuntimeError",
+                "message": "SafetyGuard blocked action [x]: nope",
+            },
+        )
+        self.assertEqual(
+            stats.classify_run([blocked], "wall_budget_reached"),
+            ("failed", "fatal:safety_guard"),
+        )
+        record = stats.episode_record(
+            1, 479, {"success": False, "resource_failure": {"type": "OSError"}}
+        )
+        self.assertEqual(record["resource_failure"], {"type": "OSError"})
+        self.assertIsNone(stats.fatal_reason(record))
+
     def test_failed_episode_with_unknown_terminal_is_not_right_censored(self):
         metrics = stats.run_metrics(
             "cycling", [episode(terminal=None), episode(terminal=False)]

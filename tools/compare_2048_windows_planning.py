@@ -465,6 +465,9 @@ def run_episode(
                         "counters": asdict(plan.counters),
                     }
                 )
+        if state.terminal:
+            # 最後の入力で終局した場合も、停止理由はterminalにする。
+            result["stop_reason"] = "terminal"
         result.update(
             {
                 "max_tile": state.max_tile,
@@ -509,7 +512,11 @@ def run_episode(
             result["stale_generation_rejected"] = True
         if len(episode.pipeline.load_execution_history()) != len(records):
             raise AssertionError("Stop/stale probe executed input")
-        result["minimum_actual_input_met"] = result["actions"] >= min(3, max_steps)
+        # 長枠の期限到達で止まったepisodeは、1回以上の実入力があれば最小入力を満たすとする(他の検証は維持)。
+        minimum_actions = (
+            1 if result["stop_reason"] == "wall_budget_reached" else min(3, max_steps)
+        )
+        result["minimum_actual_input_met"] = result["actions"] >= minimum_actions
         if (
             not result["minimum_actual_input_met"]
             or result["board_changes"] < 1

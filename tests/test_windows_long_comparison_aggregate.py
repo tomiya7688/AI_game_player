@@ -84,6 +84,13 @@ def block(seed, scores, *, fingerprint="f" * 64, statuses=None, **overrides):
             for p in runner.PROVIDERS
         },
     }
+    # 実際のRunnerと同じく、各runはblockと同じ条件(fingerprint・hardware・budget)を持つ。
+    for run in data["runs"].values():
+        run.update(
+            condition_fingerprint=data["condition_fingerprint"],
+            hardware=data["hardware"],
+            budget=data["budget"],
+        )
     data.update(overrides)
     return data
 
@@ -156,6 +163,11 @@ class AggregateTests(unittest.TestCase):
     ):
         blocks = [block(s, good_scores(s)) for s in SEEDS]
         blocks[0]["runs"]["planner"] = run_report("planner", SEEDS[0], None)
+        blocks[0]["runs"]["planner"].update(
+            condition_fingerprint=blocks[0]["condition_fingerprint"],
+            hardware=blocks[0]["hardware"],
+            budget=blocks[0]["budget"],
+        )
         report, _ = self.aggregate(blocks)
         contrast = report["statistics"]["contrasts"]["planner-cycling"]
         self.assertEqual(contrast["primary"]["n_pairs"], 7)
@@ -199,6 +211,39 @@ class AggregateTests(unittest.TestCase):
         report, code = self.aggregate(blocks)
         self.assertEqual(code, 1)
         self.assertIsNone(report["statistics"])
+
+    def test_block_header_and_run_contract_gaps_are_invalid_not_a_crash(self):
+        def corrupt(mutate):
+            blocks = [block(s, good_scores(s)) for s in SEEDS]
+            mutate(blocks[0])
+            report, code = self.aggregate(blocks)
+            self.assertEqual(code, 1)
+            self.assertIsNone(report["statistics"])
+            first = next(r for r in report["comparison_table"] if r["seed"] == SEEDS[0])
+            self.assertEqual(first["status"], "invalid")
+
+        corrupt(lambda b: b.pop("condition_fingerprint"))
+        corrupt(lambda b: b.update(consistency={"violations": ["hardware_equal"]}))
+        corrupt(lambda b: b["consistency"].pop("violations"))
+        corrupt(lambda b: b["runs"]["planner"].update(condition_fingerprint="0" * 64))
+        corrupt(lambda b: b["runs"]["planner"].update(hardware={"cpu_model": "other"}))
+        corrupt(lambda b: b["runs"]["cycling"]["metrics"].pop("episode_mean_score"))
+        corrupt(lambda b: b["runs"]["cycling"]["metrics"].update(actions_total="12"))
+        corrupt(lambda b: b["runs"]["cycling"]["episodes"][0].pop("latency_ms"))
+
+    def test_mixed_runner_images_never_produce_a_verdict(self):
+        blocks = [block(s, good_scores(s)) for s in SEEDS]
+        for index, data in enumerate(blocks):
+            image = "20251101.1" if index < 4 else "20251201.1"
+            data["hardware"] = {**data["hardware"], "image_version": image}
+            for run in data["runs"].values():
+                run["hardware"] = data["hardware"]
+        report, code = self.aggregate(blocks)
+        self.assertEqual(code, 0)
+        self.assertTrue(report["statistics"]["mixed_runner_images"])
+        for contrast in report["statistics"]["contrasts"].values():
+            self.assertNotIn(contrast["primary"]["verdict"], ("better", "worse"))
+        self.assertIn("runner image", aggregator.render_markdown(report))
 
     def test_block_outside_the_manifest_or_duplicated_is_a_violation(self):
         blocks = [block(s, good_scores(s)) for s in SEEDS]

@@ -16,6 +16,7 @@ from typing import Any, Callable
 
 from tools.windows_long_comparison_stats import (
     classify_run,
+    fatal_reason,
     episode_record,
     run_metrics,
 )
@@ -384,15 +385,14 @@ def run_provider(
         record = episode_record(index, seed, result)
         report["episodes"].append(record)
         write_json(report_path, report)
-        if (
-            record["failure_stage"] in ("stop_probe", "stale_generation_probe")
-            or record["cleanup_failure"]
-        ):
-            stop_reason = "fatal:" + str(record["failure_stage"] or "cleanup")
+        fatal = fatal_reason(record)
+        if fatal is not None:
+            stop_reason = fatal
             break
         if record["episode_status"] != "completed":
             failures += 1
-            if failures > budget["recovery_limit"] and clock() < deadline:
+            # recovery上限を超えた失敗は、期限後でも失敗として数える。
+            if failures > budget["recovery_limit"]:
                 stop_reason = "recovery_exhausted"
                 break
     finished = clock()
@@ -535,8 +535,9 @@ def run_provider_subprocess(
         command
     )  # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-audit
     timed_out, leftovers = False, []
+    returncode: int | None = None
     try:
-        process.wait(timeout=identity["budget"]["hard_timeout_seconds"])
+        returncode = process.wait(timeout=identity["budget"]["hard_timeout_seconds"])
     except subprocess.TimeoutExpired:
         timed_out = True
         leftovers = _kill_tree(process)
@@ -554,10 +555,16 @@ def run_provider_subprocess(
         stop_reason = "hard_timeout"
     elif report.get("run_status") == "running":
         stop_reason = "fatal:worker_exit"
+    elif returncode not in (0, 2) or (
+        returncode == 2 and report.get("run_status") == "completed"
+    ):
+        # workerの終了コード(0=completed, 2=partial/failed)とreportが食い違う場合は成功に数えない。
+        stop_reason = "fatal:worker_exit"
     else:
         stop_reason = report.get("stop_reason") or "fatal:worker_exit"
     if (
         timed_out
+        or stop_reason == "fatal:worker_exit"
         or report.get("run_status") in (None, "running")
         or report.get("metrics") is None
     ):
@@ -583,7 +590,9 @@ def run_provider_subprocess(
 #     dict: 各一致フラグとviolations
 #   ]
 # }
-def block_consistency(runs: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def block_consistency(
+    runs: dict[str, dict[str, Any]], parent: dict[str, Any] | None = None
+) -> dict[str, Any]:
     def same(key: str) -> bool:
         values = {json.dumps(r.get(key), sort_keys=True) for r in runs.values()}
         return len(values) == 1 and set(runs) == set(PROVIDERS)
@@ -602,6 +611,13 @@ def block_consistency(runs: dict[str, dict[str, Any]]) -> dict[str, Any]:
         "seed_fixture_equal": all(len(v) == 1 for v in fixtures.values()),
         "no_leftover_processes": not any(r.get("leftover_pids") for r in runs.values()),
     }
+    if parent is not None:
+        # 親が計算した条件と、各workerが実行時に取得した条件が一致すること。
+        flags["parent_condition_equal"] = all(
+            r.get("condition_fingerprint") == parent["condition_fingerprint"]
+            and r.get("hardware") == parent["hardware"]
+            for r in runs.values()
+        )
     violations = [name for name, ok in flags.items() if not ok]
     return {**flags, "violations": violations}
 
@@ -643,7 +659,7 @@ def run_block(
         }
         runs[provider] = run_provider_subprocess(args, provider, identity, spawn)
         # provider間でgame processが残っていないことは leftover_pids で検査する。
-    consistency = block_consistency(runs)
+    consistency = block_consistency(runs, parent)
     block = {
         "schema": BLOCK_SCHEMA,
         "track": TRACK,

@@ -142,6 +142,16 @@ class RunProviderTests(unittest.TestCase):
         )
         self.assertEqual(len(report["episodes"]), 3)
 
+    def test_third_failure_after_the_deadline_is_still_recovery_exhausted(self):
+        bad = good_result(
+            0, success=False, failure_stage="decision_execution", actions=2
+        )
+        report, _, _ = self.run_provider([bad], step=250.0)
+        self.assertEqual(
+            (report["run_status"], report["stop_reason"]),
+            ("failed", "recovery_exhausted"),
+        )
+
     def test_failed_then_recovered_run_is_partial_and_keeps_failed_episode(self):
         bad = good_result(0, success=False, failure_stage="initial_observation")
         report, fake, _ = self.run_provider([bad, lambda s: good_result(s)], step=200.0)
@@ -196,13 +206,13 @@ class RunProviderTests(unittest.TestCase):
 
 
 class FakeProcess:
-    def __init__(self, hang=False):
-        self.hang, self.pid = hang, 1234
+    def __init__(self, hang=False, returncode=0):
+        self.hang, self.pid, self.returncode = hang, 1234, returncode
 
     def wait(self, timeout=None):
         if self.hang:
             raise subprocess.TimeoutExpired("worker", timeout)
-        return 0
+        return self.returncode
 
 
 def args_for(directory, **overrides):
@@ -266,6 +276,40 @@ class SubprocessRunTests(unittest.TestCase):
         self.assertEqual(
             (report["run_status"], report["stop_reason"]), ("failed", "hard_timeout")
         )
+
+    def test_nonzero_worker_exit_cannot_leave_a_completed_run(self):
+        for returncode in (1, 2):
+            with tempfile.TemporaryDirectory() as directory:
+
+                def spawn(command):
+                    self.worker_report(directory, "cycling", status="completed")
+                    return FakeProcess(returncode=returncode)
+
+                report = runner.run_provider_subprocess(
+                    args_for(directory), "cycling", identity("cycling"), spawn
+                )
+            self.assertEqual(
+                (report["run_status"], report["stop_reason"]),
+                ("failed", "fatal:worker_exit"),
+                returncode,
+            )
+
+    def test_exit_two_with_a_partial_report_is_kept_as_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+
+            def spawn(command):
+                self.worker_report(directory, "cycling", status="completed")
+                path = Path(directory) / "cycling" / "run-report.json"
+                data = json.loads(path.read_text("utf-8"))
+                data["episodes"][0]["episode_status"] = "failed"
+                runner.finalize_report(data, "wall_budget_reached")
+                path.write_text(json.dumps(data), "utf-8")
+                return FakeProcess(returncode=2)
+
+            report = runner.run_provider_subprocess(
+                args_for(directory), "cycling", identity("cycling"), spawn
+            )
+        self.assertEqual(report["run_status"], "partial")
 
     def test_hard_timeout_overrides_a_completed_looking_report(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -389,6 +433,19 @@ class BlockConsistencyTests(unittest.TestCase):
             runner.block_consistency(self.runs(planner={"episodes": other}))[
                 "violations"
             ],
+        )
+
+    def test_worker_condition_must_match_the_parent_computed_condition(self):
+        parent = {"condition_fingerprint": "f", "hardware": {"cpu": 1}}
+        self.assertEqual(
+            runner.block_consistency(self.runs(), parent)["violations"], []
+        )
+        changed = self.runs(planner={"condition_fingerprint": "changed"})
+        for run in changed.values():
+            run["condition_fingerprint"] = "changed"
+        self.assertIn(
+            "parent_condition_equal",
+            runner.block_consistency(changed, parent)["violations"],
         )
 
     def test_exit_code_is_decided_from_status_values(self):

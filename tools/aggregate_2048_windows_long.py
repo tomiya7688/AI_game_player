@@ -174,31 +174,85 @@ def block_problems(block: Any, manifest: dict[str, Any]) -> list[str]:
         problems.append("base_seed is not in the manifest")
     if block.get("budget") != manifest["budget"]:
         problems.append("budget differs from manifest")
-    if block.get("block_status") != "valid":
-        violations = (block.get("consistency") or {}).get("violations")
+    fingerprint, hardware = block.get("condition_fingerprint"), block.get("hardware")
+    if not isinstance(fingerprint, str) or not fingerprint:
+        problems.append("condition_fingerprint is missing")
+    if not isinstance(hardware, dict) or not hardware:
+        problems.append("hardware is missing")
+    consistency = block.get("consistency")
+    # blockの自己申告だけを信用せず、violationsが空であることも要求する。
+    if (
+        block.get("block_status") != "valid"
+        or not isinstance(consistency, dict)
+        or consistency.get("violations") != []
+    ):
+        violations = (
+            consistency.get("violations") if isinstance(consistency, dict) else None
+        )
         problems.append(f"block condition check failed: {violations}")
     runs = block.get("runs")
     if not isinstance(runs, dict) or set(runs) != set(manifest["providers"]):
         return [*problems, "runs must contain exactly the manifest providers"]
     for provider, run in runs.items():
-        if not isinstance(run, dict) or run.get("schema") != RUN_SCHEMA:
-            problems.append(f"{provider}: run schema mismatch")
-            continue
-        if run.get("run_status") not in RUN_STATUSES:
-            problems.append(f"{provider}: run_status invalid")
-        if run.get("provider") != provider or run.get("base_seed") != block.get(
-            "base_seed"
-        ):
-            problems.append(f"{provider}: run identity differs from block")
-        metrics = run.get("metrics")
-        if not isinstance(metrics, dict):
-            problems.append(f"{provider}: metrics missing")
-            continue
-        for name, metric in metrics.items():
-            if isinstance(metric, dict):
-                problems.extend(
-                    f"{provider}.{name}: {m}" for m in validate_metric(metric)
-                )
+        problems.extend(f"{provider}: {m}" for m in _run_problems(provider, run, block))
+    return problems
+
+
+# {
+#   責務: [
+#     _run_problems: block内の1 runのschema・条件一致・指標の型規則を検査する
+#   ]
+#   処理: [
+#     1: run_status・識別・fingerprint/hardware/budgetのblock一致を確認する
+#     2: 件数の型、必須指標の存在、episodeのlatency形式を確認する
+#   ]
+#   引数: [
+#     provider: provider名
+#     run: run-report
+#     block: 親block-report
+#   ]
+#   戻り値: [
+#     list: 違反理由
+#   ]
+# }
+def _run_problems(provider: str, run: Any, block: dict[str, Any]) -> list[str]:
+    if not isinstance(run, dict) or run.get("schema") != RUN_SCHEMA:
+        return ["run schema mismatch"]
+    problems = []
+    if run.get("run_status") not in RUN_STATUSES:
+        problems.append("run_status invalid")
+    if run.get("provider") != provider or run.get("base_seed") != block.get(
+        "base_seed"
+    ):
+        problems.append("run identity differs from block")
+    for key in ("condition_fingerprint", "hardware", "budget"):
+        if run.get(key) != block.get(key):
+            problems.append(f"{key} differs from the block")
+    episodes = run.get("episodes")
+    if not isinstance(episodes, list) or any(
+        not isinstance(e, dict)
+        or not isinstance(e.get("latency_ms"), list)
+        or any(
+            isinstance(x, bool) or not isinstance(x, (int, float))
+            for x in e["latency_ms"]
+        )
+        for e in episodes
+    ):
+        problems.append("episodes must be objects with numeric latency_ms lists")
+    metrics = run.get("metrics")
+    if not isinstance(metrics, dict):
+        return [*problems, "metrics missing"]
+    for key in ("actions_total", "episodes", "censored_episodes"):
+        value = metrics.get(key)
+        if type(value) is not int or value < 0:
+            problems.append(f"metrics.{key} must be a non-negative integer")
+    # 一次指標を含む比較指標は、unknown/not_applicableを明示した形で必ず存在すること。
+    for name in SUMMARY_METRICS:
+        if not isinstance(metrics.get(name), dict):
+            problems.append(f"metrics.{name} is missing")
+    for name, metric in metrics.items():
+        if isinstance(metric, dict):
+            problems.extend(f"{name}: {m}" for m in validate_metric(metric))
     return problems
 
 
@@ -578,9 +632,31 @@ def aggregate(manifest: dict[str, Any], artifacts: Path) -> tuple[dict[str, Any]
                 for metric in SECONDARY_METRICS
             },
         }
+    # runner imageが混在する場合は層別に扱えないため、混在のままverdictの根拠にしない(設計書の統計節)。
+    images = sorted(
+        {
+            json.dumps(
+                {
+                    "image_os": b["hardware"].get("image_os"),
+                    "image_version": b["hardware"].get("image_version"),
+                },
+                sort_keys=True,
+            )
+            for b in valid.values()
+        }
+    )
+    mixed_images = len(images) > 1
+    if mixed_images:
+        for contrast in contrasts.values():
+            primary = contrast["primary"]
+            if primary.get("verdict") in ("better", "worse"):
+                primary["verdict"] = "inconclusive"
+                primary["verdict_note"] = "mixed_runner_images"
     report["statistics"] = {
         "provider_summary": provider_summary,
         "contrasts": contrasts,
+        "runner_images": [json.loads(i) for i in images],
+        "mixed_runner_images": mixed_images,
     }
     complete = all(e["status"] == "completed" for e in entries.values())
     report["exit_code"] = 0 if complete else 2
@@ -670,6 +746,11 @@ def render_markdown(report: dict[str, Any]) -> str:
             )
         )
     statistics = report["statistics"]
+    if statistics and statistics.get("mixed_runner_images"):
+        lines += [
+            "",
+            "> runner imageが混在しているため、verdictはすべて inconclusive にしています。",
+        ]
     if statistics:
         lines += [
             "",

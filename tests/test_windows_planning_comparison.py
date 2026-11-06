@@ -324,6 +324,45 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         self.assertEqual(episode.records, [])
         self.assertFalse(result["success"])
 
+    def test_terminal_reached_by_the_last_input_reports_terminal(self):
+        class LastInputTerminal(FakeEpisode):
+            def observe(self, **kwargs):
+                state = super().observe(**kwargs)
+                return CampaignState(state.signature, len(self.records) >= 12, 0, 2)
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", LastInputTerminal),
+            patch.object(
+                comparison.DecisionOrchestrator,
+                "run",
+                lambda orchestrator, **kwargs: orchestrator.pipeline.run_and_execute(),
+            ),
+            patch.object(
+                comparison.TesseractOcrRecognizer, "optional", return_value=object()
+            ),
+            patch.object(
+                comparison,
+                "evaluate_visible_score",
+                return_value={"value": 0, "confidence": 0.9},
+            ),
+        ):
+            result = comparison.run_episode(
+                "cycling", 480, 12, Path(directory), Path(directory)
+            )
+        self.assertEqual(result["attempts"], 12)
+        self.assertEqual(result["stop_reason"], "terminal")
+
+    def test_deadline_stop_needs_only_one_input_but_keeps_the_other_gates(self):
+        result, _ = self.hold_episode(
+            ["select"] + ["abstain"] * 11, deadline_seconds=0.12, select_delay=0.15
+        )
+        self.assertEqual(result["stop_reason"], "wall_budget_reached")
+        self.assertEqual(result["actions"], 1)
+        self.assertTrue(result["minimum_actual_input_met"])
+        self.assertTrue(result["stopped_input_rejected"])
+
     def test_terminal_state_is_reported_as_the_stop_reason(self):
         class Terminal(FakeEpisode):
             def observe(self, **kwargs):
