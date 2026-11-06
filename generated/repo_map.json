@@ -8738,6 +8738,19 @@
           "level": 0,
           "line": 5,
           "local_dependencies": [],
+          "module": "contextlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "contextlib"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
           "module": "json",
           "names": [
             {
@@ -8749,7 +8762,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "os",
           "names": [
@@ -8762,7 +8775,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 7,
+          "line": 8,
           "local_dependencies": [],
           "module": "re",
           "names": [
@@ -8775,7 +8788,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [],
           "module": "shutil",
           "names": [
@@ -8788,7 +8801,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [],
           "module": "time",
           "names": [
@@ -8801,7 +8814,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 10,
+          "line": 11,
           "local_dependencies": [],
           "module": "uuid",
           "names": [
@@ -8814,7 +8827,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 11,
+          "line": 12,
           "local_dependencies": [],
           "module": "collections.abc",
           "names": [
@@ -8835,7 +8848,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 12,
+          "line": 13,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -8852,7 +8865,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 13,
+          "line": 14,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -8865,7 +8878,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -8882,7 +8895,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 17,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.atomic_json"
@@ -8898,7 +8911,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 18,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.bounded_file"
@@ -8914,7 +8927,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_index"
@@ -8930,7 +8943,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 19,
+          "line": 20,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_root_lock"
@@ -8950,7 +8963,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 309,
+          "line": 310,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_collector"
@@ -8967,7 +8980,7 @@
       "module": "ai_game_player.artifact_trash",
       "path": "src/ai_game_player/artifact_trash.py",
       "source_location": {
-        "end_line": 634,
+        "end_line": 651,
         "start_line": 1
       },
       "symbols": [
@@ -8989,8 +9002,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 74,
-            "start_line": 73
+            "end_line": 75,
+            "start_line": 74
           }
         },
         {
@@ -9011,8 +9024,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 179,
-            "start_line": 86
+            "end_line": 180,
+            "start_line": 87
           }
         },
         {
@@ -9034,8 +9047,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 108
+            "end_line": 140,
+            "start_line": 109
           }
         },
         {
@@ -9057,8 +9070,8 @@
           "signature": "(self) -> dict[str, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 147
+            "end_line": 164,
+            "start_line": 148
           }
         },
         {
@@ -9088,8 +9101,8 @@
           "signature": "(cls, value: object) -> TrashIntent",
           "source_location": {
             "column": 4,
-            "end_line": 179,
-            "start_line": 173
+            "end_line": 180,
+            "start_line": 174
           }
         },
         {
@@ -9110,8 +9123,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 192,
-            "start_line": 188
+            "end_line": 193,
+            "start_line": 189
           }
         },
         {
@@ -9130,8 +9143,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 558,
-            "start_line": 201
+            "end_line": 566,
+            "start_line": 202
           }
         },
         {
@@ -9171,8 +9184,8 @@
           "signature": "(self, root: Path, *, clock: Callable[[], int] | None = …, rmtree: Callable[[Path], None] = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 218,
-            "start_line": 208
+            "end_line": 219,
+            "start_line": 209
           }
         },
         {
@@ -9194,8 +9207,8 @@
           "signature": "(self) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 227
+            "end_line": 233,
+            "start_line": 228
           }
         },
         {
@@ -9217,8 +9230,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 244,
-            "start_line": 241
+            "end_line": 245,
+            "start_line": 242
           }
         },
         {
@@ -9240,8 +9253,8 @@
           "signature": "(self) -> tuple[TrashIntent, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 267,
-            "start_line": 253
+            "end_line": 268,
+            "start_line": 254
           }
         },
         {
@@ -9263,8 +9276,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 282,
-            "start_line": 276
+            "end_line": 283,
+            "start_line": 277
           }
         },
         {
@@ -9334,8 +9347,8 @@
           "signature": "(self, source: Path, *, kind: str, sha256: str | None, reason: str, trigger: str | None = …, artifact_type: str | None = …, sensitive: bool | None = …, data_class: str | None = …) -> TrashIntent",
           "source_location": {
             "column": 4,
-            "end_line": 336,
-            "start_line": 294
+            "end_line": 344,
+            "start_line": 295
           }
         },
         {
@@ -9369,8 +9382,8 @@
           "signature": "(self, *, deadline: float | None = …, timer: Callable[[], float] = …) -> TrashSweepReport",
           "source_location": {
             "column": 4,
-            "end_line": 395,
-            "start_line": 347
+            "end_line": 403,
+            "start_line": 355
           }
         },
         {
@@ -9392,8 +9405,8 @@
           "signature": "(self) -> tuple[TrashIntent, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 411,
-            "start_line": 404
+            "end_line": 419,
+            "start_line": 412
           }
         },
         {
@@ -9421,8 +9434,8 @@
           "signature": "(self, ids: Iterable[str]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 434,
-            "start_line": 420
+            "end_line": 442,
+            "start_line": 428
           }
         },
         {
@@ -9450,8 +9463,8 @@
           "signature": "(self, intent: TrashIntent) -> TrashIntent",
           "source_location": {
             "column": 4,
-            "end_line": 448,
-            "start_line": 442
+            "end_line": 456,
+            "start_line": 450
           }
         },
         {
@@ -9479,8 +9492,8 @@
           "signature": "(self, intent: TrashIntent) -> TrashIntent",
           "source_location": {
             "column": 4,
-            "end_line": 464,
-            "start_line": 457
+            "end_line": 472,
+            "start_line": 465
           }
         },
         {
@@ -9514,8 +9527,8 @@
           "signature": "(self, intent: TrashIntent, entry: Path) -> str | None",
           "source_location": {
             "column": 4,
-            "end_line": 496,
-            "start_line": 473
+            "end_line": 504,
+            "start_line": 481
           }
         },
         {
@@ -9543,8 +9556,8 @@
           "signature": "(self, source: Path) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 514,
-            "start_line": 505
+            "end_line": 522,
+            "start_line": 513
           }
         },
         {
@@ -9572,8 +9585,8 @@
           "signature": "(self, intent_id: str) -> Path",
           "source_location": {
             "column": 4,
-            "end_line": 523,
-            "start_line": 522
+            "end_line": 531,
+            "start_line": 530
           }
         },
         {
@@ -9601,8 +9614,8 @@
           "signature": "(self, intent: TrashIntent) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 537,
-            "start_line": 532
+            "end_line": 545,
+            "start_line": 540
           }
         },
         {
@@ -9626,8 +9639,8 @@
           "signature": "(path: Path) -> TrashIntent",
           "source_location": {
             "column": 4,
-            "end_line": 558,
-            "start_line": 547
+            "end_line": 566,
+            "start_line": 555
           }
         },
         {
@@ -9642,8 +9655,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 568,
-            "start_line": 567
+            "end_line": 576,
+            "start_line": 575
           }
         },
         {
@@ -9671,8 +9684,8 @@
           "signature": "(condition: object, name: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 580,
-            "start_line": 578
+            "end_line": 588,
+            "start_line": 586
           }
         },
         {
@@ -9694,8 +9707,8 @@
           "signature": "(value: object) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 590,
-            "start_line": 589
+            "end_line": 598,
+            "start_line": 597
           }
         },
         {
@@ -9717,8 +9730,8 @@
           "signature": "(value: object) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 600,
-            "start_line": 599
+            "end_line": 608,
+            "start_line": 607
           }
         },
         {
@@ -9740,8 +9753,31 @@
           "signature": "(path: Path) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 617,
-            "start_line": 609
+            "end_line": 623,
+            "start_line": 617
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_raise",
+          "parameters": [
+            {
+              "annotation": "OSError",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "_raise",
+          "return_annotation": "None",
+          "signature": "(error: OSError) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 634,
+            "start_line": 633
           }
         },
         {
@@ -9763,8 +9799,8 @@
           "signature": "(path: Path) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 634,
-            "start_line": 627
+            "end_line": 651,
+            "start_line": 644
           }
         }
       ]
@@ -57291,7 +57327,7 @@
       "module": "ai_game_player.orphan_reconciler",
       "path": "src/ai_game_player/orphan_reconciler.py",
       "source_location": {
-        "end_line": 1360,
+        "end_line": 1364,
         "start_line": 1
       },
       "symbols": [
@@ -57622,7 +57658,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1224,
+            "end_line": 1228,
             "start_line": 312
           }
         },
@@ -57845,7 +57881,7 @@
           "signature": "(self, trigger: str, *, dry_run: bool = …, extra_live: Iterable[ArtifactReference] = …) -> OrphanReconcileReport",
           "source_location": {
             "column": 4,
-            "end_line": 533,
+            "end_line": 537,
             "start_line": 519
           }
         },
@@ -57868,8 +57904,8 @@
           "signature": "(self) -> tuple[OrphanDeleteAudit, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 546,
-            "start_line": 542
+            "end_line": 550,
+            "start_line": 546
           }
         },
         {
@@ -57897,8 +57933,8 @@
           "signature": "(self, audit_ids: Iterable[str]) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 560,
-            "start_line": 555
+            "end_line": 564,
+            "start_line": 559
           }
         },
         {
@@ -57920,8 +57956,8 @@
           "signature": "(self) -> ArtifactTrash",
           "source_location": {
             "column": 4,
-            "end_line": 571,
-            "start_line": 568
+            "end_line": 575,
+            "start_line": 572
           }
         },
         {
@@ -57943,8 +57979,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 584,
-            "start_line": 580
+            "end_line": 588,
+            "start_line": 584
           }
         },
         {
@@ -57978,8 +58014,8 @@
           "signature": "(self, trigger: str, now: int) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 597,
-            "start_line": 592
+            "end_line": 601,
+            "start_line": 596
           }
         },
         {
@@ -58019,8 +58055,8 @@
           "signature": "(self, trigger: str, now: int, reason: str | None) -> OrphanReconcilePlan",
           "source_location": {
             "column": 4,
-            "end_line": 620,
-            "start_line": 605
+            "end_line": 624,
+            "start_line": 609
           }
         },
         {
@@ -58054,8 +58090,8 @@
           "signature": "(self, plan: OrphanReconcilePlan, *, blocked: str | None) -> OrphanReconcileReport",
           "source_location": {
             "column": 4,
-            "end_line": 648,
-            "start_line": 628
+            "end_line": 652,
+            "start_line": 632
           }
         },
         {
@@ -58089,8 +58125,8 @@
           "signature": "(self, live: LiveReferences, now: int) -> _Scan | str",
           "source_location": {
             "column": 4,
-            "end_line": 703,
-            "start_line": 657
+            "end_line": 707,
+            "start_line": 661
           }
         },
         {
@@ -58112,8 +58148,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 721,
-            "start_line": 711
+            "end_line": 725,
+            "start_line": 715
           }
         },
         {
@@ -58165,8 +58201,8 @@
           "signature": "(self, key: str, indexed: frozenset[str], pending_digests: frozenset[str], live: LiveReferences, now: int) -> OrphanCandidate | None",
           "source_location": {
             "column": 4,
-            "end_line": 770,
-            "start_line": 730
+            "end_line": 774,
+            "start_line": 734
           }
         },
         {
@@ -58224,8 +58260,8 @@
           "signature": "(self, key: str, kind: str, digest: str | None, inspection: _Inspection, now: int, safe_reason: str) -> OrphanCandidate",
           "source_location": {
             "column": 4,
-            "end_line": 802,
-            "start_line": 778
+            "end_line": 806,
+            "start_line": 782
           }
         },
         {
@@ -58259,8 +58295,8 @@
           "signature": "(self, last_activity_ms: int | None, now: int) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 815,
-            "start_line": 810
+            "end_line": 819,
+            "start_line": 814
           }
         },
         {
@@ -58314,8 +58350,8 @@
           "signature": "(key: str, kind: str, digest: str | None, state: str, reason: str, inspection: _Inspection) -> OrphanCandidate",
           "source_location": {
             "column": 4,
-            "end_line": 843,
-            "start_line": 824
+            "end_line": 847,
+            "start_line": 828
           }
         },
         {
@@ -58361,8 +58397,8 @@
           "signature": "(self, key: str, kind: str, digest: str | None, reason: str) -> OrphanCandidate",
           "source_location": {
             "column": 4,
-            "end_line": 856,
-            "start_line": 851
+            "end_line": 860,
+            "start_line": 855
           }
         },
         {
@@ -58396,8 +58432,8 @@
           "signature": "(self, path: Path, digest: str) -> _Inspection",
           "source_location": {
             "column": 4,
-            "end_line": 898,
-            "start_line": 865
+            "end_line": 902,
+            "start_line": 869
           }
         },
         {
@@ -58425,8 +58461,8 @@
           "signature": "(self, path: Path) -> _Inspection",
           "source_location": {
             "column": 4,
-            "end_line": 918,
-            "start_line": 906
+            "end_line": 922,
+            "start_line": 910
           }
         },
         {
@@ -58454,8 +58490,8 @@
           "signature": "(self, candidates: tuple[OrphanCandidate, ...]) -> tuple[OrphanCandidate, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 950,
-            "start_line": 927
+            "end_line": 954,
+            "start_line": 931
           }
         },
         {
@@ -58483,8 +58519,8 @@
           "signature": "(self, item: OrphanCandidate) -> OrphanCandidate",
           "source_location": {
             "column": 4,
-            "end_line": 981,
-            "start_line": 958
+            "end_line": 985,
+            "start_line": 962
           }
         },
         {
@@ -58512,8 +58548,8 @@
           "signature": "(self, candidates: tuple[OrphanCandidate, ...]) -> tuple[OrphanCandidate, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 996,
-            "start_line": 989
+            "end_line": 1000,
+            "start_line": 993
           }
         },
         {
@@ -58559,8 +58595,8 @@
           "signature": "(self, entries: Iterable[Any], pending_pairs: Iterable[tuple[str, str]], live: LiveReferences, targets: Iterable[Any]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 1028,
-            "start_line": 1004
+            "end_line": 1032,
+            "start_line": 1008
           }
         },
         {
@@ -58588,8 +58624,8 @@
           "signature": "(self, trash: ArtifactTrash) -> str | None",
           "source_location": {
             "column": 4,
-            "end_line": 1047,
-            "start_line": 1036
+            "end_line": 1051,
+            "start_line": 1040
           }
         },
         {
@@ -58623,8 +58659,8 @@
           "signature": "(self, trash: ArtifactTrash, last: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1063,
-            "start_line": 1056
+            "end_line": 1067,
+            "start_line": 1060
           }
         },
         {
@@ -58682,8 +58718,8 @@
           "signature": "(self, plan: OrphanReconcilePlan, live: LiveReferences, now: int, budget_end: float, trash: ArtifactTrash, applied: _Applied) -> str | None",
           "source_location": {
             "column": 4,
-            "end_line": 1114,
-            "start_line": 1072
+            "end_line": 1118,
+            "start_line": 1076
           }
         },
         {
@@ -58735,8 +58771,8 @@
           "signature": "(self, target: OrphanCandidate, indexed: frozenset[str], pending_digests: frozenset[str], live_digests: frozenset[str], now: int) -> tuple[str | None, Any]",
           "source_location": {
             "column": 4,
-            "end_line": 1153,
-            "start_line": 1122
+            "end_line": 1157,
+            "start_line": 1126
           }
         },
         {
@@ -58782,8 +58818,8 @@
           "signature": "(self, target: OrphanCandidate, trigger: str, trash: ArtifactTrash, applied: _Applied) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1195,
-            "start_line": 1161
+            "end_line": 1199,
+            "start_line": 1165
           }
         },
         {
@@ -58811,8 +58847,8 @@
           "signature": "(self, artifact_type: str | None) -> str | None",
           "source_location": {
             "column": 4,
-            "end_line": 1208,
-            "start_line": 1203
+            "end_line": 1212,
+            "start_line": 1207
           }
         },
         {
@@ -58842,8 +58878,8 @@
           "signature": "(trash: ArtifactTrash, created: set[str]) -> tuple[OrphanDeleteAudit, ...]",
           "source_location": {
             "column": 4,
-            "end_line": 1224,
-            "start_line": 1218
+            "end_line": 1228,
+            "start_line": 1222
           }
         },
         {
@@ -58864,8 +58900,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1239,
-            "start_line": 1233
+            "end_line": 1243,
+            "start_line": 1237
           }
         },
         {
@@ -58893,8 +58929,8 @@
           "signature": "(intent: TrashIntent, *, recovered: bool) -> OrphanDeleteAudit",
           "source_location": {
             "column": 0,
-            "end_line": 1261,
-            "start_line": 1248
+            "end_line": 1265,
+            "start_line": 1252
           }
         },
         {
@@ -58916,8 +58952,8 @@
           "signature": "(path: Path) -> tuple[frozenset[str], dict[str, tuple[Any, ...]], list[int]] | str",
           "source_location": {
             "column": 0,
-            "end_line": 1292,
-            "start_line": 1270
+            "end_line": 1296,
+            "start_line": 1274
           }
         },
         {
@@ -58939,8 +58975,8 @@
           "signature": "(info: os.stat_result) -> tuple[Any, ...]",
           "source_location": {
             "column": 0,
-            "end_line": 1302,
-            "start_line": 1301
+            "end_line": 1306,
+            "start_line": 1305
           }
         },
         {
@@ -58968,8 +59004,8 @@
           "signature": "(reconciler: OrphanReconciler, *, extra_live: Iterable[ArtifactReference] = …) -> BudgetReclaimReport",
           "source_location": {
             "column": 0,
-            "end_line": 1360,
-            "start_line": 1314
+            "end_line": 1364,
+            "start_line": 1318
           }
         }
       ]
@@ -115572,6 +115608,10 @@
             },
             {
               "alias": null,
+              "name": "STATE_RENAMED"
+            },
+            {
+              "alias": null,
               "name": "STATE_SWEPT"
             },
             {
@@ -115595,7 +115635,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 20,
+          "line": 21,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_collector"
@@ -115619,7 +115659,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 25,
+          "line": 26,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_index"
@@ -115635,7 +115675,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 26,
+          "line": 27,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_policy"
@@ -115651,7 +115691,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 27,
+          "line": 28,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_root_lock"
@@ -115667,7 +115707,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 28,
+          "line": 29,
           "local_dependencies": [
             "tests.test_retention_root_lock"
           ],
@@ -115683,7 +115723,7 @@
       "module": "tests.test_artifact_trash",
       "path": "tests/test_artifact_trash.py",
       "source_location": {
-        "end_line": 289,
+        "end_line": 331,
         "start_line": 1
       },
       "symbols": [
@@ -115706,8 +115746,8 @@
           "signature": "(path)",
           "source_location": {
             "column": 0,
-            "end_line": 34,
-            "start_line": 33
+            "end_line": 35,
+            "start_line": 34
           }
         },
         {
@@ -115741,8 +115781,8 @@
           "signature": "(intent_id: str, digest: str, **overrides) -> TrashIntent",
           "source_location": {
             "column": 0,
-            "end_line": 52,
-            "start_line": 37
+            "end_line": 53,
+            "start_line": 38
           }
         },
         {
@@ -115763,8 +115803,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 79,
-            "start_line": 55
+            "end_line": 80,
+            "start_line": 56
           }
         },
         {
@@ -115786,8 +115826,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 60,
-            "start_line": 56
+            "end_line": 61,
+            "start_line": 57
           }
         },
         {
@@ -115815,8 +115855,8 @@
           "signature": "(self, payload: bytes) -> tuple[str, Path]",
           "source_location": {
             "column": 4,
-            "end_line": 66,
-            "start_line": 62
+            "end_line": 67,
+            "start_line": 63
           }
         },
         {
@@ -115862,8 +115902,8 @@
           "signature": "(self, trash: ArtifactTrash, digest: str, path: Path, **kwargs)",
           "source_location": {
             "column": 4,
-            "end_line": 75,
-            "start_line": 68
+            "end_line": 76,
+            "start_line": 69
           }
         },
         {
@@ -115885,8 +115925,8 @@
           "signature": "(self) -> list[str]",
           "source_location": {
             "column": 4,
-            "end_line": 79,
-            "start_line": 77
+            "end_line": 80,
+            "start_line": 78
           }
         },
         {
@@ -115907,8 +115947,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 135,
-            "start_line": 82
+            "end_line": 136,
+            "start_line": 83
           }
         },
         {
@@ -115930,8 +115970,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 95,
-            "start_line": 83
+            "end_line": 96,
+            "start_line": 84
           }
         },
         {
@@ -115953,8 +115993,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 101,
-            "start_line": 97
+            "end_line": 102,
+            "start_line": 98
           }
         },
         {
@@ -115976,8 +116016,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 111,
-            "start_line": 103
+            "end_line": 112,
+            "start_line": 104
           }
         },
         {
@@ -115999,8 +116039,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 120,
-            "start_line": 113
+            "end_line": 121,
+            "start_line": 114
           }
         },
         {
@@ -116022,8 +116062,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 127,
-            "start_line": 122
+            "end_line": 128,
+            "start_line": 123
           }
         },
         {
@@ -116045,8 +116085,122 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 135,
-            "start_line": 129
+            "end_line": 136,
+            "start_line": 130
+          }
+        },
+        {
+          "bases": [
+            "TrashTestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ReviewFixTest",
+          "parameters": [],
+          "qualified_name": "ReviewFixTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 177,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_exactly_max_intents_are_listed_and_one_more_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReviewFixTest.test_exactly_max_intents_are_listed_and_one_more_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 140
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unreadable_tree_stops_before_rename",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReviewFixTest.test_unreadable_tree_stops_before_rename",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 151
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_intent_update_failure_after_rename_is_not_reported_as_failure",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ReviewFixTest.test_intent_update_failure_after_rename_is_not_reported_as_failure",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 177,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "flaky",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "intent"
+            }
+          ],
+          "qualified_name": "ReviewFixTest.test_intent_update_failure_after_rename_is_not_reported_as_failure.flaky",
+          "return_annotation": null,
+          "signature": "(intent)",
+          "source_location": {
+            "column": 8,
+            "end_line": 169,
+            "start_line": 165
           }
         },
         {
@@ -116067,8 +116221,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 212,
-            "start_line": 138
+            "end_line": 254,
+            "start_line": 180
           }
         },
         {
@@ -116090,8 +116244,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 148,
-            "start_line": 139
+            "end_line": 190,
+            "start_line": 181
           }
         },
         {
@@ -116113,8 +116267,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 161,
-            "start_line": 150
+            "end_line": 203,
+            "start_line": 192
           }
         },
         {
@@ -116136,8 +116290,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 173,
-            "start_line": 163
+            "end_line": 215,
+            "start_line": 205
           }
         },
         {
@@ -116159,8 +116313,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 204,
-            "start_line": 175
+            "end_line": 246,
+            "start_line": 217
           }
         },
         {
@@ -116182,8 +116336,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 212,
-            "start_line": 206
+            "end_line": 254,
+            "start_line": 248
           }
         },
         {
@@ -116204,8 +116358,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 261,
-            "start_line": 215
+            "end_line": 303,
+            "start_line": 257
           }
         },
         {
@@ -116227,8 +116381,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 216
+            "end_line": 270,
+            "start_line": 258
           }
         },
         {
@@ -116250,8 +116404,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 235,
-            "start_line": 230
+            "end_line": 277,
+            "start_line": 272
           }
         },
         {
@@ -116273,8 +116427,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 245,
-            "start_line": 237
+            "end_line": 287,
+            "start_line": 279
           }
         },
         {
@@ -116296,8 +116450,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 261,
-            "start_line": 247
+            "end_line": 303,
+            "start_line": 289
           }
         },
         {
@@ -116318,8 +116472,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 285,
-            "start_line": 264
+            "end_line": 327,
+            "start_line": 306
           }
         },
         {
@@ -116341,8 +116495,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 285,
-            "start_line": 265
+            "end_line": 327,
+            "start_line": 307
           }
         },
         {
@@ -116363,8 +116517,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 273,
-            "start_line": 266
+            "end_line": 315,
+            "start_line": 308
           }
         },
         {
@@ -116392,8 +116546,8 @@
           "signature": "(self, path)",
           "source_location": {
             "column": 12,
-            "end_line": 273,
-            "start_line": 267
+            "end_line": 315,
+            "start_line": 309
           }
         }
       ]
@@ -170917,10 +171071,6 @@
             },
             {
               "alias": null,
-              "name": "TRIGGER_BUDGET"
-            },
-            {
-              "alias": null,
               "name": "TRIGGER_EXPLICIT"
             },
             {
@@ -170948,7 +171098,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 42,
+          "line": 41,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_collector"
@@ -170968,7 +171118,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 46,
+          "line": 45,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_policy"
@@ -170984,7 +171134,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 47,
+          "line": 46,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_root_lock"
@@ -171000,7 +171150,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 48,
+          "line": 47,
           "local_dependencies": [
             "tests.test_retention_root_lock"
           ],
@@ -171015,7 +171165,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 599,
+          "line": 598,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.runtime",
@@ -171032,7 +171182,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 738,
+          "line": 737,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.retention_collector"
@@ -171049,7 +171199,7 @@
       "module": "tests.test_orphan_reconciler",
       "path": "tests/test_orphan_reconciler.py",
       "source_location": {
-        "end_line": 814,
+        "end_line": 813,
         "start_line": 1
       },
       "symbols": [
@@ -171069,8 +171219,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 61,
-            "start_line": 56
+            "end_line": 60,
+            "start_line": 55
           }
         },
         {
@@ -171092,8 +171242,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 58,
-            "start_line": 57
+            "end_line": 57,
+            "start_line": 56
           }
         },
         {
@@ -171115,8 +171265,8 @@
           "signature": "(self) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 61,
-            "start_line": 60
+            "end_line": 60,
+            "start_line": 59
           }
         },
         {
@@ -171135,8 +171285,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 76,
-            "start_line": 64
+            "end_line": 75,
+            "start_line": 63
           }
         },
         {
@@ -171182,8 +171332,8 @@
           "signature": "(self, references = …, *, complete = …, error = …, delay = …)",
           "source_location": {
             "column": 4,
-            "end_line": 69,
-            "start_line": 65
+            "end_line": 68,
+            "start_line": 64
           }
         },
         {
@@ -171205,8 +171355,8 @@
           "signature": "(self) -> LiveReferenceSnapshot",
           "source_location": {
             "column": 4,
-            "end_line": 76,
-            "start_line": 71
+            "end_line": 75,
+            "start_line": 70
           }
         },
         {
@@ -171228,8 +171378,8 @@
           "signature": "(root: Path) -> dict[str, bytes | None]",
           "source_location": {
             "column": 0,
-            "end_line": 90,
-            "start_line": 79
+            "end_line": 89,
+            "start_line": 78
           }
         },
         {
@@ -171250,8 +171400,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 195,
-            "start_line": 93
+            "end_line": 194,
+            "start_line": 92
           }
         },
         {
@@ -171273,8 +171423,8 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 97
+            "end_line": 105,
+            "start_line": 96
           }
         },
         {
@@ -171314,8 +171464,8 @@
           "signature": "(self, policy = …, file_system = …, timeout = …)",
           "source_location": {
             "column": 4,
-            "end_line": 115,
-            "start_line": 108
+            "end_line": 114,
+            "start_line": 107
           }
         },
         {
@@ -171343,8 +171493,8 @@
           "signature": "(self, **kwargs) -> OrphanReconciler",
           "source_location": {
             "column": 4,
-            "end_line": 122,
-            "start_line": 117
+            "end_line": 121,
+            "start_line": 116
           }
         },
         {
@@ -171378,8 +171528,8 @@
           "signature": "(self, label: str, size: int = …) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 129,
-            "start_line": 125
+            "end_line": 128,
+            "start_line": 124
           }
         },
         {
@@ -171407,8 +171557,8 @@
           "signature": "(self, digest: str) -> ArtifactReference",
           "source_location": {
             "column": 4,
-            "end_line": 132,
-            "start_line": 131
+            "end_line": 131,
+            "start_line": 130
           }
         },
         {
@@ -171442,8 +171592,8 @@
           "signature": "(self, digest: str, age_ms: int) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 146,
-            "start_line": 134
+            "end_line": 145,
+            "start_line": 133
           }
         },
         {
@@ -171483,8 +171633,8 @@
           "signature": "(self, label: str, age_ms: int = …, size: int = …) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 151,
-            "start_line": 148
+            "end_line": 150,
+            "start_line": 147
           }
         },
         {
@@ -171512,8 +171662,8 @@
           "signature": "(self, label: str) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 156,
-            "start_line": 153
+            "end_line": 155,
+            "start_line": 152
           }
         },
         {
@@ -171541,8 +171691,8 @@
           "signature": "(self, digest: str) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 159,
-            "start_line": 158
+            "end_line": 158,
+            "start_line": 157
           }
         },
         {
@@ -171570,8 +171720,8 @@
           "signature": "(self, plan) -> dict[str, tuple[str, str]]",
           "source_location": {
             "column": 4,
-            "end_line": 162,
-            "start_line": 161
+            "end_line": 161,
+            "start_line": 160
           }
         },
         {
@@ -171605,8 +171755,8 @@
           "signature": "(self, digest: str, *, created_object: bool = …) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 181,
-            "start_line": 164
+            "end_line": 180,
+            "start_line": 163
           }
         },
         {
@@ -171634,8 +171784,8 @@
           "signature": "(self, digest: str) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 184,
-            "start_line": 183
+            "end_line": 183,
+            "start_line": 182
           }
         },
         {
@@ -171675,8 +171825,8 @@
           "signature": "(self, shard: str, *, files = …, age_ms = …)",
           "source_location": {
             "column": 4,
-            "end_line": 195,
-            "start_line": 186
+            "end_line": 194,
+            "start_line": 185
           }
         },
         {
@@ -171697,8 +171847,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 284,
-            "start_line": 198
+            "end_line": 283,
+            "start_line": 197
           }
         },
         {
@@ -171720,8 +171870,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 223,
-            "start_line": 199
+            "end_line": 222,
+            "start_line": 198
           }
         },
         {
@@ -171743,8 +171893,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 231,
-            "start_line": 225
+            "end_line": 230,
+            "start_line": 224
           }
         },
         {
@@ -171766,8 +171916,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 242,
-            "start_line": 233
+            "end_line": 241,
+            "start_line": 232
           }
         },
         {
@@ -171789,8 +171939,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 259,
-            "start_line": 244
+            "end_line": 258,
+            "start_line": 243
           }
         },
         {
@@ -171812,8 +171962,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 275,
-            "start_line": 261
+            "end_line": 274,
+            "start_line": 260
           }
         },
         {
@@ -171835,8 +171985,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 284,
-            "start_line": 277
+            "end_line": 283,
+            "start_line": 276
           }
         },
         {
@@ -171857,8 +172007,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 355,
-            "start_line": 287
+            "end_line": 354,
+            "start_line": 286
           }
         },
         {
@@ -171880,8 +172030,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 294,
-            "start_line": 288
+            "end_line": 293,
+            "start_line": 287
           }
         },
         {
@@ -171903,8 +172053,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 304,
-            "start_line": 296
+            "end_line": 303,
+            "start_line": 295
           }
         },
         {
@@ -171926,8 +172076,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 331,
-            "start_line": 306
+            "end_line": 330,
+            "start_line": 305
           }
         },
         {
@@ -171949,8 +172099,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 342,
-            "start_line": 333
+            "end_line": 341,
+            "start_line": 332
           }
         },
         {
@@ -171972,8 +172122,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 355,
-            "start_line": 344
+            "end_line": 354,
+            "start_line": 343
           }
         },
         {
@@ -171994,8 +172144,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 410,
-            "start_line": 358
+            "end_line": 409,
+            "start_line": 357
           }
         },
         {
@@ -172017,8 +172167,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 392,
-            "start_line": 359
+            "end_line": 391,
+            "start_line": 358
           }
         },
         {
@@ -172040,8 +172190,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 410,
-            "start_line": 394
+            "end_line": 409,
+            "start_line": 393
           }
         },
         {
@@ -172062,8 +172212,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 487,
-            "start_line": 413
+            "end_line": 486,
+            "start_line": 412
           }
         },
         {
@@ -172085,8 +172235,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 436,
-            "start_line": 414
+            "end_line": 435,
+            "start_line": 413
           }
         },
         {
@@ -172110,8 +172260,8 @@
           "signature": "(path)",
           "source_location": {
             "column": 4,
-            "end_line": 440,
-            "start_line": 439
+            "end_line": 439,
+            "start_line": 438
           }
         },
         {
@@ -172133,8 +172283,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 470,
-            "start_line": 442
+            "end_line": 469,
+            "start_line": 441
           }
         },
         {
@@ -172155,8 +172305,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 452,
-            "start_line": 443
+            "end_line": 451,
+            "start_line": 442
           }
         },
         {
@@ -172184,8 +172334,8 @@
           "signature": "(self, path)",
           "source_location": {
             "column": 12,
-            "end_line": 452,
-            "start_line": 444
+            "end_line": 451,
+            "start_line": 443
           }
         },
         {
@@ -172207,8 +172357,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 487,
-            "start_line": 472
+            "end_line": 486,
+            "start_line": 471
           }
         },
         {
@@ -172229,8 +172379,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 531,
-            "start_line": 490
+            "end_line": 530,
+            "start_line": 489
           }
         },
         {
@@ -172252,8 +172402,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 515,
-            "start_line": 491
+            "end_line": 514,
+            "start_line": 490
           }
         },
         {
@@ -172275,8 +172425,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 531,
-            "start_line": 517
+            "end_line": 530,
+            "start_line": 516
           }
         },
         {
@@ -172297,8 +172447,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 574,
-            "start_line": 534
+            "end_line": 573,
+            "start_line": 533
           }
         },
         {
@@ -172320,8 +172470,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 547,
-            "start_line": 538
+            "end_line": 546,
+            "start_line": 537
           }
         },
         {
@@ -172343,8 +172493,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 557,
-            "start_line": 549
+            "end_line": 556,
+            "start_line": 548
           }
         },
         {
@@ -172366,8 +172516,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 567,
-            "start_line": 559
+            "end_line": 566,
+            "start_line": 558
           }
         },
         {
@@ -172389,8 +172539,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 574,
-            "start_line": 569
+            "end_line": 573,
+            "start_line": 568
           }
         },
         {
@@ -172411,8 +172561,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 743,
-            "start_line": 577
+            "end_line": 742,
+            "start_line": 576
           }
         },
         {
@@ -172434,8 +172584,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 596,
-            "start_line": 578
+            "end_line": 595,
+            "start_line": 577
           }
         },
         {
@@ -172457,8 +172607,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 631,
-            "start_line": 598
+            "end_line": 630,
+            "start_line": 597
           }
         },
         {
@@ -172477,8 +172627,8 @@
           "signature": null,
           "source_location": {
             "column": 8,
-            "end_line": 619,
-            "start_line": 604
+            "end_line": 618,
+            "start_line": 603
           }
         },
         {
@@ -172512,8 +172662,8 @@
           "signature": "(self, references, complete)",
           "source_location": {
             "column": 12,
-            "end_line": 607,
-            "start_line": 605
+            "end_line": 606,
+            "start_line": 604
           }
         },
         {
@@ -172535,8 +172685,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 12,
-            "end_line": 619,
-            "start_line": 609
+            "end_line": 618,
+            "start_line": 608
           }
         },
         {
@@ -172558,8 +172708,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 641,
-            "start_line": 633
+            "end_line": 640,
+            "start_line": 632
           }
         },
         {
@@ -172581,8 +172731,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 655,
-            "start_line": 643
+            "end_line": 654,
+            "start_line": 642
           }
         },
         {
@@ -172604,8 +172754,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 665,
-            "start_line": 657
+            "end_line": 664,
+            "start_line": 656
           }
         },
         {
@@ -172627,8 +172777,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 679,
-            "start_line": 667
+            "end_line": 678,
+            "start_line": 666
           }
         },
         {
@@ -172650,8 +172800,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 698,
-            "start_line": 681
+            "end_line": 697,
+            "start_line": 680
           }
         },
         {
@@ -172673,8 +172823,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 711,
-            "start_line": 700
+            "end_line": 710,
+            "start_line": 699
           }
         },
         {
@@ -172696,8 +172846,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 718,
-            "start_line": 713
+            "end_line": 717,
+            "start_line": 712
           }
         },
         {
@@ -172719,8 +172869,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 743,
-            "start_line": 720
+            "end_line": 742,
+            "start_line": 719
           }
         },
         {
@@ -172741,8 +172891,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 810,
-            "start_line": 746
+            "end_line": 809,
+            "start_line": 745
           }
         },
         {
@@ -172764,8 +172914,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 790,
-            "start_line": 747
+            "end_line": 789,
+            "start_line": 746
           }
         },
         {
@@ -172780,8 +172930,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 8,
-            "end_line": 778,
-            "start_line": 758
+            "end_line": 777,
+            "start_line": 757
           }
         },
         {
@@ -172803,8 +172953,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 810,
-            "start_line": 792
+            "end_line": 809,
+            "start_line": 791
           }
         },
         {
@@ -172819,8 +172969,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 8,
-            "end_line": 800,
-            "start_line": 798
+            "end_line": 799,
+            "start_line": 797
           }
         }
       ]

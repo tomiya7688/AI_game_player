@@ -528,7 +528,11 @@ class OrphanReconciler:
         if dry_run:
             return self._report(plan, blocked=plan.blocked_reason)
         report = self.apply(plan, extra_live=extra)
-        if trigger == TRIGGER_PERIODIC and plan.blocked_reason is None:
+        if (
+            trigger == TRIGGER_PERIODIC
+            and plan.blocked_reason is None
+            and report.blocked_reason is None
+        ):
             self._last_periodic_ms = plan.evaluated_at_ms
         return report
 

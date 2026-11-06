@@ -11,6 +11,7 @@ from ai_game_player.artifact_trash import (
     KIND_OBJECT,
     REASON_RETENTION_REMOVE,
     REASON_SAFE_ORPHAN,
+    STATE_RENAMED,
     STATE_SWEPT,
     TRASH_DIRECTORY_NAME,
     ArtifactTrash,
@@ -133,6 +134,47 @@ class DiscardTest(TrashTestCase):
             with self.assertRaises(RetentionCapacityError):
                 self.discard(trash, digest, path)
         self.assertTrue(path.is_dir())
+
+
+class ReviewFixTest(TrashTestCase):
+    def test_exactly_max_intents_are_listed_and_one_more_is_rejected(self):
+        trash = ArtifactTrash(self.root)
+        trash.ensure()
+        for number in range(3):
+            trash._write_intent(make_intent(f"{number}" * 32, "a" * 64))
+        with mock.patch.object(artifact_trash, "MAX_TRASH_INTENTS", 3):
+            self.assertEqual(len(trash.list_intents()), 3)
+        with mock.patch.object(artifact_trash, "MAX_TRASH_INTENTS", 2):
+            with self.assertRaises(TrashIntentError):
+                trash.list_intents()
+
+    def test_unreadable_tree_stops_before_rename(self):
+        digest, path = self.put(b"o" * 10)
+        trash = ArtifactTrash(self.root)
+        with mock.patch.object(artifact_trash.os, "lstat", side_effect=OSError("x")):
+            with self.assertRaises(OSError):
+                self.discard(trash, digest, path)
+        self.assertTrue(path.is_dir())
+
+    def test_intent_update_failure_after_rename_is_not_reported_as_failure(self):
+        digest, path = self.put(b"p" * 10)
+        trash = ArtifactTrash(self.root)
+        real = trash._write_intent
+        calls = []
+
+        def flaky(intent):
+            calls.append(intent.state)
+            if intent.state == STATE_RENAMED:
+                raise OSError("injected")
+            real(intent)
+
+        trash._write_intent = flaky
+        intent = self.discard(trash, digest, path)
+        self.assertEqual(intent.state, "pending")
+        self.assertFalse(path.exists())
+        trash._write_intent = real
+        self.assertEqual(trash.sweep().swept, (intent.id,))
+        self.assertEqual(trash.audit_intents()[0].state, STATE_SWEPT)
 
 
 class CrashRecoveryTest(TrashTestCase):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -258,7 +259,7 @@ class ArtifactTrash:
             match = _INTENT_FILE.fullmatch(path.name)
             if match is None:
                 continue
-            if len(intents) > MAX_TRASH_INTENTS:
+            if len(intents) >= MAX_TRASH_INTENTS:
                 raise TrashIntentError("trash intents exceed the limit")
             intent = self._read_intent(path)
             if intent.id != match.group(1):
@@ -329,10 +330,17 @@ class ArtifactTrash:
         except OSError:
             self._intent_path(intent.id).unlink(missing_ok=True)
             raise
-        _fsync_directory(source.parent)
-        _fsync_directory(self.directory)
+        # renameは成立済み。永続化の確認失敗は例外にせず次回sweepに任せる。
+        with contextlib.suppress(OSError):
+            _fsync_directory(source.parent)
+            _fsync_directory(self.directory)
         renamed = replace(intent, state=STATE_RENAMED, deleted_at_ms=self._clock())
-        self._write_intent(renamed)
+        try:
+            self._write_intent(renamed)
+        except OSError:
+            # renameは済んでおり論理的には削除済み。例外にすると呼出元が「未削除」と誤解するので、
+            # pendingのまま返し、次回sweepがentryを見てrenamedへ進める。
+            return intent
         return self._remove_entry(renamed)
 
     # {
@@ -602,19 +610,28 @@ def _is_trigger(value: object) -> bool:
 
 # {
 #   責務: [_tree_size: directory配下のfile byte数をlinkを辿らずに合計する]
-#   処理: [os.walkで通常fileのlstat sizeを足す。読めないfileは0として扱う]
+#   処理: [os.walkで通常fileのlstat sizeを足す。読めない場合はOSErrorを送出する]
 #   引数: [path: 対象directory]
 #   戻り値: [int: 合計byte]
 # }
 def _tree_size(path: Path) -> int:
     total = 0
-    for current, _, files in os.walk(path, followlinks=False):
+    for current, _, files in os.walk(path, followlinks=False, onerror=_raise):
         for name in files:
-            try:
-                total += os.lstat(os.path.join(current, name)).st_size
-            except OSError:
-                continue
+            # 読めないfileは数え漏れになるため、例外にしてrename前に削除を止める。
+            total += os.lstat(os.path.join(current, name)).st_size
     return total
+
+
+# {
+#   責務: [_raise: os.walkの列挙エラーを握りつぶさず送出する]
+#   処理: [受け取ったOSErrorをそのまま送出する]
+#   引数: [error: os.walkが渡す例外]
+#   戻り値: [なし]
+#   エラー: [OSError: 常に送出]
+# }
+def _raise(error: OSError) -> None:
+    raise error
 
 
 # {
@@ -627,7 +644,7 @@ def _tree_size(path: Path) -> int:
 def _fsync_directory(path: Path) -> None:
     if os.name == "nt":
         return
-    descriptor = os.open(path, os.O_RDONLY)
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
     try:
         os.fsync(descriptor)
     finally:
