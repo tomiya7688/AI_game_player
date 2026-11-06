@@ -2,6 +2,11 @@
 
 - `tools/compare_2048_windows_long.py`（provider順の6順列巡回、600秒内のepisode反復、recovery 2回、780秒hard timeoutの子process回収、hardware・条件fingerprint照合）、`tools/windows_long_comparison_stats.py`（指標・Wilson区間・bootstrap・符号反転検定、コード定数の閾値）、`tools/aggregate_2048_windows_long.py`（期待manifestを母数にした比較表・対比・感度分析・終了コード0/1/2）を追加。`run_episode`へ任意の`deadline_monotonic`を追加（`None`なら従来の短比較と同じ）。
 - 別workflow `windows-long-comparison.yml`（`workflow_dispatch`＋週1回、required checks・rulesetは変更なし）。未計測は`unknown`、失敗・打切り・欠測は母数に残る。実測は手動実行後に#567へ記録。[設計](design/issue-795-windows-long-comparison.md)、[説明](architecture/windows_long_comparison.md)。
+## 2026-11-07 Session Resource Registry / Cleanup Coordinator（Issue #786）
+
+- `runtime/resource_lifecycle.py`に`SessionResourceRegistry`・`CleanupCoordinator`・typed lease/snapshot（`ResourceLease`、`ResourcePressureSnapshot` v1、`CleanupReport`、`ResourceLifecycleSnapshot` schema 1）を追加。Session/Generation/Task単位の一括解放、二重解放の防止、stale generationの借用拒否、借用中の解放保留、pressure/期限切れの上限付き解放（期限切れ→priority→古い順）、解放件数・推定bytes・所要時間のTrace（`resource.cleanup/v1`）を提供します。[契約](architecture/runtime_resource_lifecycle.md)、[設計](design/issue-786-session-resource-registry.md)。
+- `ManagedSessionRuntime`がRegistryを1つ所有し（`resources`）、`close()`の先頭で閉じ、各stepを`task_scope`で包み、世代を`RunController.rearm_token`へ同期します。Registryの失敗・打ち切りでも後続のpipeline/provider/journalのcloseは続行します。
+- 範囲外（残件）: pressure発生源の接続（#425/#546）、実owner（#571/#534/#334）のAdapter登録、長時間増加の判定（#787）。
 
 ## 2026-11-05 Windows長枠3 Provider比較の設計（Issue #795）
 

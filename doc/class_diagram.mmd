@@ -1971,12 +1971,88 @@ classDiagram
         +names()
         +resolve()
     }
+    Enum <|-- ResourceScope
+    class ResourceScope {
+    }
+    Enum <|-- ResourceState
+    class ResourceState {
+    }
+    RuntimeError <|-- ResourceLifecycleError
+    class ResourceLifecycleError {
+        +__init__()
+    }
+    Protocol <|-- ResourceReleaser
+    class ResourceReleaser {
+        +release()
+    }
+    Protocol <|-- ResourceTraceSink
+    class ResourceTraceSink {
+        +record()
+    }
+    class ClosableOwnerAdapter {
+        +__init__()
+        +release()
+    }
+    class ResourceLease {
+    }
+    class ResourcePressureSnapshot {
+        +__post_init__()
+    }
+    class CleanupReport {
+        +to_payload()
+    }
+    class ResourceLifecycleSnapshot {
+        +to_payload()
+    }
+    class _Entry {
+    }
+    class ResourceBorrow {
+        +__init__()
+        +__enter__()
+        +__exit__()
+    }
+    class SessionResourceRegistry {
+        +__init__()
+        +current_generation()
+        +acquire()
+        +borrow()
+        +release()
+        +task_scope()
+        +close_task()
+        +advance_generation()
+        +close_generation()
+        +close_session()
+        +snapshot()
+        +_require_open()
+        +_current_task()
+        +_adjust_stats()
+        +_rebuild_expiry_if_needed()
+        +_record_terminal()
+        +_claim()
+        +_claim_where()
+        +_end_borrow()
+        +_drain()
+        +_run_release()
+        +_finish()
+        +_emit()
+    }
+    class CleanupCoordinator {
+        +__init__()
+        +on_pressure()
+        +cleanup_expired()
+        +_bounded_release()
+    }
     class SessionRuntimeConfiguration {
+    }
+    class _PipelineResourceTrace {
+        +__init__()
+        +record()
     }
     class ManagedSessionRuntime {
         +__init__()
         +run()
         +run_and_execute()
+        +_step_scope()
         +load_execution_history()
         +complete_execution_observation()
         +assess_outcome()
