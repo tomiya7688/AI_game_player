@@ -126,7 +126,10 @@ class WorkflowRunGateTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         actual = {path.relative_to(root).as_posix() for pattern in ("*.yml", "*.yaml")
                   for path in (root / ".github/workflows").glob(pattern)}
-        self.assertEqual(actual, REQUIRED_WORKFLOW_PATHS)
+        # 測定専用で必須gateにしないworkflow(push/PRでは動かない)。ここに足すには設計書での合意が要る。
+        measurement_only = {".github/workflows/windows-long-comparison.yml"}
+        self.assertTrue(measurement_only <= actual)
+        self.assertEqual(actual - measurement_only, REQUIRED_WORKFLOW_PATHS)
 
     def test_missing_event_runs_stop(self):
         self.runs["push"] = []

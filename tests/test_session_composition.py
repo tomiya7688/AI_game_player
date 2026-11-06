@@ -334,6 +334,75 @@ class SessionCompositionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unsupported decision provider: fake"):
             composition.create_session_runtime(self.configuration(), source=object(), controller=object())
 
+    def test_resource_registry_closes_before_pipeline_and_provider(self):
+        from ai_game_player.run_control import RunController
+        from ai_game_player.runtime.resource_lifecycle import ResourceScope
+        from ai_game_player.runtime.session_composition import ManagedSessionRuntime
+
+        events = []
+
+        class Releaser:
+            def release(self, resource_id):
+                events.append(("resource", resource_id))
+
+        controller = RunController()
+        runtime = ManagedSessionRuntime(
+            FakePipeline(events), FakeProvider(events), run_control=controller
+        )
+        runtime.resources.acquire(
+            "a", "k.x", Releaser(), owner_scope=ResourceScope.SESSION
+        )
+        runtime.resources.acquire(
+            "g", "k.x", Releaser(), owner_scope=ResourceScope.GENERATION
+        )
+        runtime.run()
+        self.assertEqual(runtime.resources.current_generation, controller.rearm_token)
+        controller.start()
+        runtime.run()  # rearm_tokenが進んだので旧世代のGENERATION資源が解放される
+        self.assertEqual(events, [("resource", "g")])
+        runtime.close()
+        self.assertEqual(
+            events[1:], [("resource", "a"), "pipeline.close", "provider.close"]
+        )
+        self.assertEqual(runtime.resources.snapshot().session_state, "CLOSED")
+
+    def test_resource_cleanup_failure_still_closes_later_resources(self):
+        from ai_game_player.runtime.resource_lifecycle import ResourceScope
+        from ai_game_player.runtime.session_composition import ManagedSessionRuntime
+
+        events = []
+
+        class Broken:
+            def release(self, resource_id):
+                raise OSError("boom")
+
+        runtime = ManagedSessionRuntime(FakePipeline(events), FakeProvider(events))
+        runtime.resources.acquire(
+            "a", "k.x", Broken(), owner_scope=ResourceScope.SESSION
+        )
+        with self.assertRaisesRegex(RuntimeError, "resource cleanup incomplete"):
+            runtime.close()
+        self.assertEqual(events, ["pipeline.close", "provider.close"])
+
+    def test_borrowed_resource_at_close_is_reported(self):
+        from ai_game_player.runtime.resource_lifecycle import ResourceScope
+        from ai_game_player.runtime.session_composition import ManagedSessionRuntime
+
+        events = []
+
+        class Releaser:
+            def release(self, resource_id):
+                events.append(resource_id)
+
+        runtime = ManagedSessionRuntime(FakePipeline(events), FakeProvider(events))
+        runtime.resources.acquire(
+            "a", "k.x", Releaser(), owner_scope=ResourceScope.SESSION
+        )
+        with runtime.resources.borrow("a", expected_generation=0):
+            with self.assertRaisesRegex(RuntimeError, "deferred=1"):
+                runtime.close()
+        self.assertIn("a", events)
+
     def test_outcome_provider_is_released_after_assessment(self):
         events = []
         provider = FakeProvider(events)
