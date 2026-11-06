@@ -161,6 +161,9 @@ class AggregateTests(unittest.TestCase):
         self.assertEqual(contrast["primary"]["n_pairs"], 7)
         self.assertEqual(contrast["primary"]["n_excluded_unknown"], 1)
         self.assertEqual(contrast["sensitivity_missing_score_as_zero"]["n_pairs"], 8)
+        self.assertEqual(
+            contrast["sensitivity_missing_score_as_zero"]["n_imputed_zero"], 1
+        )
 
     def test_condition_fingerprint_mismatch_is_a_contract_violation_without_statistics(
         self,

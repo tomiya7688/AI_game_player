@@ -162,6 +162,8 @@ def percentile_nearest_rank(values: list[float], q: float) -> float | None:
 #   ]
 # }
 def wilson_interval(successes: int, n: int) -> dict[str, Any]:
+    if n > 0 and not 0 <= successes <= n:
+        raise ValueError("successes must be within 0..n")
     if n <= 0:
         return {
             "n": 0,
@@ -526,7 +528,9 @@ def run_metrics(provider: str, episodes: list[dict[str, Any]]) -> dict[str, Any]
             else unknown()
         ),
         "terminal_episodes": len(terminal),
-        "censored_episodes": sum(1 for e in episodes if e["terminal"] is not True),
+        # 右打切りは「時間切れでterminal未到達(False)」だけ。失敗等でterminalが不明(None)なものは別に数える。
+        "censored_episodes": sum(1 for e in episodes if e["terminal"] is False),
+        "terminal_unknown_episodes": sum(1 for e in episodes if e["terminal"] is None),
         "episodes": len(episodes),
         "actions_total": actions,
         "attempts_total": attempts,

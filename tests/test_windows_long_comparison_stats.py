@@ -91,6 +91,17 @@ class RunMetricsTests(unittest.TestCase):
             (mixed["terminal_episodes"], mixed["censored_episodes"]), (2, 1)
         )
 
+    def test_failed_episode_with_unknown_terminal_is_not_right_censored(self):
+        metrics = stats.run_metrics(
+            "cycling", [episode(terminal=None), episode(terminal=False)]
+        )
+        self.assertEqual(metrics["censored_episodes"], 1)
+        self.assertEqual(metrics["terminal_unknown_episodes"], 1)
+
+    def test_wilson_rejects_impossible_counts(self):
+        with self.assertRaises(ValueError):
+            stats.wilson_interval(9, 8)
+
     def test_latency_percentiles_unknown_without_samples_and_nearest_rank_with(self):
         empty = stats.run_metrics("cycling", [episode(latency_ms=[])])
         self.assertEqual(empty["latency_p50_ms"]["status"], "unknown")

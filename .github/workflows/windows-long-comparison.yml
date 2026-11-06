@@ -107,7 +107,7 @@ jobs:
         if: always()
         with:
           name: windows-long-block-${{ matrix.seed }}
-          path: build/windows-long
+          path: build/windows-long/block-${{ matrix.seed }}
           if-no-files-found: warn
 
   aggregate:

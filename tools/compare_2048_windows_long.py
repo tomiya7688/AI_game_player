@@ -214,19 +214,28 @@ def condition_fingerprint() -> tuple[str, dict[str, Any]]:
             timeout=30,
             check=False,
         )
+        if version.returncode != 0:
+            raise ConditionUnavailable("Tesseract version command failed")
         ocr_version = (version.stdout or version.stderr).splitlines()[0].strip()
     except (OSError, subprocess.SubprocessError, IndexError) as error:
         raise ConditionUnavailable("Tesseract version is unavailable") from error
+    planning_file = getattr(planning, "__file__", None)
+    if not planning_file:
+        raise ConditionUnavailable("short comparison harness path is unavailable")
+    try:
+        git_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
+        ).strip()
+    except (OSError, subprocess.SubprocessError) as error:
+        raise ConditionUnavailable("git commit is unavailable") from error
     here = Path(__file__).resolve().parent
     components = {
-        "git_commit": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True, encoding="utf-8"
-        ).strip(),
+        "git_commit": git_commit,
         "source_sha256": source_fingerprint()["sha256"],
         "game_source_lock_sha256": _file_sha256(SOURCE_LOCK_PATH),
         "native_runtime_sha256": _file_sha256(Path(runtime)),
         "harness_sha256": {
-            "compare_2048_windows_planning": _file_sha256(Path(planning.__file__)),
+            "compare_2048_windows_planning": _file_sha256(Path(planning_file)),
             "compare_2048_windows_long": _file_sha256(Path(__file__)),
             "windows_long_comparison_stats": _file_sha256(
                 here / "windows_long_comparison_stats.py"

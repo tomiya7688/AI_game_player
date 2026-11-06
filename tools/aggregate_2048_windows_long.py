@@ -408,7 +408,7 @@ def _contrast_block(
     completed_only: bool = False,
     zero_impute: bool = False,
 ) -> dict[str, Any]:
-    differences, excluded = [], 0
+    differences, excluded, imputed = [], 0, 0
     for seed in seeds:
         ra, rb = entries[(seed, a)]["run"], entries[(seed, b)]["run"]
         values = []
@@ -419,12 +419,17 @@ def _contrast_block(
             value = _metric_value(run, metric) if ok else None
             if value is None and zero_impute:
                 value = 0.0
+                imputed += 1
             values.append(value)
         if values[0] is None or values[1] is None:
             excluded += 1
         else:
             differences.append(values[0] - values[1])
-    return paired_contrast(differences, excluded, with_verdict=with_verdict)
+    result = paired_contrast(differences, excluded, with_verdict=with_verdict)
+    if zero_impute:
+        # 置換した値の数を明示する(置換値は参考であり、一次解析・verdictには使わない)。
+        result["n_imputed_zero"] = imputed
+    return result
 
 
 # {
@@ -521,6 +526,7 @@ def aggregate(manifest: dict[str, Any], artifacts: Path) -> tuple[dict[str, Any]
             percentile_nearest_rank(samples, 0.95),
         )
         summary["latency_pooled"] = {
+            "scope": "every run with latency samples, including runs without input",
             "samples": len(samples),
             "p50_ms": measured(p50)
             if p50 is not None

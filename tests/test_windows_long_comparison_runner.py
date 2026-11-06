@@ -267,6 +267,21 @@ class SubprocessRunTests(unittest.TestCase):
             (report["run_status"], report["stop_reason"]), ("failed", "hard_timeout")
         )
 
+    def test_hard_timeout_overrides_a_completed_looking_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+
+            def spawn(command):
+                self.worker_report(directory, "planner", status="completed")
+                return FakeProcess(hang=True)
+
+            with patch.object(runner, "_kill_tree", return_value=[]):
+                report = runner.run_provider_subprocess(
+                    args_for(directory), "planner", identity("planner"), spawn
+                )
+        self.assertEqual(
+            (report["run_status"], report["stop_reason"]), ("failed", "hard_timeout")
+        )
+
     def test_leftover_processes_after_timeout_invalidate_the_block(self):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(runner, "_kill_tree", return_value=[99]):
