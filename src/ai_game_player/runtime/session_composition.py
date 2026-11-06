@@ -15,7 +15,10 @@ from typing import Any, BinaryIO
 from uuid import uuid4
 
 from ai_game_player.action_executor import ExecutionResult
+from ai_game_player.artifact_admission import ArtifactAdmissionCoordinator
+from ai_game_player.artifact_store import FileSystemArtifactStore
 from ai_game_player.atomic_json import stage_json_write
+from ai_game_player.data_inventory import load_data_inventory
 from ai_game_player.evaluator import ActionEvaluator
 from ai_game_player.event_journal import EventJournal
 from ai_game_player.models import ActionCandidate, ActionDecision, ScreenObservation
@@ -25,7 +28,21 @@ from ai_game_player.pipeline import DecisionPipeline
 from ai_game_player.decision_orchestrator import DecisionOrchestrator
 from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.provider import OllamaProvider, RuleProvider
+from ai_game_player.retention_collector import RetentionCollector
+from ai_game_player.retention_policy import RetentionPolicy
 from ai_game_player.run_control import RunController
+from ai_game_player.runtime.retention_adapter import (
+    CompositeReferenceProvider,
+    ExperienceReferenceSource,
+    JournalReferenceSource,
+    PinnedReferenceSource,
+    ReferenceSource,
+    RetentionTraceEvent,
+    RetentionTriggerPolicy,
+    RuntimeRetentionAdapter,
+    RuntimeRetentionReport,
+    SkippedRetention,
+)
 from ai_game_player.runtime.resource_lifecycle import (
     ResourceLifecycleError,
     SessionResourceRegistry,
@@ -170,6 +187,24 @@ def _accepted_pipeline_arguments(
 
 
 # {
+#   責務: [_declares_parameter: pipeline factoryが指定名のkeywordを明示的に宣言しているか判定する]
+#   処理: [**kwargsでは真にせず、POSITIONAL_ONLY以外の宣言parameterだけを見る(未知keywordを黙って渡さない)]
+#   引数: [pipeline_factory: 注入されたfactory, name: 確認するparameter名]
+#   戻り値: [bool: 明示的に受け取れる場合だけTrue]
+# }
+def _declares_parameter(pipeline_factory: Callable[..., Any], name: str) -> bool:
+    try:
+        parameters = inspect.signature(pipeline_factory).parameters
+    except (TypeError, ValueError):
+        return False
+    declared = parameters.get(name)
+    return declared is not None and declared.kind in (
+        inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        inspect.Parameter.KEYWORD_ONLY,
+    )
+
+
+# {
 #   責務: [_runtime_log_migration_paths: RuntimeLog JSONL sourceごとの移行markerとlockを決める]
 #   処理: [RuntimeLog.pathに固有のsidecar名を作り、異なるgame directoryでも同じlog sourceを一度だけ移行する]
 #   引数: [runtime_log: 旧JSONL sourceを所有するapplication logger]
@@ -255,13 +290,26 @@ def _remove_partial_journal_files(database_path: Path) -> None:
         artifact_path.unlink(missing_ok=True)
 
 
+# {
+#   責務: [SessionRetentionConfig: Sessionごとの Artifact 保持(GC)の有効化・容量policy・trigger・Experience参照元を保持する]
+#   フィールド: [enabled: Falseならadapterを作らずどの経路もcollectを呼ばない, policy: 容量とTTL。Noneなら保守的な既定値(soft 1GiB/hard 2GiB・TTLはdata inventoryの型別既定),
+#     trigger: GCの起動条件と作業上限, experience_paths: 参照を持つExperience JSONL（writer契約を守るものだけを設定する。既定は空）]
+# }
+@dataclass(frozen=True)
+class SessionRetentionConfig:
+    enabled: bool = True
+    policy: RetentionPolicy | None = None
+    trigger: RetentionTriggerPolicy = field(default_factory=RetentionTriggerPolicy)
+    experience_paths: tuple[Path, ...] = ()
+
+
 @dataclass(frozen=True)
 # {
 #   責務: [SessionRuntimeConfiguration: セッション開始時に確定するProvider・保存先・入力対象設定を保持する]
 #   フィールド: [provider_name/model/endpoint: 判断Provider設定, game_directory: sessionデータ保存先, dry_run: 実入力を禁止する設定, window_handle/window_process_id/input_mode: 入力対象と入力方式,
 #     runtime_mode/knowledge_scope/learning_identity/adaptation_budget: bounded学習の構成,
 #     evaluation_profile/evaluation_goal_id/evaluation_predictions: 信頼済みhostが注入する6軸の方針と同frame数値仮説,
-#     evaluation_expose_to_models: scope/receiptを省く評価要約の明示送信許可]
+#     evaluation_expose_to_models: scope/receiptを省く評価要約の明示送信許可, retention: Session ArtifactのGC設定]
 # }
 class SessionRuntimeConfiguration:
     provider_name: str
@@ -280,6 +328,88 @@ class SessionRuntimeConfiguration:
     evaluation_goal_id: str = "unresolved"
     evaluation_predictions: EvaluationPredictionBatch | None = None
     evaluation_expose_to_models: bool = False
+    retention: SessionRetentionConfig = field(default_factory=SessionRetentionConfig)
+
+
+# {
+#   責務: [_default_retention_policy: Experience用途の保守的な既定のRetentionPolicyを作る]
+#   処理: [soft 1GiB・hard 2GiB・TTLなしを基本に、型別TTLをdata inventory(#224)から渡す]
+#   引数: [なし]
+#   戻り値: [RetentionPolicy: 既定policy]
+# }
+def _default_retention_policy() -> RetentionPolicy:
+    return RetentionPolicy(
+        soft_budget_bytes=1024**3,
+        hard_limit_bytes=2 * 1024**3,
+        default_ttl_ms=None,
+        ttl_ms_by_type=load_data_inventory().ttl_ms_by_artifact_type(),
+    )
+
+
+# {
+#   責務: [_journal_trace: retention.gc/v1 eventをSession Journalへ記録するTrace受信関数を作る]
+#   処理: [payloadだけを持つ(artifact_refsなし)eventをappendする。失敗は呼出側(adapter)がstatsに数える]
+#   引数: [journal: 記録先のSession Journal]
+#   戻り値: [Callable: RetentionTraceEventを受けてJournalへ記録する関数]
+# }
+def _journal_trace(journal: EventJournal) -> Callable[[RetentionTraceEvent], None]:
+    def record(event: RetentionTraceEvent) -> None:
+        payload = event.to_payload()
+        journal.append(
+            "retention.gc/v1", status=str(payload["outcome"]), payload=payload
+        )
+
+    return record
+
+
+# {
+#   責務: [_create_retention_adapter: Session専用rootのCollector・Admission・参照provider・adapterを、ディスクへ書かずに組み立てる]
+#   処理: [rootをgame_directory/session_artifacts/<session_id>に決め、Journal参照sourceと設定されたExperience参照源を合成し、
+#     adapterを作ってJournalのreference guardに接続する]
+#   引数: [configuration: Session設定, session_id: このSessionのID, journal: Session Journal]
+#   戻り値: [RuntimeRetentionAdapter | None: 無効設定ならNone]
+#   エラー: [ValueError/RetentionPolicyError: 構成不正(Session開始を失敗させる)]
+# }
+def _create_retention_adapter(
+    configuration: SessionRuntimeConfiguration,
+    session_id: str,
+    journal: EventJournal,
+) -> RuntimeRetentionAdapter | None:
+    retention = configuration.retention
+    if not retention.enabled:
+        return None
+    policy = (
+        retention.policy
+        if retention.policy is not None
+        else _default_retention_policy()
+    )
+    root = configuration.game_directory / "session_artifacts" / session_id
+    collector = RetentionCollector(FileSystemArtifactStore(root), policy)
+    admission = ArtifactAdmissionCoordinator(collector)
+    pins = PinnedReferenceSource()
+    sources: list[ReferenceSource] = [
+        JournalReferenceSource(
+            journal, batch_limit=retention.trigger.journal_batch_limit
+        )
+    ]
+    names: set[str] = set()
+    for experience_path in retention.experience_paths:
+        if experience_path.name in names:
+            raise ValueError("experience_paths must have unique file names")
+        names.add(experience_path.name)
+        sources.append(ExperienceReferenceSource(experience_path.name, experience_path))
+    provider = CompositeReferenceProvider(session_id, sources, pins=pins)
+    adapter = RuntimeRetentionAdapter(
+        collector,
+        admission,
+        provider,
+        retention.trigger,
+        session_id=session_id,
+        trace=_journal_trace(journal),
+        pins=pins,
+    )
+    journal.set_reference_guard(adapter.assert_recording)
+    return adapter
 
 
 # {
@@ -325,7 +455,8 @@ class ManagedSessionRuntime:
     #   責務: [__init__: Session Controllerが所有するPipelineとProviderを関連付ける]
     #   処理: [shutdown成功状態を個別に初期化し、失敗したresourceだけを再試行可能にする]
     #   引数: [pipeline: session中に再利用する判断・実行pipeline, provider: pipelineへ注入したsession scoped provider,
-    #     adaptation: light適応worker, resources: 共有するRegistry(省略時は内部生成), run_control: 世代同期元(省略可)]
+    #     adaptation: light適応worker, resources: 共有するRegistry(省略時は内部生成), run_control: 世代同期元(省略可),
+    #     retention/retention_journal: Session ArtifactのGC adapterとその参照元Journal(省略時はGCしない)]
     #   戻り値: []
     # }
     def __init__(
@@ -336,7 +467,15 @@ class ManagedSessionRuntime:
         *,
         resources: SessionResourceRegistry | None = None,
         run_control: RunController | None = None,
+        retention: RuntimeRetentionAdapter | None = None,
+        retention_journal: EventJournal | None = None,
     ) -> None:
+        self.retention = retention
+        self._retention_journal = retention_journal
+        self._retention_closed = retention is None
+        self.retention_close_result: (
+            RuntimeRetentionReport | SkippedRetention | None
+        ) = None
         # 世代の正本はRunController.rearm_token。それを持たない旧テスト用controllerでは同期しない
         if not isinstance(getattr(run_control, "rearm_token", None), int):
             run_control = None
@@ -475,6 +614,26 @@ class ManagedSessionRuntime:
         return assess(observation, previous)
 
     # {
+    #   責務: [_close_retention: Journalが開いている間に、保持policyの最終GCを1回行う]
+    #   処理: [Journalをflushしてからadapterのclose_sessionを呼ぶ。skipやpressureでも失敗にせず、結果はretention_close_resultへ残す]
+    #   引数: [errors: closeの失敗を集める一覧(flush失敗だけを加える)]
+    #   戻り値: []
+    # }
+    def _close_retention(self, errors: list[Exception]) -> None:
+        if self._retention_closed or self.retention is None:
+            return
+        self._retention_closed = True
+        if self._retention_journal is not None:
+            try:
+                self._retention_journal.flush()
+            except Exception as exc:
+                errors.append(exc)
+        try:
+            self.retention_close_result = self.retention.close_session()
+        except Exception as exc:
+            errors.append(exc)
+
+    # {
     #   責務: [close: session終了時にPipelineとProviderのresourceを解放する]
     #   処理: [最初にResource Registryを閉じ、実入力executorを止め、Provider終了失敗を記録した後でJournalを閉じ、失敗resourceを再試行可能にする]
     #   引数: []
@@ -508,6 +667,9 @@ class ManagedSessionRuntime:
         staged_pipeline_cleanup = callable(close_execution_resources) and callable(
             close_event_journal
         )
+        if not staged_pipeline_cleanup:
+            # 段階closeを持たないpipelineはclose()でJournalも閉じるため、その前に最終GCを行う
+            self._close_retention(errors)
         execution_resources_closed = True
         if not self._pipeline_closed and staged_pipeline_cleanup:
             try:
@@ -533,6 +695,9 @@ class ManagedSessionRuntime:
                         record_failure("provider", exc)
                     except Exception as logging_error:
                         errors.append(logging_error)
+        if staged_pipeline_cleanup:
+            # provider終了の記録まで書き終えた後、Journalを閉じる前に最終GCを行う
+            self._close_retention(errors)
         if not self._pipeline_closed and staged_pipeline_cleanup:
             try:
                 close_event_journal()
@@ -656,6 +821,7 @@ class RuntimeComposition:
             )
         pending_path = session_events_directory / "legacy_migration_v1.pending"
         event_journal: EventJournal | None = None
+        retention_adapter: RuntimeRetentionAdapter | None = None
         journal_pipeline: Any | None = None
         pipeline_cleanup_attempted = False
         try:
@@ -701,12 +867,19 @@ class RuntimeComposition:
                     event_journal = EventJournal(
                         session_journal_path, session_id=session_id
                     )
+                    retention_adapter = _create_retention_adapter(
+                        configuration, session_id, event_journal
+                    )
                     journal_pipeline_arguments = {
                         **pipeline_arguments,
                         "event_journal": event_journal,
                         "migrate_legacy": migrate_legacy,
                         "migrate_runtime_log": migrate_runtime_log,
                     }
+                    if _declares_parameter(self._pipeline_factory, "retention_adapter"):
+                        journal_pipeline_arguments["retention_adapter"] = (
+                            retention_adapter
+                        )
                     journal_pipeline = self._pipeline_factory(
                         source,
                         configuration.game_directory,
@@ -794,7 +967,14 @@ class RuntimeComposition:
                     + ")"
                 ) from initialization_error
             raise
-        return _managed_session(journal_pipeline, provider, configuration, controller)
+        return _managed_session(
+            journal_pipeline,
+            provider,
+            configuration,
+            controller,
+            retention=retention_adapter,
+            retention_journal=event_journal,
+        )
 
     # {
     #   責務: [assess_outcome: 指定Providerまたはローカルfallbackで画面状態を評価する]
@@ -873,7 +1053,8 @@ def _close_provider(provider: Any) -> None:
 # {
 #   責務: [_managed_session: 本番Pipelineにだけ既定light Mode/workerの寿命を接続する]
 #   処理: [custom legacy factory互換を維持し、初期化失敗時はPipeline/Providerを解放する]
-#   引数: [pipeline/provider: 構築済みSession部品, configuration: 確定設定, controller: Session停止世代]
+#   引数: [pipeline/provider: 構築済みSession部品, configuration: 確定設定, controller: Session停止世代,
+#     retention/retention_journal: Session ArtifactのGC adapterとその参照元Journal(省略可)]
 #   戻り値: [ManagedSessionRuntime: 一つのModeとworkerを所有するruntime]
 #   エラー: [Exception: 初期化失敗。解放を試みて元エラーを伝播する]
 # }
@@ -882,6 +1063,9 @@ def _managed_session(
     provider: Any,
     configuration: SessionRuntimeConfiguration,
     controller: RunController,
+    *,
+    retention: RuntimeRetentionAdapter | None = None,
+    retention_journal: EventJournal | None = None,
 ) -> ManagedSessionRuntime:
     adaptation = None
     try:
@@ -896,7 +1080,12 @@ def _managed_session(
                 budget=configuration.adaptation_budget,
             )
         return ManagedSessionRuntime(
-            pipeline, provider, adaptation, run_control=controller
+            pipeline,
+            provider,
+            adaptation,
+            run_control=controller,
+            retention=retention,
+            retention_journal=retention_journal,
         )
     except Exception:
         try:
