@@ -237,7 +237,7 @@ class EventEnvelope:
 # {
 #   責務: [JournalReferenceBatch: sequence順に読んだ範囲のArtifact参照だけを、読み終えた位置と一緒に返す]
 #   フィールド: [last_sequence: 参照の無いeventも含めて読んだ最後のsequence（1件も読まなければ要求したsequence）,
-#     refs: 範囲内のArtifact参照（sequence順・event内順）, exhausted: 範囲の終端までcommit済みeventを読み切ったか]
+#     refs: 範囲内のArtifact参照（sequence順・event内順）, exhausted: limit未満で読み終えたか（ちょうどlimit件なら、残りが無くてもFalse。次の呼出しの空読みで終端が分かる）]
 # }
 @dataclass(frozen=True)
 class JournalReferenceBatch:

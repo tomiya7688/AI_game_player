@@ -16,6 +16,7 @@ from ai_game_player.artifact_admission import (
 from ai_game_player.artifact_store import FileSystemArtifactStore
 from ai_game_player.event_journal import EventJournal
 from ai_game_player.experience import ArtifactReference, ExperienceEpisode
+from ai_game_player.experience_reader import ExperienceRecoveryError
 from ai_game_player.retention_collector import (
     LocalRetentionFileSystem,
     RetentionCollector,
@@ -336,13 +337,16 @@ class FailClosedTest(RetentionHarness):
         # 世代7を受理した後に3へ戻った
         self.fake.generation = 7
         self.clock.now_ms += 10_000
-        digests = self.digests()
-        self.gc()
-        self.fake.generation = 3
+        self.assertIsInstance(self.gc(), RuntimeRetentionReport)
+        for number in range(2):
+            self.adapter.release(
+                self.persist(payload_of(f"r{number}"), f"entry.r{number}").token
+            )
         self.clock.now_ms += 10_000
-        self.assertEqual(digests - self.digests(), digests - self.digests())
+        before_regression = (self.digests(), self.entry_ids())
+        self.fake.generation = 3
         result = self.gc()
-        self.assertEqual("snapshot_stale", result.reason)
+        self.assert_untouched(before_regression, result, "snapshot_stale")
 
     def test_t3_corrupt_journal_row_is_snapshot_failed_with_nothing_deleted(
         self,
@@ -714,9 +718,14 @@ class RecordingGateTest(RetentionHarness):
         self.assertIn(persisted.reference.sha256, self.pins.digests())
 
     def test_invalid_recording_target_is_rejected(self) -> None:
+        for target in ("elsewhere", "experience:", "experience:../x"):
+            with self.assertRaises(RetentionReferenceError, msg=target):
+                with self.adapter.recording([], target=target):
+                    pass
+
+    def test_guard_rejects_values_that_are_not_artifact_references(self) -> None:
         with self.assertRaises(RetentionReferenceError):
-            with self.adapter.recording([], target="elsewhere"):
-                pass
+            self.adapter.assert_recording(("not-a-reference",))
 
     def test_persist_requires_digest_and_matching_token(self) -> None:
         payload = payload_of("a")
@@ -945,7 +954,7 @@ class ExperienceSourceTest(RetentionHarness):
 
         self.experience.mark_changed()
         self.experience_path.write_text("{broken\n" + good, encoding="utf-8")
-        with self.assertRaises(Exception):
+        with self.assertRaises(ExperienceRecoveryError):
             self.experience.read()
 
     def test_absent_file_is_empty_until_it_disappears_after_existing(self) -> None:

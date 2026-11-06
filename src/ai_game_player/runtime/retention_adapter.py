@@ -423,6 +423,8 @@ class ExperienceReferenceSource:
             try:
                 before = _stat_identity(self._path)
             except FileNotFoundError:
+                self._cached = None
+                self._cached_key = None
                 if not self._had_file:
                     return SourceReading(
                         self.name, (), "absent", True, (), self._changes
@@ -829,9 +831,10 @@ class RetentionWorker:
     # }
     def _loop(self) -> None:
         while True:
+            # adapterの状態は条件変数のlockの外で読む（signalを待たせない）
+            delay = self._adapter.deferred_delay_seconds()
             with self._cond:
                 if not self._stop and self._pending is None:
-                    delay = self._adapter.deferred_delay_seconds()
                     timeout = self._periodic_s if delay is None else delay
                     self._cond.wait(timeout)
                     if self._pending is None and not self._stop:
@@ -955,10 +958,12 @@ class RuntimeRetentionAdapter:
     #   エラー: [RuntimeError: Session終了済み, ValueError: digest・理由が契約外]
     # }
     def reserve(self, sha256: str, *, reason: str) -> PinToken:
+        # 終了判定とpin登録を同じ区間で行い、終了後に新しいpinが残る窓を作らない
+        # （PinnedReferenceSourceのlockは葉なので、state lock → pins lockの順で固定）
         with self._state_lock:
             if self._state == _STATE_CLOSED:
                 raise RuntimeError("retention adapter is closed")
-        return self._pins.pin(sha256, reason)
+            return self._pins.pin(sha256, reason)
 
     # {
     #   責務: [release: producerが記録を諦めたpinを外す]
@@ -988,10 +993,11 @@ class RuntimeRetentionAdapter:
         token = self.reserve(request.expected_sha256, reason=request.source_ref)
         try:
             reference = self._admission.admit(request, writer)
-            self.on_artifact_persisted(token, reference, request.entry_id)
         except BaseException:
             self._pins.release(token)
             raise
+        # 保存済みになった後の失敗ではpinを外さない（記録前のArtifactをGCさせない。closeまで残る）
+        self.on_artifact_persisted(token, reference, request.entry_id)
         return PersistedArtifact(reference, request.entry_id, token)
 
     # {
@@ -1014,7 +1020,8 @@ class RuntimeRetentionAdapter:
             self._collector.set_protected(entry_id, True)
         try:
             size = self._collector.store.read_metadata(reference.sha256).size_bytes
-        except (ArtifactIntegrityError, OSError, ValueError):
+        except Exception:
+            # 大きさは推定使用量の更新にだけ使う。取れなければ次のGCの実測に任せる
             size = 0
         policy = self._collector.policy
         with self._state_lock:
@@ -1042,7 +1049,11 @@ class RuntimeRetentionAdapter:
         allowed: set[str] = set()
         for digests in getattr(self._local, "stack", ()):
             allowed |= digests
-        if any(reference.sha256 not in allowed for reference in references):
+        if any(
+            not isinstance(reference, ArtifactReference)
+            or reference.sha256 not in allowed
+            for reference in references
+        ):
             raise RetentionReferenceError(
                 "artifact references must be appended inside recording()"
             )
@@ -1068,7 +1079,9 @@ class RuntimeRetentionAdapter:
         if any(not isinstance(item, ArtifactReference) for item in refs):
             raise TypeError("references must be ArtifactReference values")
         if target != "journal" and not (
-            isinstance(target, str) and target.startswith("experience:")
+            isinstance(target, str)
+            and target.startswith("experience:")
+            and _EXPERIENCE_NAME.fullmatch(target[len("experience:") :]) is not None
         ):
             raise RetentionReferenceError(
                 "recording target must be journal or experience:<name>"

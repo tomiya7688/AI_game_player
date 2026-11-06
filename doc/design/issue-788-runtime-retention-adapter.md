@@ -268,6 +268,10 @@ CLOSED: maybe_collect/request は `closed`、persist は RuntimeError、release 
 - **Journal 読取の分離**: `artifact_refs_after` は SELECT だけを Journal の lock 内で行い、行の検証（`EventEnvelope.from_dict`）は lock の外で行う（lock 保持時間を短くするため。読み出した行は不変）。
 - **`on_artifact_persisted(protected=True)`**: admit が既に `request.protected` で登録しているため、`persist()` は `protected=False` で呼ぶ。外部 producer が後から Protected にしたい時だけ `protected=True` を渡し、`set_protected` を呼ぶ。
 - **pin の参照解決**: pin 中でも object がまだ無い digest（admit 前）は、削除対象になり得ないため live への追加を飛ばす。
+- **見送り分の再実行**: 見送りがあると `deferred_artifacts` を数え、次回を `persist_count` 相当として `request()` する。要求は最短間隔（`min_interval_ms`）を迂回しない。間隔内で `coalesced` になった場合に取りこぼさないよう、背景 worker は見送りが残る間、最短間隔の残り時間で起き直して再実行する（`deferred_delay_seconds`）。見送りが無くなれば通常の周期に戻る。連続実行は最短間隔で頻度が抑えられ、残りが無くなれば止まる。
+- **`exhausted` の意味**: `artifact_refs_after` はちょうど `limit` 件を読んだ時は残りが無くても `exhausted=False` になり、次の呼出しの空読みで終端が分かる（追加の SELECT を1回増やさないため）。source は `journal_catchup_pending` として次回に回すだけで、削除はしない。
+- **guard の入力**: guard は Envelope の検証前に呼ばれるため、`assert_recording` は参照の型と digest だけを副作用なしで検査する（ArtifactReference でない値は拒否）。
+- **close と worker**: worker の停止が期限内に終わらなくても、最終 GC は run lock（worker の GC が持つ）を期限付きで取るため同時には走らない。取れなければ `already_running` で見送り、`last_close_result` に残す。
 - **実測**: 上記「未決事項」5。
 
 ## 設計レビュー（packet-01 SHA256 5C4DE971…、packet-02 SHA256 8B134C53…）
