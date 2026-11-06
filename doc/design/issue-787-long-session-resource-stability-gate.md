@@ -1,4 +1,4 @@
-Spec-Status: READY（今回のスライス。Harness・判定・report・fast gate・Windows統合の測定まで。実`SessionResourceRegistry`との結線は#786の実装後、実機30分runの結線は#250側の残件）
+Spec-Status: READY（実装済み: 本PRで判定core・probe・fast gate・integration観測・schema・CI組込みまで。今回のスライス。Harness・判定・report・fast gate・Windows統合の測定まで。実`SessionResourceRegistry`との結線は#786の実装後、実機30分runの結線は#250側の残件）
 Depends-On: none（今回のスライス）。#786は`ResourceLifecycleSnapshot` v1の**形だけ**に依存し、実装完了は待たない。実Registry結線は#786の実装後、実機runは#250
 Decision-Gaps: none（閾値・判定規則・層構成は本書で決定。根拠は「未決事項と決定」）
 Parent: #785
@@ -117,11 +117,11 @@ phase: warmup | steady | closing | post_close | pre_open
 ```
 
 - 層と実行profileの組合せは固定: `fast`×{`fast`,`deep`}、`integration`×{`pr`,`deep`}、`real_hardware`×{`deep`}。それ以外（例 `fast`層×`pr`）は`profile_invalid`で終了コード2。層ごとの`metrics`は層の下に置き、`required_on`はその層の中でのOS別必須を表す（層をまたいで共有しない）。各層は**必ず判定されるべきmetric集合**`must_judge`を宣言し、実際に`judged`でなければ`no_judged_metrics`でfail（下記判定10）。初期値: `fast`=`registry.active_leases`・`registry.failed_leases`・`os.handle_count`・`temp.file_count`（Linuxの`os.handle_count`は`/proc/<pid>/fd`件数で全OSで採れる）、`integration`=`mem.resident_bytes`・`mem.private_bytes`・`os.handle_count`・`temp.file_count`（Windowsは加えて`os.gdi_objects`・`os.user_objects`）、`real_hardware`=integrationの集合＋`gpu.process_vram_bytes`（または`exclusive_gpu`宣言時`gpu.device_vram_bytes`）。
-- 許容値の**上限（hard limit）はコードに持つ**: bytesの`rel`≤0.05・`abs`≤64MiB、`os.handle_count`≤64、GDI/USER≤8、`registry.*`は0固定、`temp.file_count`≤16。profileがこれを超えると読込時に`profile_invalid`（fail-closed）。上限を上げるには設計書とコードを変える（レビュー対象）。
+- 許容値の**上限（hard limit）はコードに持つ**: bytesの`rel`≤0.05・`abs`≤64MiB、`os.handle_count`≤64、GDI/USER≤8、`registry.*`のcount・件数系は0固定（`registry.kind.<kind>.bytes`だけbytes用のhard limit。実装で表と食い違っていたため確定）、`temp.file_count`≤16。profileがこれを超えると読込時に`profile_invalid`（fail-closed）。上限を上げるには設計書とコードを変える（レビュー対象）。
 - **緩和用のCLI引数・環境変数は作らない**（`--budget-multiplier`相当を持たない）。ホストの違い（Windows runnerの揺らぎ）は`required_on`とhost別の同一hard limit内の値で表す。
 - 初期値（実装PRで各OSのCI実測3回以上を`doc/E2E受入試験手順.md`へ記録して確定。**実測で不安定でも許容値を上げる前にscenarioを直す**）:
 
-`S2`は判定3の**steady区間の2番目の区間**（中央値）。`pre_open`は当該Session開始直前の標本で、`max(下限, 比率×値)`の下限により`pre_open=0`でも許容は下限以上になる。`pre_open`が欠測（`None`）のrequired metricは`metric_unreliable`でfail（0に読み替えない）。下表の`registry.*`の許容0は、判定7の`declared_retained`（process寿命で意図的に保持する資源、例: `registry.kind.model_cache.*`）の宣言量を**差し引いた後**の残りに適用する。宣言のない保持は0許容に該当してfailする。
+`S2`は判定3の**steady区間の2番目の区間**（中央値）。（実装での確定）`declared_retained`のあるmetricの回収判定は、`post_close − 先頭Sessionのpre_open − 宣言量 ≤ recovery`とする（保持はSession 0のopen後に生じ、以後のSessionは同じ基準で超過・宣言なしの保持を検出する）。宣言のないmetricは従来どおり当該Sessionの`pre_open`が基準。`pre_open`は当該Session開始直前の標本で、`max(下限, 比率×値)`の下限により`pre_open=0`でも許容は下限以上になる。`pre_open`が欠測（`None`）のrequired metricは`metric_unreliable`でfail（0に読み替えない）。下表の`registry.*`の許容0は、判定7の`declared_retained`（process寿命で意図的に保持する資源、例: `registry.kind.model_cache.*`）の宣言量を**差し引いた後**の残りに適用する。宣言のない保持は0許容に該当してfailする。
 
 | class | tolerance | recovery（post_close − pre_open、およびbaseline drift） |
 |---|---|---|
@@ -158,8 +158,11 @@ Issueの証拠項目と1対1:
  reasons: [{code, metric?, session?, observed, limit}] }
 ```
 
+- 実装での確定: profileの各metricは`judge`（既定true。診断専用はfalse、`gpu.device_vram_bytes`は`"exclusive_gpu"`）を持ち、各層は`must_judge: {any, windows, linux}`を持つ。run profileはfast/real_hardwareで`steps_per_session`・`sample_every_steps`（任意で`max_samples`）、integrationで`interval_seconds`を持つ。fast層の`warmup_steps`は500（deepは5000）で、bounded cacheの宣言充填は400stepとする。
 - 欠測・unsupportedは`coverage`へ必ず列挙する。`reasons.code`の語彙: `tail_growth` / `ceiling_exceeded` / `not_reclaimed` / `baseline_drift` / `baseline_staircase` / `metric_unsupported` / `metric_unreliable` / `no_judged_metrics` / `insufficient_samples` / `insufficient_sessions` / `orphan_process` / `canary_not_detected` / `scenario_error` / `profile_invalid`。
 - reportは数値・ID・版情報のみ。environment変数、絶対path、user名、frame・画像・OCR文字、command引数の値を含めない（pathはrepoからの相対、commandは固定ラベルとexit code）。書込みは`tools/`側で`build/`配下、`src/`のcoreはファイルを書かない（Privacy data inventory #224のcoverage testの走査対象を増やさない）。
+- samples.jsonlの末尾に任意の`footer`行（`kind:"footer"`、`duration_seconds`・`orphan_count`・`command_exit_code`・`sessions[{index, cleanup_latency_ms, settle_timeout}]`）を置く。孤児・cleanup latency・COMMAND終了コードはここから`evaluate`へ渡る。
+- 入力検証（レビュー指摘で追加）: `parse_samples`は`session_index`・`step`・`t_monotonic_ns`が非負整数、値が有限数または`null`、宣言が有限数・整数・真偽値、footerが1個で最後であることを検査し、違反は例外でなく`profile_invalid`（終了コード2）にする。標本は(session, 時刻, step)順に整列してから判定する。`must_judge`が空のprofileと`latency`の`ceiling≤0`も`profile_invalid`。
 - samples.jsonlは`build/resource-stability/samples.jsonl`。上限`max_samples`（既定20000）。超えそうな長時間runは**事前に間隔を広げて**決め（`sampling.interval`に記録）、後から黙って間引かない。
 
 ### CLI（`tools/run_resource_stability.py`）
@@ -172,6 +175,7 @@ evaluate --samples PATH --output PATH      # layer・run-profile・host-profile�
 list-scenarios
 ```
 
+- 実装での追加引数: `--profile-file`（別profile。hard limitは常にコードで検査）、`--timeout-seconds`（integrationで自分が起動した木だけ打切る）。fast層は全scenarioを実行し、`--output`/`--samples`は先頭scenario（既定`clean`）のreport・samples、全scenarioは`<outputの親>/scenarios/<name>.report.json`・`.samples.jsonl`、集約は`suite.json`（各scenarioの期待と結果、canary未検出は`code: canary_not_detected`）に保存する。
 - 終了コード（上から優先）: **2**=引数・profile・入力の不正（層×profileの不正組合せ、header欠落・未知schema、語彙外ID）→ **1**=観測対象commandが非0、canaryが検出されない、またはprofileの`enforcement.<layer>`が`enforce`でverdictがfail → **0**=pass、または`enforcement.<layer>`が`observe`でverdictがfail（`gate_effective=false`、reportに`fail`と`reasons`を残し、GitHub Actionsでは`::warning`で失敗理由を出す）。**CLIに`--mode`は無い**ため、profileを`enforce`へ切り替えれば同じcommandのまま強制になる（commandとprofileの食い違いが起きない）。fast層とcanaryはprofile上`enforce`固定で、`observe`への変更は`profile_invalid`。
 - `COMMAND`の終了コードは`scenario_error`の根拠として記録し、Gateの終了コードに潰さず別fieldに残す。runnerは観測対象を自分で起動した場合だけ、timeout時にその木を終了する（他processは触らない）。
 
@@ -208,7 +212,7 @@ scenario / 観測対象 ──(gauge callable / pid)──▶ resource_probes �
 
 | 層 | 実行内容 | 資源の源 | 判定対象 | 実行時間・場所 |
 |---|---|---|---|---|
-| fast | 決定論的fake世界を数千〜数万stepで反復（既定2万step × 5 session）。`clock_ns`はstep駆動の疑似時計 | `synthetic`（lease・handle・GDI・USER・temp・queue・bytesのfake counter）。加えて`real_probe_smoke`は実`os.handle_count`・`temp.file_count`（実file）を5 session × 1000 stepで判定（profileの`sessions`最小4以上） | registry系・fake counter・実handle/temp。**実RSS/privateはfastでは`observed`のみ**（runner負荷で揺れるため。integration層で判定） | 各OS 60秒以内（実装で実測を記録）。PRで常時 |
+| fast | 決定論的fake世界を数千〜数万stepで反復（既定2万step × 5 session）。`clock_ns`はstep駆動の疑似時計 | `synthetic`（lease・handle・GDI・USER・temp・queue・bytesのfake counter）。加えて`real_probe_smoke`は実`os.handle_count`・`temp.file_count`（実file。20stepごとに作成・削除）を5 session × 1000 stepで判定（profileの`sessions`最小4以上） | registry系・fake counter・実handle/temp。**実RSS/privateはfastでは`observed`のみ**（runner負荷で揺れるため。integration層で判定） | 各OS 60秒以内（Windowsローカル実測: 約12秒。CI実測は`doc/E2E受入試験手順.md`へ記録）。PRで常時 |
 | integration | `windows-e2e`の既存campaign commandを`run -- COMMAND`で包み、process treeを`interval_seconds`（既定1.0、0.25..10）で標本化。**sessionは観測した1回のcommand実行**（`session_index=0`）で、`pre_open`=起動直前のobserver側標本（temp rootのみ有効、木は未存在）、`closing`=commandの終了待ち、`post_close`=終了後・孤児確認後のtemp root標本。木のmetricは終了後に木が無いため、回収判定は孤児とtemp root。**campaign内部のepisode境界は外部から見えず観測しない**ので、反復Session baseline（判定8）は`not_applicable`としてreportの`coverage.not_judged_rules`へ列挙し、in-process反復はfast層と#250で担う | `external` | mem.resident/private、handle、GDI、USER、temp、孤児 | PRは既存`--profile pr`の600秒をそのまま観測（追加時間0）。deepは`--profile release`の1800秒、weekly cronとworkflow_dispatch |
 | real_hardware | #250のharnessが同じ`ResourceSample`をJSONLへ保存し、`evaluate`で判定。または`resource_stability`をlibraryとして呼ぶ | `process`/`external`/`registry_snapshot` | integrationの集合 + `gpu.process_vram_bytes` | #250側（本Issueはschemaと`evaluate`の提供まで） |
 
@@ -221,7 +225,7 @@ scenario / 観測対象 ──(gauge callable / pid)──▶ resource_probes �
    - job `Resource stability fast gate (${{ matrix.os }})`: `ubuntu-latest`と`windows-latest`。`env: PYTHONPATH: src`のblockで環境変数を指定し、commandは`python tools/run_resource_stability.py run --layer fast --run-profile fast`（Windowsの既定shellはPowerShellのため`VAR=value cmd`形式は使わず、`shell: pwsh`＋`env:`で書く）。標準ライブラリのみでpip installしないため、trust floor（#514）の「pip install前」規則に抵触しない。artifactは`resource-stability-fast-${{ matrix.os }}`（report.json・samples.jsonl、`if-no-files-found: error`）。
    - job `Resource stability deep (windows-latest)`: `schedule`（週次、既存security CIと重ならない時刻）と`workflow_dispatch`のみ。`--layer fast --run-profile deep`（10倍step）と、campaign `--profile release`の観測。`timeout-minutes: 60`。
 2. `language-ci.yml` `windows-e2e`: 「Run the 600-second pinned-game campaign」stepのcommandを`python tools/run_resource_stability.py run --layer integration --run-profile pr -- python -u -X faulthandler tools/run_2048_campaign.py ...`へ変更（campaignの引数は不変。`--mode`は無い）し、直後に`if: always()`で`build/resource-stability`（report.jsonとsamples.jsonl）を`actions/upload-artifact`で保存するstepを足す（`if-no-files-found: error`。既存のuploadは`build/e2e`だけのため）。最初の1リリース相当はprofileの`enforcement.integration: observe`（reportと`::warning`のみ、終了コードはcampaignの結果）で、**CIの実測3回以上をPRに記録し、許容値の根拠を確定してから**profileの`enforcement.integration`を`enforce`へ1行で切り替える（切替は別PR、完了条件で追跡）。canaryとfast層は最初から`enforce`なので、判定ロジック自体は最初から落とせる。
-3. required status check（ブランチ保護/ruleset）への追加候補名は上記job名。**rulesetはowner作業のため変更しない**。実装PRでIssueへ候補名を提示し、追加はownerの判断（#92と同じ扱い）。
+3. `resource-stability-ci.yml`は`tests/test_finish_pr_workflow_runs.py`の`measurement_only`（必須gateの`REQUIRED_WORKFLOW_PATHS`に含めない非必須workflow）に登録する。これによりmerge gateと`ruleset_check`の必須job集合は変わらない。required status check（ブランチ保護/ruleset）への追加候補名は上記job名。**rulesetはowner作業のため変更しない**。実装PRでIssueへ候補名を提示し、追加はownerの判断（#92と同じ扱い）。
 
 ## テスト
 
@@ -253,7 +257,7 @@ scenario / 観測対象 ──(gauge callable / pid)──▶ resource_probes �
 | T22 | #250へ同じschemaを渡せる | #250相当のsamples.jsonl（header＋sample行をsample schemaで検証。headerに`source`・`unsupported_reason`・宣言を持つ）を`evaluate`へ渡し、headerの宣言（保持量・ceiling）が判定に反映され`source`・`unsupported_reason`がreportへ写り、fast層と**同じ構造・同じ判定関数**でreportが出る。`gpu.process_vram_bytes`がrequiredで欠測なら`metric_unsupported` |
 | T23 | #786 snapshot v1契約 | #786設計書の`ResourceLifecycleSnapshot` v1と同形の固定fixtureから`registry.*`が読める。`schema_version`が1以外・必須keyなしは`unsupported: snapshot_version`（0扱いしない） |
 | T24 | canary | CLIの`run --layer fast`が全canaryで期待codeのfailを確認して終了コード0。判定を緩めた偽の`evaluate_run`を差し込むと`canary_not_detected`で終了コード1 |
-| T25 | integration層（Windows、`skipUnless`） | 短い子process（メモリ・handleを一定に保つ数秒のscript）をtree観測してpass、handleを増やし続ける子はfail、終了後に子孫を残すscriptは`orphan_process`。`enforcement.integration=observe`のprofileでは終了コード0でreportはfail、`::warning`出力。**所要約12秒**（`interval_seconds=0.25`、warmup 2秒＋`segments×min_samples_per_segment`=32標本＝8秒＋余裕。標本数が足りない短いscriptは`insufficient_samples`でfailするため、passを期待する子scriptは必要な長さ動かす） |
+| T25 | integration層（Windows、`skipUnless`。実装は`interval_seconds=0.25`・warmup 1秒の短い試験用profileを使う） | 短い子process（メモリ・handleを一定に保つ数秒のscript）をtree観測してpass、handleを増やし続ける子はfail、終了後に子孫を残すscriptは`orphan_process`。`enforcement.integration=observe`のprofileでは終了コード0でreportはfail、`::warning`出力。**所要約12秒**（`interval_seconds=0.25`、warmup 2秒＋`segments×min_samples_per_segment`=32標本＝8秒＋余裕。標本数が足りない短いscriptは`insufficient_samples`でfailするため、passを期待する子scriptは必要な長さ動かす） |
 | T27 | process tree合計の部分欠測 | 子の1つで読取失敗（`access_denied`）のとき、取れた分だけの合計を記録せず当該標本を`None`にする。列挙後に終了した子は除外して合計は有効。欠測が5%超続けば`metric_unreliable` |
 | T28 | 層×profileと`must_judge` | `fast`×`pr`は`profile_invalid`（終了コード2）。`must_judge`のmetricが`unsupported`または`observed`のままだと`no_judged_metrics`。Linuxの`real_probe_smoke`は`os.handle_count`（fd件数）で`must_judge`を満たす |
 | T29 | 終了コード優先順位とprofile由来のmode | 不正な組合せ（`fast`層を`observe`にしたprofile、`fast`×`pr`）は2。command非0は`observe`でも1。`enforcement.integration=observe`でverdict failは0でreportは`fail`・`gate_effective=false`、同じcommandでprofileを`enforce`にすると1。CLIが`--mode`を受け付けない（`--help`）。`settle_ms`内に安定しない場合は`settle_timeout=true`を記録して判定 |

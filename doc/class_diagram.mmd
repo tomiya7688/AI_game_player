@@ -2042,6 +2042,49 @@ classDiagram
         +cleanup_expired()
         +_bounded_release()
     }
+    class Support {
+        +__init__()
+        +as_header()
+    }
+    class ProcessGauges {
+        +__init__()
+        +support()
+        +read()
+    }
+    class ProcessTreeGauges {
+        +__init__()
+        +support()
+        +read()
+        +orphans()
+    }
+    class TempTreeGauge {
+        +__init__()
+        +read()
+    }
+    class NvidiaSmiGauge {
+        +__init__()
+        +_run()
+        +support()
+        +read()
+    }
+    class TracemallocGauge {
+        +__init__()
+        +start()
+        +stop()
+        +read()
+    }
+    class RegistrySnapshotGauges {
+        +convert()
+    }
+    ValueError <|-- ProfileError
+    class ProfileError {
+    }
+    class _Run {
+        +__init__()
+        +is_steady()
+        +required()
+        +judged_spec()
+    }
     class SessionRuntimeConfiguration {
     }
     class _PipelineResourceTrace {
