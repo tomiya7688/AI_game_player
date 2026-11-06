@@ -72,3 +72,21 @@ phaseも固定集合に限る。診断はAI / Source / 学習 / leaseの入力�
 同waveのResourceTiming追加でhelper全fileのbyte列は変わるため、保存済みprobeのhashや
 数値をcombined headの測定として書き換えません。server counter classとlifecycleが
 同じでも、combined profileのWindows検証は別に必要です。
+
+## 接続counter（Issue #791、明示診断時のみ）
+
+明示診断の時だけ、server世代ごとに次のcounterを同じlockで数えます。`ReferenceGameHTTPServer` の
+class・backlog 32・HTTP/1.0・daemon handlerは変えず、instanceの `process_request` を包んで受理数を数え、
+handlerの `handle_one_request` / `parse_request` で要求行の有無と解析結果を数えます。
+
+| counter | 意味 |
+|---|---|
+| `connections_accepted` | `process_request` に到達した接続数 |
+| `connections_awaiting_request_line` | 受理済みで要求行をまだ受信していない開いた接続数（gauge） |
+| `connections_without_request_line` | 要求行が空のまま閉じた接続数 |
+| `request_line_errors` | 要求行の解析に失敗した数 |
+| `requests_parsed` | 要求行を解析できた要求数（allowlist外のGETも含む） |
+| `requests_in_flight` | 解析済みで処理が終わっていない要求数（gauge） |
+
+OSのlisten queueに残った接続はserverから見えないため、「browserが送っていない」と「OS queueで滞留」は
+区別できません（`request_not_observed_by_server`）。診断無効時はこれらのcounterも時刻fieldも作りません。

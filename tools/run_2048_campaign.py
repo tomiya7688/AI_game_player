@@ -382,6 +382,9 @@ class Cached2048ObservationSource:
                     else None
                 )
                 self._last_accepted_frame_ns = int(frame.captured_at * 1_000_000_000)
+                if getattr(self, "first_board_accepted_ns", None) is None:
+                    # 起動診断用: 最初に盤面を受理した親process単調時計(ns)。
+                    self.first_board_accepted_ns = time.monotonic_ns()
                 if self.failure_evidence is not None:
                     with self.observation_timing.measure("evidence_retention"):
                         self.failure_evidence.record_playable(frame, raw_state)
@@ -507,6 +510,15 @@ class Cached2048ObservationSource:
         game_state: dict[str, object],
         diagnostics: dict[str, object],
     ) -> CampaignFailure:
+        # 相関診断用に、撮影時刻と認識stateだけを残す（画素や盤面値は残さない）。
+        self._failure_frame_probe = {
+            "captured_at": getattr(frame, "captured_at", None),
+            "state": {
+                key: game_state.get(key)
+                for key in ("unavailable_reason", "state_available")
+                if key in game_state
+            },
+        }
         if self.failure_evidence is not None:
             try:
                 manifest = self.failure_evidence.save_failure(
@@ -1100,6 +1112,76 @@ class ReferenceGame2048Episode(CampaignEpisode):
                 f"2048 action outcome could not be recorded: {type(error).__name__}: {error}",
             ) from error
 
+    # {
+    #   責務: [startup_summary: 成功・失敗を問わず1 episodeの起動時間と接続の要約を作る],
+    #   処理: [明示診断時だけ、server世代の相関ID・最初に盤面を受理した相対ms・接続counter・browser version・CI識別子をまとめる],
+    #   引数: []
+    #   戻り値: [dict | None: reference-startup-summary/v1。診断無効・未起動ならNone。URL・本文・盤面値は含まない]
+    # }
+    def startup_summary(self) -> dict[str, object] | None:
+        if getattr(self, "_save_browser_diagnostics", False) is not True:
+            return None
+        try:
+            from tools.reference_episode_failure_diagnostics import ci_context
+            from tools.reference_game_2048_launcher import browser_file_version
+
+            snapshot = self.launcher.server.correlation_snapshot()
+            if snapshot is None:
+                return None
+            server = snapshot["server"]
+            accepted_ns = getattr(self.source, "first_board_accepted_ns", None)
+            executable = self.launcher.browser_executable
+            return {
+                "schema": "reference-startup-summary/v1",
+                "correlation_id": snapshot["correlation_id"],
+                "episode": self.episode_number,
+                "seed": self.launcher.server.test_seed,
+                "server_started_ms": 0,
+                "first_board_accepted_ms": (
+                    self.launcher.server.relative_ms(accepted_ns)
+                    if type(accepted_ns) is int
+                    else None
+                ),
+                "server_connection_summary": {
+                    name: server.get(name)
+                    for name in (
+                        "connections_accepted",
+                        "connections_awaiting_request_line",
+                        "connections_without_request_line",
+                        "request_line_errors",
+                    )
+                },
+                "browser_version": (
+                    browser_file_version(executable) if executable else None
+                ),
+                "ci_context": ci_context(),
+            }
+        except Exception:
+            return None
+
+    # {
+    #   責務: [_save_startup_summary: startup_summaryをepisode directoryへ1ファイル保存する],
+    #   処理: [cleanup前に呼び、保存の失敗は無視してcloseや失敗判定を変えない],
+    #   引数: [summary: startup_summaryの結果]
+    #   戻り値: [None]
+    # }
+    def _save_startup_summary(self, summary: dict[str, object] | None) -> None:
+        if summary is None:
+            return
+        try:
+            from ai_game_player.atomic_json import stage_json_write
+
+            staged = stage_json_write(
+                self._failure_diagnostics_path.with_name("startup-summary.json"),
+                summary,
+            )
+            try:
+                staged.publish()
+            finally:
+                staged.discard()
+        except Exception:
+            return
+
     def collect_failure_diagnostics(self, *, frame_preserved: bool):
         if not getattr(self, "_save_browser_diagnostics", False) and not getattr(
             self, "_save_heartbeat_diagnostics", False
@@ -1174,6 +1256,13 @@ class ReferenceGame2048Episode(CampaignEpisode):
         close_errors: list[Exception] = []
         # 診断行はcleanup前に作り、出力はcleanup後に行う（stdoutが詰まってもresource解放を妨げない）。
         budget_line = self._heartbeat_lease_budget_line()
+        # テストの代替episodeでも動くよう、classのmethodを直接呼び、失敗はcloseへ影響させない。
+        try:
+            ReferenceGame2048Episode._save_startup_summary(
+                self, ReferenceGame2048Episode.startup_summary(self)
+            )
+        except Exception:
+            pass
         if self.pipeline is not None:
             try:
                 self.pipeline.close()

@@ -1,7 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
 from http.client import HTTPConnection, RemoteDisconnected
 from http.server import SimpleHTTPRequestHandler
+import io
 from pathlib import Path
+import socket
 import tempfile
 import sys
 import threading
@@ -71,8 +73,9 @@ class ReferenceGameHttpServerTests(unittest.TestCase):
                 while True:
                     summary = server.resource_response_summary()
                     resources = summary["resources"]
-                    if len(resources) == len(scripts) and all(
-                        value["completed"] == 1 for value in resources.values()
+                    if all(
+                        resources[RESOURCE_NAMES[path]]["completed"] == 1
+                        for path in scripts
                     ):
                         break
                     self.assertLess(
@@ -82,9 +85,10 @@ class ReferenceGameHttpServerTests(unittest.TestCase):
                     )
                     time.sleep(0.02)
                 self.assertFalse(summary["recording_incomplete"])
-                self.assertEqual(
-                    set(resources), {RESOURCE_NAMES[path] for path in scripts}
-                )
+                # 診断有効時は固定12名が0で初期化され、未要求のpage/main_cssも行を持つ。
+                self.assertEqual(set(resources), set(RESOURCE_NAMES.values()))
+                for name in ("page", "main_css"):
+                    self.assertEqual(resources[name]["requests_started"], 0)
                 for name in scripts:
                     value = resources[RESOURCE_NAMES[name]]
                     self.assertEqual(value["requests_started"], 1)
@@ -156,7 +160,14 @@ class ReferenceGameHttpServerTests(unittest.TestCase):
                             self.assertEqual(body, b"")
                     finally:
                         connection.close()
-                self.assertEqual(server.resource_response_summary()["resources"], {})
+                resources = server.resource_response_summary()["resources"]
+                self.assertEqual(set(resources), set(RESOURCE_NAMES.values()))
+                self.assertTrue(
+                    all(
+                        row["requests_started"] == 0 and row["responses"] == 0
+                        for row in resources.values()
+                    )
+                )
             finally:
                 server.close()
 
@@ -229,3 +240,252 @@ class ReferenceGameHttpServerTests(unittest.TestCase):
             record_only.record("tile_js", 200, 10, "b" * 64, True)
         self.assertTrue(record_only.snapshot()["recording_incomplete"])
         self.assertEqual(record_only.snapshot()["resources"], original_resources)
+
+
+def _wait_for(predicate, message, seconds=10.0):
+    """サーバー側counterは応答後に更新されるため、有界で待つ。"""
+    deadline = time.monotonic() + seconds
+    while not predicate():
+        if time.monotonic() >= deadline:
+            raise AssertionError(message)
+        time.sleep(0.02)
+
+
+def _diagnostic_server(directory):
+    source = Path(directory)
+    (source / "index.html").write_bytes(b"<head></head>")
+    for url_path in RESOURCE_NAMES:
+        if url_path.startswith(("/js/", "/style/")):
+            path = source / url_path.lstrip("/")
+            path.parent.mkdir(exist_ok=True)
+            path.write_bytes(("fixture " + url_path).encode())
+    server = LoopbackStaticServer()
+    server.post_failure_render_diagnostics = True
+    server.start(source)
+    return server
+
+
+class StartupCorrelationServerTests(unittest.TestCase):
+    """Issue #791 T4-T7: 接続counter・phase別失敗・無効時の同一性。"""
+
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+
+    def snapshot(self, server):
+        return server.correlation_snapshot()["server"]
+
+    def test_connection_closed_without_a_request_line_is_counted_separately(self):
+        server = _diagnostic_server(self.directory.name)
+        self.addCleanup(server.close)
+        port = urlsplit(server.url).port
+        with socket.create_connection(("127.0.0.1", port), timeout=2) as held:
+            _wait_for(
+                lambda: self.snapshot(server)["connections_awaiting_request_line"] == 1,
+                "the held connection was not counted as awaiting",
+            )
+            snapshot = self.snapshot(server)
+            self.assertEqual(snapshot["connections_accepted"], 1)
+            self.assertEqual(snapshot["connections_without_request_line"], 0)
+            held.shutdown(socket.SHUT_RDWR)
+        _wait_for(
+            lambda: self.snapshot(server)["connections_without_request_line"] == 1,
+            "the closed connection was not counted",
+        )
+        snapshot = self.snapshot(server)
+        self.assertEqual(snapshot["connections_awaiting_request_line"], 0)
+        self.assertEqual(snapshot["requests_parsed"], 0)
+        self.assertEqual(snapshot["request_line_errors"], 0)
+        self.assertEqual(snapshot["requests_in_flight"], 0)
+
+    def test_malformed_request_line_and_unlisted_get_are_counted_by_kind(self):
+        server = _diagnostic_server(self.directory.name)
+        self.addCleanup(server.close)
+        port = urlsplit(server.url).port
+        with socket.create_connection(("127.0.0.1", port), timeout=2) as bad:
+            bad.sendall(b"NOT-HTTP\r\n\r\n")
+            bad.recv(4096)
+        with self.assertRaises(URLError) as missing:
+            urlopen(server.url + "favicon.ico", timeout=2)
+        missing.exception.close()
+        _wait_for(
+            lambda: (
+                self.snapshot(server)["requests_parsed"] == 1
+                and self.snapshot(server)["request_line_errors"] == 1
+                and self.snapshot(server)["requests_in_flight"] == 0
+            ),
+            "request kinds were not settled",
+        )
+        snapshot = self.snapshot(server)
+        self.assertEqual(snapshot["connections_accepted"], 2)
+        self.assertEqual(snapshot["connections_without_request_line"], 0)
+        # allowlist外のGETは要求行の統計だけを増やし、資源行は増やさない。
+        self.assertTrue(
+            all(row["requests_started"] == 0 for row in snapshot["resources"].values())
+        )
+
+    def test_connection_balance_holds_after_mixed_traffic(self):
+        server = _diagnostic_server(self.directory.name)
+        self.addCleanup(server.close)
+        port = urlsplit(server.url).port
+        with urlopen(server.url + "js/grid.js", timeout=2) as response:
+            response.read()
+        socket.create_connection(("127.0.0.1", port), timeout=2).close()
+        _wait_for(
+            lambda: (
+                self.snapshot(server)["requests_parsed"] == 1
+                and self.snapshot(server)["connections_without_request_line"] == 1
+            ),
+            "mixed traffic was not settled",
+        )
+        snapshot = self.snapshot(server)
+        self.assertEqual(
+            snapshot["connections_accepted"],
+            snapshot["connections_without_request_line"]
+            + snapshot["connections_awaiting_request_line"]
+            + snapshot["request_line_errors"]
+            + snapshot["requests_parsed"],
+        )
+
+    def handler_type(self, server):
+        # 実socketを開かず、診断有効のhandler classだけを取り出す。
+        with patch(
+            "tools.reference_game_2048_launcher.ReferenceGameHTTPServer",
+            return_value=Mock(server_address=("127.0.0.1", 1)),
+        ) as http:
+            with patch("tools.reference_game_2048_launcher.threading.Thread"):
+                source = Path(self.directory.name)
+                (source / "index.html").write_bytes(b"<head></head>")
+                server.start(source)
+        return http.call_args.args[1].func
+
+    def failing_handler(self, handler_type, phase, error=OSError):
+        handler = object.__new__(handler_type)
+        handler.path = "/js/html_actuator.js"
+        handler.wfile = Mock()
+
+        def send_head():
+            handler._resource_phase = phase
+            handler._response_status = 200
+            if phase == "body":
+                handler.wfile.write.side_effect = error()
+                return io.BytesIO(b"x" * 10)
+            raise error()
+
+        handler.send_head = send_head
+        return handler
+
+    def diagnostic_server_object(self):
+        server = LoopbackStaticServer()
+        server.post_failure_render_diagnostics = True
+        return server
+
+    def test_phase_specific_failures_keep_times_and_classify_by_boundary(self):
+        from test_reference_startup_correlation import make_record
+        from tools.reference_startup_correlation import classify_startup_failure
+
+        server = self.diagnostic_server_object()
+        handler_type = self.handler_type(server)
+        for phase in ("headers", "body"):
+            with self.assertRaises(OSError):
+                self.failing_handler(handler_type, phase).do_GET()
+        row = server.resource_response_summary()["resources"]["html_actuator_js"]
+        self.assertEqual(row["requests_started"], 2)
+        self.assertEqual(row["failed_headers_phase"], 1)
+        self.assertEqual(row["failed_body_phase"], 1)
+        self.assertEqual(row["failed_request_phase"], 0)
+        self.assertIsNotNone(row["first_failed_ms"])
+        self.assertIsNone(row["first_completed_ms"])
+        result = classify_startup_failure(make_record({"html_actuator_js": row}))
+        self.assertEqual(result["category"], "server_failed_before_headers")
+        self.assertIn("server_failed_in_body", result["all_matching"])
+
+    def test_body_only_failure_classifies_as_server_failed_in_body(self):
+        from test_reference_startup_correlation import make_record
+        from tools.reference_startup_correlation import classify_startup_failure
+
+        server = self.diagnostic_server_object()
+        handler_type = self.handler_type(server)
+        with self.assertRaises(OSError):
+            self.failing_handler(handler_type, "body").do_GET()
+        row = server.resource_response_summary()["resources"]["html_actuator_js"]
+        self.assertEqual(row["failed_body_phase"], 1)
+        result = classify_startup_failure(make_record({"html_actuator_js": row}))
+        self.assertEqual(result["category"], "server_failed_in_body")
+
+    def test_clock_and_counter_exceptions_keep_the_original_send_error(self):
+        server = self.diagnostic_server_object()
+        handler_type = self.handler_type(server)
+        with patch.object(
+            ResourceResponseCounts, "_now_ms", side_effect=MemoryError("clock")
+        ):
+            with self.assertRaises(BrokenPipeError):
+                self.failing_handler(handler_type, "headers", BrokenPipeError).do_GET()
+        self.assertTrue(server.resource_response_summary()["recording_incomplete"])
+
+    def test_diagnostic_zero_initialisation_and_expected_digests(self):
+        server = _diagnostic_server(self.directory.name)
+        self.addCleanup(server.close)
+        snapshot = server.correlation_snapshot()
+        resources = snapshot["server"]["resources"]
+        self.assertEqual(set(resources), set(RESOURCE_NAMES.values()))
+        self.assertEqual(len(resources), 12)
+        self.assertEqual(set(snapshot["expected_body_sha256"]), set(resources))
+        self.assertRegex(snapshot["correlation_id"], r"^[0-9a-f]{32}$")
+        for row in resources.values():
+            self.assertEqual(row["requests_started"], 0)
+            self.assertIsNone(row["first_started_ms"])
+
+    def test_disabled_server_has_no_counters_and_same_bytes(self):
+        source = Path(self.directory.name)
+        (source / "index.html").write_bytes(b"<head></head>")
+        (source / "js").mkdir()
+        (source / "js" / "grid.js").write_bytes(b"grid")
+        bodies = []
+        for enabled in (False, True):
+            server = LoopbackStaticServer()
+            server.post_failure_render_diagnostics = enabled
+            url = server.start(source)
+            try:
+                self.assertIs(type(server._server), ReferenceGameHTTPServer)
+                self.assertEqual(server._server.request_queue_size, 32)
+                self.assertEqual("process_request" in vars(server._server), enabled)
+                with urlopen(url + "js/grid.js", timeout=2) as response:
+                    bodies.append((response.status, response.read()))
+                if not enabled:
+                    self.assertIsNone(server.correlation_snapshot())
+                    self.assertEqual(
+                        server.resource_response_summary(), {"status": "not_enabled"}
+                    )
+            finally:
+                server.close()
+        self.assertEqual(bodies[0], bodies[1])
+
+    def test_each_start_gets_a_new_correlation_id(self):
+        source = Path(self.directory.name)
+        (source / "index.html").write_bytes(b"<head></head>")
+        server = LoopbackStaticServer()
+        server.post_failure_render_diagnostics = True
+        identifiers = []
+        for _ in range(2):
+            server.start(source)
+            identifiers.append(server.correlation_snapshot()["correlation_id"])
+            server.close()
+        self.assertNotEqual(*identifiers)
+
+
+class ConnectionEventTests(unittest.TestCase):
+    def test_unknown_connection_event_latches_recording_incomplete(self):
+        counts = ResourceResponseCounts(correlation=True)
+        counts.connection_event("accepted")
+        self.assertFalse(counts.snapshot()["recording_incomplete"])
+        counts.connection_event("unexpected")
+        snapshot = counts.snapshot()
+        self.assertTrue(snapshot["recording_incomplete"])
+        self.assertEqual(snapshot["connections_accepted"], 1)
+        self.assertEqual(snapshot["connections_awaiting_request_line"], 1)
+
+    def test_connection_counters_are_absent_without_correlation(self):
+        counts = ResourceResponseCounts()
+        counts.connection_event("accepted")
+        self.assertNotIn("connections_accepted", counts.snapshot())

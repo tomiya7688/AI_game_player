@@ -19,7 +19,7 @@ import re
 import stat
 import time
 import threading
-from typing import Protocol
+from typing import Callable, Protocol
 from urllib.parse import urlsplit
 
 DEADLINE_SECONDS = 1.0
@@ -50,17 +50,60 @@ RESOURCE_NAMES = {
 }
 
 
+SATURATION = 2**31 - 1
+MAX_TIME_MS = 3_600_000.0
+# 接続counter（明示診断時の起動世代ごと）。gaugeは増減し、他は飽和する単調counter。
+CONNECTION_FIELDS = (
+    "connections_accepted",
+    "connections_awaiting_request_line",
+    "connections_without_request_line",
+    "request_line_errors",
+    "requests_parsed",
+    "requests_in_flight",
+)
+
+
+# {
+#   責務: [ResourceResponseCounts: 一回のserver起動に属する許可リスト資源の応答書込み数と接続数、最初の時刻だけを保持する],
+#   フィールド: [
+#     _lock: 全counterとsnapshotを同じ排他で更新するロック,
+#     _resources: 固定名ごとのcounter辞書,
+#     _connections: 接続counterとgauge,
+#     _recording_incomplete: 記録に失敗した場合のlatch,
+#     _correlation: 相関記録（時刻・接続counter・0初期化）を有効にするか,
+#     _clock_ns: 親processの単調時計（テストで差替可能）,
+#     _t0_ns: この世代の開始時刻
+#   ]
+# }
 class ResourceResponseCounts:
     """Bounded allowlist response writes, not browser receipt or rendering evidence."""
 
-    def __init__(self) -> None:
+    # {
+    #   責務: [__init__: counterを空で初期化し、相関記録用なら固定12名を0で用意する],
+    #   処理: [相関記録が有効な時だけ全許可リスト名のentryを作る],
+    #   引数: [correlation: Trueなら固定名を全て0初期化し時刻・接続counterを有効にする, clock_ns: 単調時計]
+    #   戻り値: []
+    # }
+    def __init__(
+        self,
+        *,
+        correlation: bool = False,
+        clock_ns: Callable[[], int] = time.monotonic_ns,
+    ) -> None:
         self._lock = threading.Lock()
         self._resources: dict[str, dict[str, object]] = {}
         self._recording_incomplete = False
+        self._correlation = correlation
+        self._clock_ns = clock_ns
+        self._t0_ns = clock_ns()
+        self._connections = dict.fromkeys(CONNECTION_FIELDS, 0)
+        if correlation:
+            for name in sorted(set(RESOURCE_NAMES.values())):
+                self._entry(name)
 
     def _entry(self, name: str) -> dict[str, object]:
         # Caller holds _lock. Only fixed allowlist names reach this helper.
-        return self._resources.setdefault(
+        entry = self._resources.setdefault(
             name,
             {
                 "responses": 0,
@@ -73,6 +116,36 @@ class ResourceResponseCounts:
                 "last_failed_phase": None,
             },
         )
+        if self._correlation and "failed_body_phase" not in entry:
+            entry.update(
+                {
+                    "failed_request_phase": 0,
+                    "failed_headers_phase": 0,
+                    "failed_body_phase": 0,
+                    "first_started_ms": None,
+                    "first_headers_ms": None,
+                    "first_completed_ms": None,
+                    "first_failed_ms": None,
+                }
+            )
+        return entry
+
+    def _now_ms(self) -> float:
+        # 親processの単調時計をserver開始からの相対ms（小数1桁、範囲clamp）で表す。
+        elapsed = (self._clock_ns() - self._t0_ns) / 1_000_000
+        return round(min(MAX_TIME_MS, max(0.0, elapsed)), 1)
+
+    def _first(self, entry: dict[str, object], key: str) -> None:
+        # Caller holds _lock. 最初の時刻だけを書き、相関記録が無効なら何もしない。
+        if self._correlation and entry.get(key) is None:
+            entry[key] = self._now_ms()
+
+    @staticmethod
+    def _bump(target: dict, field: str, amount: int = 1) -> None:
+        current = target[field]
+        target[field] = min(
+            SATURATION, (current if isinstance(current, int) else 0) + amount
+        )
 
     def _mark(self, name: str, field: str, phase: str | None = None) -> None:
         # Diagnostic counters must not replace a handler's original exception.
@@ -81,12 +154,16 @@ class ResourceResponseCounts:
                 return
             with self._lock:
                 value = self._entry(name)
-                current = value[field]
-                value[field] = min(
-                    2**31 - 1, (current if isinstance(current, int) else 0) + 1
-                )
+                self._bump(value, field)
                 if phase is not None:
                     value["last_failed_phase"] = phase
+                    if self._correlation:
+                        self._bump(value, f"failed_{phase}_phase")
+                        self._first(value, "first_failed_ms")
+                elif field == "requests_started":
+                    self._first(value, "first_started_ms")
+                elif field == "headers_completed":
+                    self._first(value, "first_headers_ms")
         except Exception:
             self._recording_incomplete = True
 
@@ -121,22 +198,64 @@ class ResourceResponseCounts:
                     ("bytes_written", written),
                     ("unknown_write_counts", int(not written_known)),
                 ):
-                    current = value[field]
-                    value[field] = min(
-                        2**31 - 1,
-                        (current if isinstance(current, int) else 0) + increment,
-                    )
+                    self._bump(value, field, increment)
                 value["last_status"] = status
                 value["last_body_sha256"] = digest if complete else None
                 value["last_write_count_known"] = written_known
+                if complete:
+                    self._first(value, "first_completed_ms")
         except Exception:
             # Preserve the original I/O exception, but never claim complete recording.
             self._recording_incomplete = True
 
+    # {
+    #   責務: [connection_event: 接続・要求行・要求完了のcounterとgaugeを同じlockで更新する],
+    #   処理: [accepted/empty/error/parsed/doneを受け、要求行待ちと処理中のgaugeを増減する],
+    #   引数: [event: accepted/empty/error/parsed/done のいずれか]
+    #   戻り値: []
+    #   副作用: [相関記録が無効なら何もしない。記録失敗はrecording_incompleteへlatchし例外を出さない]
+    # }
+    def connection_event(self, event: str) -> None:
+        if not self._correlation:
+            return
+        try:
+            with self._lock:
+                c = self._connections
+                if event == "accepted":
+                    self._bump(c, "connections_accepted")
+                    c["connections_awaiting_request_line"] += 1
+                elif event in {"empty", "error", "parsed"}:
+                    c["connections_awaiting_request_line"] = max(
+                        0, c["connections_awaiting_request_line"] - 1
+                    )
+                    if event == "empty":
+                        self._bump(c, "connections_without_request_line")
+                    elif event == "error":
+                        self._bump(c, "request_line_errors")
+                    else:
+                        self._bump(c, "requests_parsed")
+                        c["requests_in_flight"] += 1
+                elif event == "done":
+                    c["requests_in_flight"] = max(0, c["requests_in_flight"] - 1)
+                else:
+                    # 未知のイベントは数えず、記録が不完全だったことをlatchする。
+                    self._recording_incomplete = True
+        except Exception:
+            self._recording_incomplete = True
+
+    def now_ms(self) -> float:
+        """相関記録用に、この世代のt0からの相対msを返す。"""
+        return self._now_ms()
+
+    def relative_ms(self, monotonic_ns: int) -> float:
+        """単調時計(ns)をt0からの相対msにする。範囲外は丸めず、検証側が拒否する。"""
+        return round((monotonic_ns - self._t0_ns) / 1_000_000, 1)
+
     def snapshot(self) -> dict[str, object]:
         with self._lock:
             values = {key: dict(value) for key, value in self._resources.items()}
-        return {
+            connections = dict(self._connections)
+        result: dict[str, object] = {
             "resources": values,
             "server_write_only": True,
             "recording_incomplete": self._recording_incomplete,
@@ -144,6 +263,9 @@ class ResourceResponseCounts:
                 json.dumps(values, sort_keys=True).encode()
             ).hexdigest(),
         }
+        if self._correlation:
+            result.update(connections)
+        return result
 
 
 # A fixed read-only expression. Never accept expressions from the caller or page.

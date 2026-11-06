@@ -123,3 +123,24 @@ read-onlyで使用する。将来仕様や実装差はunknownへ保つ。
 
 参考: [CDP Runtime.evaluate](https://chromedevtools.github.io/devtools-protocol/tot/Runtime/#method-evaluate)、
 [websockets 15.0.1 asyncio client](https://websockets.readthedocs.io/en/15.0.1/reference/asyncio/client.html)。
+
+## 起動失敗の相関記録と原因カテゴリ（Issue #791）
+
+設計の正本は [issue-791-2048-empty-board-diagnosis.md](../design/issue-791-2048-empty-board-diagnosis.md)
+です。明示診断（`--save-browser-diagnostics`）の時だけ、失敗1件のFrame・HTTP・JS・DOMの証拠を
+同じ**相関ID**（起動世代ごとの32桁hex）と、親processの単調時計によるserver開始からの相対msで結びます。
+
+- 実装: `tools/reference_startup_correlation.py`（純粋関数 `classify_startup_failure`）、
+  `tools/reference_browser_diagnostics.py`（固定12名を0初期化したcounterと最初の時刻）、
+  `tools/reference_game_2048_launcher.py`（接続counter・期待本文SHA・CDP前後のsnapshot）、
+  `tools/reference_episode_failure_diagnostics.py`（`failure-diagnostics.json` の `correlation` 節）。
+- 分類は境界の順に最初に該当したcategoryを返し、後段の該当は `all_matching` に残します。
+  証拠が欠けた・矛盾した場合は `evidence_incomplete` と固定名の `missing` を返し、原因を推測しません。
+- `connection_without_request` と `dom_present_frame_empty_candidate` は対照が必要な候補で、
+  `control_required=true` の間は根因と呼びません。
+- 成功・失敗を問わず、episode directoryの `startup-summary.json` に最初に盤面を受理した相対ms、
+  要求行なし接続の数、browser file version、CI識別子を保存します。
+- 集計: `PYTHONPATH=src:. python -m tools.summarize_2048_startup_runs --cohort pr-<sha>-a1=<dir> --cohort main-<sha>-a1=<dir> --output <file>.json`。
+  cohortは合算せず、失敗は失敗率の分子に数えp50/p95には入れません。再実行だけ・CI識別子なし・
+  成功10件未満・browser version違いは `reference_only` です。
+- 製品挙動（待ち時間・入力・retry・Planner・score）は変更しません。根因が確定するまで修正も行いません。

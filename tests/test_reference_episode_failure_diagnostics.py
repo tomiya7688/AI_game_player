@@ -214,3 +214,198 @@ class EpisodeFailureDiagnosticTests(unittest.TestCase):
                         self.assertEqual(create_launcher.call_args.kwargs, {})
                 finally:
                     episode.close()
+
+
+class CorrelationSectionTests(unittest.TestCase):
+    """Issue #791 T8: 相関節の時刻順・Frame結果・byte上限・startup_summary。"""
+
+    def setUp(self):
+        from test_reference_startup_correlation import make_record
+
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        record = make_record(frame={"empty_board": False, "board_accepted": False})
+        self.record = record
+        self.calls = []
+        server = SimpleNamespace(
+            test_seed=481,
+            correlation_snapshot=lambda: (
+                self.calls.append("preserved") or {"now_ms": 110.0}
+            ),
+            relative_ms=lambda ns: round(ns / 1_000_000 - 1_000_000, 1),
+        )
+        render = record["cdp"]["render"]
+
+        def browser(**_):
+            self.calls.append("browser")
+            return {
+                "status": "observed",
+                "render": render,
+                "expression_sha256": "e" * 64,
+                "correlation_parts": {
+                    "correlation_id": record["correlation_id"],
+                    "server": {**record["server"]},
+                    "expected_body_sha256": record["expected_body_sha256"],
+                    "cdp_started_ms": 120.0,
+                    "cdp_finished_ms": 130.0,
+                    "target_matches_generation": True,
+                    "browser_version": "1.2.3.4",
+                },
+            }
+
+        self.episode = SimpleNamespace(
+            episode_number=1,
+            _save_browser_diagnostics=True,
+            _save_heartbeat_diagnostics=False,
+            _failure_diagnostics_attempted=False,
+            _failure_diagnostics_path=Path(self.directory.name) / "failure.json",
+            _failure_header_digests={"frame_sha256": "f" * 64, "png_sha256": "p" * 64},
+            source=SimpleNamespace(
+                _failure_frame_probe={
+                    "captured_at": 1_000.1,
+                    "state": {"unavailable_reason": None, "state_available": False},
+                }
+            ),
+            launcher=SimpleNamespace(
+                server=server, collect_failure_render_diagnostics=browser
+            ),
+        )
+
+    def collect(self):
+        with redirect_stdout(io.StringIO()):
+            return collect_episode_failure_diagnostics(
+                self.episode, frame_preserved=True
+            )
+
+    def test_correlation_section_orders_frame_before_cdp_and_classifies(self):
+        result = self.collect()
+        correlation = result["correlation"]
+        frame, cdp = correlation["frame"], correlation["cdp"]
+        self.assertEqual(self.calls, ["preserved", "browser"])
+        self.assertLessEqual(frame["captured_ms"], frame["preserved_ms"])
+        self.assertLessEqual(frame["preserved_ms"], cdp["started_ms"])
+        self.assertLessEqual(cdp["started_ms"], cdp["finished_ms"])
+        self.assertIs(frame["empty_board"], False)
+        self.assertIs(frame["board_accepted"], False)
+        self.assertEqual(frame["frame_sha256"], "f" * 64)
+        self.assertEqual(
+            correlation["classification"]["category"], "frame_nonempty_not_recognized"
+        )
+        self.assertNotIn("correlation_parts", result["browser"])
+        self.assertEqual(correlation["seed"], 481)
+
+    def test_missing_frame_probe_fails_closed_without_guessing(self):
+        self.episode.source = SimpleNamespace()
+        classification = self.collect()["correlation"]["classification"]
+        self.assertEqual(classification["category"], "evidence_incomplete")
+        self.assertIn("time_order", classification["missing"])
+        self.assertIn("frame_result", classification["missing"])
+
+    def test_empty_nonterminal_state_is_recorded_as_an_empty_board(self):
+        self.episode.source._failure_frame_probe["state"] = {
+            "unavailable_reason": "empty_nonterminal",
+            "state_available": False,
+        }
+        frame = self.collect()["correlation"]["frame"]
+        self.assertIs(frame["empty_board"], True)
+
+    def test_without_parts_there_is_no_correlation_section(self):
+        original = self.episode.launcher.collect_failure_render_diagnostics
+
+        def without_parts(**kwargs):
+            value = original(**kwargs)
+            value.pop("correlation_parts")
+            return value
+
+        self.episode.launcher.collect_failure_render_diagnostics = without_parts
+        self.assertNotIn("correlation", self.collect())
+
+    def test_file_stays_within_the_diagnostic_byte_limit(self):
+        self.collect()
+        size = self.episode._failure_diagnostics_path.stat().st_size
+        self.assertLess(size, 64 * 1024)
+        written = json.loads(
+            self.episode._failure_diagnostics_path.read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            written["correlation"]["schema"], "reference-startup-correlation/v1"
+        )
+
+    def test_startup_summary_contains_only_fixed_non_secret_fields(self):
+        server = SimpleNamespace(
+            test_seed=7,
+            correlation_snapshot=lambda: {
+                "correlation_id": "a" * 32,
+                "server": {
+                    "connections_accepted": 3,
+                    "connections_awaiting_request_line": 0,
+                    "connections_without_request_line": 1,
+                    "request_line_errors": 0,
+                    "requests_parsed": 2,
+                },
+            },
+            relative_ms=lambda ns: 1234.5,
+        )
+        episode = object.__new__(ReferenceGame2048Episode)
+        episode._save_browser_diagnostics = True
+        episode.episode_number = 2
+        episode.launcher = SimpleNamespace(server=server, browser_executable=None)
+        episode.source = SimpleNamespace(first_board_accepted_ns=5)
+        with patch.dict(
+            "os.environ",
+            {
+                "GITHUB_EVENT_NAME": "pull_request",
+                "GITHUB_RUN_ID": "9",
+                "GITHUB_RUN_ATTEMPT": "",
+                "GITHUB_SHA": "",
+            },
+        ):
+            summary = episode.startup_summary()
+        self.assertEqual(summary["first_board_accepted_ms"], 1234.5)
+        self.assertEqual(summary["server_started_ms"], 0)
+        self.assertEqual(
+            summary["server_connection_summary"]["connections_without_request_line"], 1
+        )
+        self.assertEqual(summary["ci_context"]["event"], "pull_request")
+        self.assertIsNone(summary["ci_context"]["run_attempt"])
+        self.assertNotIn("http", json.dumps(summary))
+        episode.source = SimpleNamespace(first_board_accepted_ns=None)
+        self.assertIsNone(episode.startup_summary()["first_board_accepted_ms"])
+        episode._save_browser_diagnostics = False
+        self.assertIsNone(episode.startup_summary())
+
+    def test_startup_summary_file_is_saved_at_close_and_never_raises(self):
+        episode = object.__new__(ReferenceGame2048Episode)
+        episode._failure_diagnostics_path = Path(self.directory.name) / "failure.json"
+        episode._save_startup_summary({"schema": "reference-startup-summary/v1"})
+        saved = Path(self.directory.name) / "startup-summary.json"
+        self.assertEqual(
+            json.loads(saved.read_text(encoding="utf-8"))["schema"],
+            "reference-startup-summary/v1",
+        )
+        episode._failure_diagnostics_path = (
+            Path(self.directory.name) / "missing" / "x" / "f.json"
+        )
+        with patch("ai_game_player.atomic_json.stage_json_write", side_effect=OSError):
+            episode._save_startup_summary({"schema": "x"})
+        episode._save_startup_summary(None)
+
+
+class CiContextTests(unittest.TestCase):
+    def test_only_identifier_like_values_are_recorded(self):
+        from tools.reference_episode_failure_diagnostics import ci_context
+
+        with patch.dict(
+            "os.environ",
+            {
+                "GITHUB_EVENT_NAME": "pull_request",
+                "GITHUB_RUN_ID": "123",
+                "GITHUB_RUN_ATTEMPT": "bad value with spaces",
+                "GITHUB_SHA": "a" * 65,
+            },
+        ):
+            value = ci_context()
+        self.assertEqual(value["event"], "pull_request")
+        self.assertEqual(value["run_id"], "123")
+        self.assertIsNone(value["run_attempt"])
+        self.assertIsNone(value["sha"])
