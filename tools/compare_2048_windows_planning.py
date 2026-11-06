@@ -156,6 +156,27 @@ def observed_board(episode):
     return tuple(tuple(row) for row in board)
 
 
+# {
+#   責務: [
+#     run_episode: 1 providerの所有window実入力episodeを実行し、判断・入力・score OCR・Stop/旧世代probeの結果を返す
+#   ]
+#   処理: [
+#     1: 起動・前処理parity・初期観測を確認する
+#     2: 判断loopをmax_steps回まで回す。deadline_monotonic到達後は新しい判断を始めずwall_budget_reachedで止める(#795)
+#     3: 全判断後に別captureでscore OCRとStop/旧世代probeを行う
+#   ]
+#   引数: [
+#     provider: cycling/baseline/planner
+#     seed: テスト用seed
+#     max_steps: 判断attempt上限
+#     cache: ゲームキャッシュdir
+#     output: 出力dir
+#     deadline_monotonic: 任意。time.monotonic()基準の判断開始期限。Noneなら従来の短枠動作
+#   ]
+#   戻り値: [
+#     dict: episode結果(stop_reason: terminal/wall_budget_reached/attempt_cap_reached)
+#   ]
+# }
 def run_episode(
     provider,
     seed,
@@ -166,6 +187,7 @@ def run_episode(
     save_failure_evidence=False,
     save_browser_diagnostics=False,
     save_heartbeat_diagnostics=False,
+    deadline_monotonic=None,
 ):
     monitor = None
     episode = None
@@ -187,6 +209,7 @@ def run_episode(
         "failure": None,
         "stopped_input_rejected": False,
         "stale_generation_rejected": False,
+        "stop_reason": None,
     }
     latencies = []
     started = time.monotonic()
@@ -279,9 +302,18 @@ def run_episode(
         if time.monotonic() >= ready_deadline:
             raise RuntimeError("comparison initial observation ready deadline expired")
         initial_token = preflight_token
+        result["stop_reason"] = "attempt_cap_reached"
         for attempt_index in range(max_steps):
             episode.pipeline.controller.ensure_running(initial_token)
             if state.terminal:
+                result["stop_reason"] = "terminal"
+                break
+            # 長枠比較: 期限後は新しい判断を始めない(実行中の判断は完了済み)。
+            if (
+                deadline_monotonic is not None
+                and time.monotonic() >= deadline_monotonic
+            ):
+                result["stop_reason"] = "wall_budget_reached"
                 break
             before = state
             began = time.monotonic_ns()
@@ -433,6 +465,9 @@ def run_episode(
                         "counters": asdict(plan.counters),
                     }
                 )
+        if state.terminal:
+            # 最後の入力で終局した場合も、停止理由はterminalにする。
+            result["stop_reason"] = "terminal"
         result.update(
             {
                 "max_tile": state.max_tile,
@@ -477,7 +512,11 @@ def run_episode(
             result["stale_generation_rejected"] = True
         if len(episode.pipeline.load_execution_history()) != len(records):
             raise AssertionError("Stop/stale probe executed input")
-        result["minimum_actual_input_met"] = result["actions"] >= min(3, max_steps)
+        # 長枠の期限到達で止まったepisodeは、1回以上の実入力があれば最小入力を満たすとする(他の検証は維持)。
+        minimum_actions = (
+            1 if result["stop_reason"] == "wall_budget_reached" else min(3, max_steps)
+        )
+        result["minimum_actual_input_met"] = result["actions"] >= minimum_actions
         if (
             not result["minimum_actual_input_met"]
             or result["board_changes"] < 1

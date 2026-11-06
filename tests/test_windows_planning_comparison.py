@@ -97,7 +97,14 @@ class FakeEpisode:
 
 class WindowsPlanningComparisonTests(unittest.TestCase):
     def hold_episode(
-        self, outcomes, *, during_hold=None, capture_mode="fresh", with_plan=False
+        self,
+        outcomes,
+        *,
+        during_hold=None,
+        capture_mode="fresh",
+        with_plan=False,
+        deadline_seconds=None,
+        select_delay=0.0,
     ):
         episodes = []
         remaining = iter(outcomes)
@@ -127,6 +134,7 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         def run(orchestrator, **kwargs):
             choice = next(remaining)
             if choice == "select":
+                time.sleep(select_delay)
                 return episodes[0].execute()
             if during_hold is not None:
                 during_hold(episodes[0])
@@ -148,8 +156,11 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
                 return_value={"value": 0, "confidence": 0.9},
             ),
         ):
+            extra = {}
+            if deadline_seconds is not None:
+                extra["deadline_monotonic"] = time.monotonic() + deadline_seconds
             result = comparison.run_episode(
-                "planner", 480, 12, Path(directory), Path(directory)
+                "planner", 480, 12, Path(directory), Path(directory), **extra
             )
         return result, episodes[0]
 
@@ -289,6 +300,85 @@ class WindowsPlanningComparisonTests(unittest.TestCase):
         self.assertEqual(result["resources"]["samples"], 3)
         self.assertEqual(episode.frame_count, 13)
         self.assertTrue(episode.closed)
+
+    def test_no_deadline_keeps_the_short_attempt_cap_behavior(self):
+        result, _ = self.hold_episode(["select"] * 12)
+        self.assertEqual(result["stop_reason"], "attempt_cap_reached")
+        self.assertEqual(result["attempts"], 12)
+
+    def test_deadline_stops_new_decisions_but_never_cuts_an_inflight_one(self):
+        result, episode = self.hold_episode(
+            ["select"] * 12, deadline_seconds=0.4, select_delay=0.15
+        )
+        self.assertEqual(result["stop_reason"], "wall_budget_reached")
+        self.assertLess(result["attempts"], 12)
+        # 開始済みの判断はすべて入力まで完了している。
+        self.assertEqual(result["actions"], result["attempts"])
+        self.assertEqual(len(episode.records), result["actions"])
+        self.assertTrue(episode.closed)
+
+    def test_expired_deadline_starts_no_decision_and_no_input(self):
+        result, episode = self.hold_episode(["select"] * 12, deadline_seconds=-1.0)
+        self.assertEqual(result["stop_reason"], "wall_budget_reached")
+        self.assertEqual((result["attempts"], result["actions"]), (0, 0))
+        self.assertEqual(episode.records, [])
+        self.assertFalse(result["success"])
+
+    def test_terminal_reached_by_the_last_input_reports_terminal(self):
+        class LastInputTerminal(FakeEpisode):
+            def observe(self, **kwargs):
+                state = super().observe(**kwargs)
+                return CampaignState(state.signature, len(self.records) >= 12, 0, 2)
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", LastInputTerminal),
+            patch.object(
+                comparison.DecisionOrchestrator,
+                "run",
+                lambda orchestrator, **kwargs: orchestrator.pipeline.run_and_execute(),
+            ),
+            patch.object(
+                comparison.TesseractOcrRecognizer, "optional", return_value=object()
+            ),
+            patch.object(
+                comparison,
+                "evaluate_visible_score",
+                return_value={"value": 0, "confidence": 0.9},
+            ),
+        ):
+            result = comparison.run_episode(
+                "cycling", 480, 12, Path(directory), Path(directory)
+            )
+        self.assertEqual(result["attempts"], 12)
+        self.assertEqual(result["stop_reason"], "terminal")
+
+    def test_deadline_stop_needs_only_one_input_but_keeps_the_other_gates(self):
+        result, _ = self.hold_episode(
+            ["select"] + ["abstain"] * 11, deadline_seconds=0.12, select_delay=0.15
+        )
+        self.assertEqual(result["stop_reason"], "wall_budget_reached")
+        self.assertEqual(result["actions"], 1)
+        self.assertTrue(result["minimum_actual_input_met"])
+        self.assertTrue(result["stopped_input_rejected"])
+
+    def test_terminal_state_is_reported_as_the_stop_reason(self):
+        class Terminal(FakeEpisode):
+            def observe(self, **kwargs):
+                state = super().observe(**kwargs)
+                return CampaignState(state.signature, True, 0, 2)
+
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            patch.object(comparison, "PlanningResourceMonitor", FakeMonitor),
+            patch.object(comparison, "ReferenceGame2048Episode", Terminal),
+        ):
+            result = comparison.run_episode(
+                "cycling", 480, 12, Path(directory), Path(directory)
+            )
+        self.assertEqual(result["stop_reason"], "terminal")
+        self.assertEqual(result["attempts"], 0)
 
     def test_one_hold_then_eleven_inputs_reports_the_hold_and_same_attempt_cap(self):
         result, episode = self.hold_episode(["abstain"] + ["select"] * 11)
