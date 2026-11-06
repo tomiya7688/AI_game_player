@@ -490,6 +490,16 @@ class RegistryTests(unittest.TestCase):
         self.reg.release("live")
         self.assertEqual(self.reg._stats_updates - before, 1)
 
+    def test_expired_candidates_beyond_limit_stay_in_heap(self):
+        coordinator = CleanupCoordinator(self.reg)
+        for i in range(5):
+            self.add(f"x{i}", ttl_ms=1)
+        self.clock.advance_ms(2)
+        first = coordinator.cleanup_expired(max_items=2)
+        self.assertEqual((first.released, first.truncated), (2, True))
+        self.assertEqual(coordinator.cleanup_expired(max_items=10).released, 3)
+        self.assertEqual(self.reg.snapshot().active_count, 0)
+
     def test_validation_and_capacity(self):
         for bad in (
             dict(max_active=0),

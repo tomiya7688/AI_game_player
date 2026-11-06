@@ -968,6 +968,14 @@ class CleanupCoordinator:
             skipped=(0, len(in_use), 0),
             reason="expired",
         )
+        # 上限・時間で処理されずACTIVEのまま残った候補は期限heapへ戻す(次回に回す)
+        with registry._lock:
+            for entry in candidates:
+                expires = entry.lease.expires_monotonic_ns
+                if entry.state == "active" and expires is not None:
+                    heapq.heappush(
+                        registry._expiry, (expires, entry.seq, entry.lease.resource_id)
+                    )
         return report
 
     def _bounded_release(

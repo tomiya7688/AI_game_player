@@ -26,7 +26,10 @@ from ai_game_player.decision_orchestrator import DecisionOrchestrator
 from ai_game_player.decision_withheld import DecisionDisposition
 from ai_game_player.provider import OllamaProvider, RuleProvider
 from ai_game_player.run_control import RunController
-from ai_game_player.runtime.resource_lifecycle import SessionResourceRegistry
+from ai_game_player.runtime.resource_lifecycle import (
+    ResourceLifecycleError,
+    SessionResourceRegistry,
+)
 from ai_game_player.runtime_log import RuntimeLog
 from ai_game_player.knowledge_scope import KnowledgeScope
 from ai_game_player.learning_identity import LearningIdentityPolicy
@@ -340,12 +343,16 @@ class ManagedSessionRuntime:
         self._run_control = run_control
         self._step_lock = threading.Lock()
         self._step_count = 0
-        self.resources = resources or SessionResourceRegistry(
-            uuid4().hex,
-            trace_sink=_PipelineResourceTrace(pipeline),
-            initial_generation=run_control.rearm_token
-            if run_control is not None
-            else 0,
+        self.resources = (
+            resources
+            if resources is not None
+            else SessionResourceRegistry(
+                uuid4().hex,
+                trace_sink=_PipelineResourceTrace(pipeline),
+                initial_generation=run_control.rearm_token
+                if run_control is not None
+                else 0,
+            )
         )
         self.pipeline = pipeline
         self._provider = provider
@@ -406,7 +413,12 @@ class ManagedSessionRuntime:
         if self._run_control is not None:
             token = self._run_control.rearm_token
             if token > self.resources.current_generation:
-                self.resources.advance_generation(token)
+                try:
+                    self.resources.advance_generation(token)
+                except ResourceLifecycleError as exc:
+                    # 並行stepが先に同じ世代へ進めた場合は正常(他のcodeは閉鎖等の異常として伝播)
+                    if exc.code != "stale_generation":
+                        raise
         with self._step_lock:
             self._step_count += 1
             task_id = f"step-{self._step_count}"
