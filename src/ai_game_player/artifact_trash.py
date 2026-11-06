@@ -177,7 +177,13 @@ class TrashIntent:
         version = value["schema_version"]
         if type(version) is not int or version != TRASH_SCHEMA_VERSION:
             raise TrashIntentError(f"unsupported trash intent version: {version!r}")
-        return cls(**{name: value[name] for name in _FIELDS - {"schema_version"}})
+        try:
+            return cls(**{name: value[name] for name in _FIELDS - {"schema_version"}})
+        except TypeError as error:
+            # 配列などhash不能な値が混ざっても、契約違反として統一して拒否する。
+            raise TrashIntentError(
+                f"trash intent has invalid types: {error}"
+            ) from error
 
 
 # {
@@ -341,7 +347,11 @@ class ArtifactTrash:
             # renameは済んでおり論理的には削除済み。例外にすると呼出元が「未削除」と誤解するので、
             # pendingのまま返し、次回sweepがentryを見てrenamedへ進める。
             return intent
-        return self._remove_entry(renamed)
+        try:
+            return self._remove_entry(renamed)
+        except OSError:
+            # 後始末(intent更新)の失敗は論理削除の結果を変えない。次回sweepが続きを行う。
+            return renamed
 
     # {
     #   責務: [sweep: crashで中断した削除を検査付きで再開し、残存entryを掃除する]
@@ -404,7 +414,7 @@ class ArtifactTrash:
 
     # {
     #   責務: [audit_intents: 呼出元がまだ永続化していない削除のintentを返す]
-    #   処理: [auditの対象理由で、renamed以降かつ未ackのintentをID順に返す]
+    #   処理: [auditの対象理由で、論理削除済み（renamed以降、またはrename済みでpendingのまま）かつ未ackのintentをID順に返す]
     #   引数: [なし]
     #   戻り値: [tuple: 未ackのTrashIntent]
     #   エラー: [TrashIntentError: intent不正]
@@ -414,8 +424,11 @@ class ArtifactTrash:
             intent
             for intent in self.list_intents()
             if intent.reason in AUDITED_REASONS
-            and intent.state != STATE_PENDING
             and not intent.acknowledged
+            and (
+                intent.state != STATE_PENDING
+                or os.path.lexists(self.directory / intent.id)
+            )
         )
 
     # {

@@ -172,9 +172,44 @@ class ReviewFixTest(TrashTestCase):
         intent = self.discard(trash, digest, path)
         self.assertEqual(intent.state, "pending")
         self.assertFalse(path.exists())
+        self.assertEqual([a.id for a in trash.audit_intents()], [intent.id])
         trash._write_intent = real
         self.assertEqual(trash.sweep().swept, (intent.id,))
         self.assertEqual(trash.audit_intents()[0].state, STATE_SWEPT)
+
+
+class ReviewFixTwoTest(TrashTestCase):
+    def test_unhashable_field_values_are_rejected_as_intent_errors(self):
+        document = make_intent("7" * 32, "a" * 64).to_dict()
+        for name in ("kind", "reason", "state"):
+            broken = dict(document)
+            broken[name] = ["x"]
+            with self.assertRaises(TrashIntentError):
+                TrashIntent.from_dict(broken)
+
+    def test_cleanup_failure_after_rmtree_still_reports_logical_deletion(self):
+        digest, path = self.put(b"q" * 10)
+        trash = ArtifactTrash(self.root)
+        real = trash._write_intent
+
+        def flaky(intent):
+            if intent.state == STATE_SWEPT:
+                raise OSError("injected")
+            real(intent)
+
+        trash._write_intent = flaky
+        intent = self.discard(trash, digest, path)
+        self.assertEqual(intent.state, STATE_RENAMED)
+        self.assertFalse(path.exists())
+
+    def test_collect_retries_leftover_trash_entries(self):
+        digest, path = self.put(b"r" * 10)
+        ArtifactTrash(self.root, rmtree=failing_rmtree).discard(
+            path, kind=KIND_OBJECT, sha256=digest, reason=REASON_RETENTION_REMOVE
+        )
+        self.assertGreater(ArtifactTrash(self.root).residual_bytes(), 0)
+        RetentionCollector(self.store, RetentionPolicy(1000, 1000)).collect()
+        self.assertEqual(ArtifactTrash(self.root).residual_bytes(), 0)
 
 
 class CrashRecoveryTest(TrashTestCase):

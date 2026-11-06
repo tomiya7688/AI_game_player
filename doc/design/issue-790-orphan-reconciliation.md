@@ -148,6 +148,9 @@ admit・register・collect・recover・plan(手順2)・apply(手順2)は同じro
 - `reclaim_budget`は`RetentionCollector.collect`を呼ぶため、#788の不変条件テスト「本番コードで`.collect(`を呼ぶのはadapterだけ」の許可リストへ`orphan_reconciler.py`を追加しました。`complete=True`のsnapshotが得られない場合は`collect`しません。runtime配線（adapter経由でGCする）は後続です。
 - 走査cursorは`.orphan-trash/scan-cursor.json`（`{"schema_version":1,"last":"shard/名前"}`）です。壊れていれば先頭から走査します。
 
+- PRレビュー反映: live snapshotは別threadで期限付きに取得し（停止したsourceを待たない）、`reclaim_budget`は`reconcile`が止まったら`collect`せず、`collect`直前にlive集合を取り直す。`collect`は先頭で前回のtrash残りをsweepし、`plan()`はtrash残存byteを圧迫判定に含める。rename後のintent更新・後始末の失敗は論理削除済みとして扱い、audit（pendingでentry実在を含む）はintentから返す。stagingは削除前にshardがlink・junctionでないことを再確認する。
+- 残る制約（後続）: adapterのsnapshotの対象session・鮮度の検証と、`recover_pending`・全shard列挙のlock保持時間の分割は#225の配線時に扱う（現状は`max_lock_hold_ms`が効くのは削除ループ・sweepのみ）。
+
 ## 代替案と不採用理由
 
 - `discard_unindexed_object`/`remove_object`のrmtree直を残す: 途中停止で半壊objectが残りadmitを止め、再試行がidempotentでない。`remove_object`の中身をtrash経由に変え、全経路をcrash安全にする。

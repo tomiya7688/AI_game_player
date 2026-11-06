@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import os
 import re
@@ -373,7 +374,8 @@ class RetentionCollector:
             self.policy,
             now_ms=self._now_ms(),
             live_artifact_sha256=live,
-            unindexed_bytes=usage.unindexed_bytes,
+            # trashの残存byteも、削除では解放できない使用量として圧迫判定へ含める。
+            unindexed_bytes=usage.unindexed_bytes + usage.trash_bytes,
         )
 
     # {
@@ -421,6 +423,9 @@ class RetentionCollector:
     def collect(
         self, live_references: Iterable[ArtifactReference] = ()
     ) -> RetentionReport:
+        # 前回のrmtree失敗で残ったtrash entryを、この機会に再試行する（Issue #790）。
+        with contextlib.suppress(OSError):
+            ArtifactTrash(Path(self.store.root)).sweep()
         plan = self.plan(live_references)
         targets = [self.safe_object_path(digest) for digest in plan.deleted_artifacts]
         if plan.removed_entries:

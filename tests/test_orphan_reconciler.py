@@ -565,6 +565,21 @@ class BudgetTest(ReconcilerCase):
         self.assertIsNotNone(report.retention)
         self.assertTrue(self.exists(kept))
 
+    def test_t9_reclaim_stops_when_the_second_snapshot_is_incomplete(self):
+        self.orphan("b", size=400)
+
+        class Flaky:
+            calls = 0
+
+            def snapshot(self):
+                Flaky.calls += 1
+                return LiveReferenceSnapshot("f", (), Flaky.calls == 1)
+
+        reconciler = self.make_reconciler(live_sources=[Flaky()])
+        report = reclaim_budget(reconciler)
+        self.assertEqual(report.blocked_reason, "live_snapshot_incomplete")
+        self.assertIsNone(report.retention)
+
     def test_t9_incomplete_live_blocks_reclaim(self):
         self.orphan("b", size=400)
         reconciler = self.make_reconciler(live_sources=[StubSource(complete=False)])
@@ -628,6 +643,37 @@ class BoundaryTest(ReconcilerCase):
         report = reconciler.reconcile(TRIGGER_EXPLICIT)
         self.assertEqual(report.deleted, (self.location(other),))
         self.assertTrue(self.exists(protected))
+
+    def test_hanging_live_source_times_out_without_blocking_the_caller(self):
+        release = threading.Event()
+
+        class Hanging:
+            def snapshot(self):
+                release.wait(5)
+                return LiveReferenceSnapshot("hang", (), True)
+
+        self.addCleanup(release.set)
+        self.orphan("a")
+        config = OrphanReconcilerConfig(live_snapshot_timeout_ms=100)
+        reconciler = self.make_reconciler(live_sources=[Hanging()], config=config)
+        began = time.monotonic()
+        plan = reconciler.plan(TRIGGER_EXPLICIT)
+        self.assertLess(time.monotonic() - began, 3)
+        self.assertEqual(plan.blocked_reason, "live_snapshot_timeout")
+
+    def test_staging_in_a_shard_replaced_by_a_link_is_not_touched(self):
+        staging = self.staging("ab", age_ms=2 * DAY_MS)
+        plan = self.reconciler.plan(TRIGGER_EXPLICIT)
+        self.assertEqual(len(plan.targets), 1)
+        outside = Path(self.temp.name) / "moved"
+        os.rename(self.root / "ab", outside)
+        try:
+            make_directory_link(self.root / "ab", outside)
+        except OSError:
+            self.skipTest("directory links are not available")
+        report = self.reconciler.apply(plan, recover_pending=False)
+        self.assertEqual(report.deleted, ())
+        self.assertTrue((outside / staging.name).exists())
 
     def test_t13_periodic_is_rate_limited(self):
         self.orphan("a")

@@ -8,6 +8,7 @@ import json
 import os
 import re
 import stat
+import threading
 import time
 from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass, field, replace
@@ -75,6 +76,7 @@ _HASH_CHUNK_BYTES = 64 * 1024
 _MIN_GRACE_MS = 60_000
 _MAX_GRACE_MS = 30 * 86_400_000
 _MAX_CANDIDATES_LIMIT = 1_000_000
+_TIMED_OUT: Final = object()
 
 
 # {
@@ -363,11 +365,17 @@ class OrphanReconciler:
         problem: str | None = None
         started = self._timer()
         for source in self.live_sources:
-            try:
-                snapshot = source.snapshot()
-            except Exception:  # noqa: BLE001 - 失敗した保持者の理由は問わず安全側（削除0）に倒す
+            remaining = self.config.live_snapshot_timeout_ms / 1000 - (
+                self._timer() - started
+            )
+            outcome = _snapshot_within(source, max(remaining, 0.0))
+            if outcome is _TIMED_OUT:
+                problem = "live_snapshot_timeout"
+                break
+            if outcome is None:
                 problem = "live_source_failed"
                 break
+            snapshot = outcome
             # adapterのLiveReferenceProvider（RetentionReferenceSnapshot）も、
             # complete/referencesを持つ値としてそのまま受け付ける（Issue #788との整合）。
             if getattr(snapshot, "complete", None) is not True or not isinstance(
@@ -1146,6 +1154,9 @@ class OrphanReconciler:
             inspection = self._inspect_object(path, target.sha256)
         else:
             path = self.root / target.location
+            shard = path.parent
+            if shard.is_symlink() or is_junction(shard) or not shard.is_dir():
+                return "unsafe_path", None
             inspection = self._inspect_staging(path)
         if (
             inspection.problem is not None
@@ -1307,6 +1318,28 @@ def _signature(info: os.stat_result) -> tuple[Any, ...]:
 
 
 # {
+#   責務: [_snapshot_within: live sourceのsnapshotを別threadで取り、期限内に返らなければ待たずに打ち切る]
+#   処理: [daemon threadでsnapshot()を呼び、join(timeout)で待つ。例外はNone、期限切れは_TIMED_OUTを返す
+#     （停止したthreadは残るが、呼出し側はlockを持たず削除0で戻る）]
+#   引数: [source: live source, timeout_seconds: 待ち上限秒]
+#   戻り値: [Any: snapshot。例外ならNone、期限切れなら_TIMED_OUT]
+# }
+def _snapshot_within(source: LiveReferenceSource, timeout_seconds: float) -> Any:
+    box: list[Any] = []
+
+    def run() -> None:
+        try:
+            box.append(source.snapshot())
+        except Exception:  # noqa: BLE001 - 失敗理由は問わず安全側（削除0）に倒す
+            box.append(None)
+
+    worker = threading.Thread(target=run, daemon=True, name="orphan-live-snapshot")
+    worker.start()
+    worker.join(timeout_seconds)
+    return box[0] if box else _TIMED_OUT
+
+
+# {
 #   責務: [reclaim_budget: 予算超過時に、正常な索引dataを消す前にorphanを回収する順序を制御する]
 #   処理: [1: live集合を1回だけ作る 2: soft budget超過かつ未索引byteがあればlock外でreconcile(BUDGET)
 #     3: lock内でmeasureを取り直し、orphan分の上乗せで正常entryが消えるならcollectせずorphan_pressureを報告、
@@ -1319,7 +1352,8 @@ def reclaim_budget(
     reconciler: OrphanReconciler, *, extra_live: Iterable[ArtifactReference] = ()
 ) -> BudgetReclaimReport:
     collector = reconciler.collector
-    live = reconciler.collect_live(tuple(extra_live))
+    extra = tuple(extra_live)
+    live = reconciler.collect_live(extra)
     if live.problem is not None:
         return BudgetReclaimReport(None, None, live.problem, 0)
     before = collector.measure()
@@ -1331,6 +1365,19 @@ def reclaim_budget(
         reconcile_report = reconciler.reconcile(
             TRIGGER_BUDGET, extra_live=live.references
         )
+        if reconcile_report.blocked_reason is not None:
+            return BudgetReclaimReport(
+                reconcile_report,
+                None,
+                reconcile_report.blocked_reason,
+                before.usage.unindexed_bytes,
+            )
+        # reconcile中に参照が増えた可能性があるため、collectには取り直した集合を使う。
+        live = reconciler.collect_live(extra)
+        if live.problem is not None:
+            return BudgetReclaimReport(
+                reconcile_report, None, live.problem, before.usage.unindexed_bytes
+            )
     with collector.coordination_lock():
         snapshot = collector.measure()
         now = reconciler._now()
