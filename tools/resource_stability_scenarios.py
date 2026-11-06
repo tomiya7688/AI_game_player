@@ -81,7 +81,7 @@ SCENARIOS: dict[str, Behavior] = {
     "pinned_model_cache": Behavior(pinned_cache=True),
     "stop_mid_step_clean": Behavior(stop_mode="stop"),
     "error_mid_step_clean": Behavior(stop_mode="error"),
-    "real_probe_smoke": Behavior(real_probe=True, steps=1000, sample_every=5),
+    "real_probe_smoke": Behavior(real_probe=True),
 }
 CANARIES: dict[str, Behavior] = {
     "leak_lease_per_step": Behavior(
@@ -210,9 +210,14 @@ def build_rows(
     extra: Callable[[], dict[str, int | None]] | None = None,
 ) -> list[dict[str, Any]]:
     run_id = f"{name}-{seed}"
-    steps = behavior.steps or int(cfg["steps_per_session"])
-    every = behavior.sample_every or int(cfg["sample_every_steps"])
     warmup = int(cfg["warmup_steps"])
+    if behavior.real_probe:
+        # 実probeは実fileを触るため短く保つ。warmup(deepでは長い)の後にsteady標本が残る長さにする
+        steps = warmup * 2
+        every = max(1, steps // 200)
+    else:
+        steps = behavior.steps or int(cfg["steps_per_session"])
+        every = behavior.sample_every or int(cfg["sample_every_steps"])
     header = _header(name, run_profile_name, behavior, seed, run_id, host_profile)
     if extra is not None:
         # --python-heap: 診断専用のPython heap(判定には使わない)
@@ -299,6 +304,7 @@ def build_rows(
             "run_id": run_id,
             "duration_seconds": clock / 1e9,
             "orphan_count": 0,
+            "total_steps": steps * int(cfg["sessions"]),
             "sessions": footer_sessions,
         }
     )

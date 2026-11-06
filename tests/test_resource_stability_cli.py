@@ -278,6 +278,55 @@ class SchemaTest(unittest.TestCase):
             )
         with self.assertRaises(jsonschema.ValidationError):
             jsonschema.validate({"kind": "sample"}, SAMPLE_SCHEMA)
+        header = sc.build_rows(
+            "clean",
+            sc.get_behavior("clean"),
+            {
+                "sessions": 4,
+                "steps_per_session": 4,
+                "sample_every_steps": 1,
+                "warmup_steps": 0,
+            },
+            "fast",
+            1,
+            "linux",
+            Path(tempfile.gettempdir()),
+        )[0]
+        header["metrics"]["os.handle_count"] = {
+            "source": "synthetic",
+            "class": "count",
+            "unit": "count",
+            "status": "unsupported",
+        }
+        with self.assertRaises(jsonschema.ValidationError):
+            jsonschema.validate(header, SAMPLE_SCHEMA)
+
+
+class SettleTest(unittest.TestCase):
+    class Gauge:
+        def __init__(self, values: list[dict[str, int | None]]) -> None:
+            self.values = values
+
+        def read(self) -> dict[str, int | None]:
+            return self.values.pop(0) if len(self.values) > 1 else self.values[0]
+
+    def test_stable_value_is_returned_without_timeout(self) -> None:
+        gauge = self.Gauge(
+            [{"temp.file_count": 9}, {"temp.file_count": 1}, {"temp.file_count": 1}]
+        )
+        value, timeout = cli._settle(gauge, 5.0)  # type: ignore[arg-type]
+        self.assertEqual((value, timeout), ({"temp.file_count": 1}, False))
+
+    def test_unstable_value_times_out_and_is_still_returned(self) -> None:
+        counter = iter(range(100))
+
+        class Moving:
+            def read(self) -> dict[str, int | None]:
+                return {"temp.file_count": next(counter)}
+
+        value, timeout = cli._settle(Moving(), 0.35)  # type: ignore[arg-type]
+        self.assertTrue(timeout)
+        self.assertIsNotNone(value["temp.file_count"])
 
 
 class CliContractTest(unittest.TestCase):
@@ -485,7 +534,7 @@ class IntegrationObservationTest(unittest.TestCase):
             import subprocess, sys, time
             grandchild = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(20)"])
             open(sys.argv[1], "w").write(str(grandchild.pid))
-            time.sleep(1.5)
+            time.sleep(3)
         """
         try:
             report, footer = self.observe(script, str(pid_file))

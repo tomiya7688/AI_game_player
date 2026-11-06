@@ -100,6 +100,21 @@
                   "scan_truncated"
                 ]
               }
+            },
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "unsupported"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "unsupported_reason"
+              ]
             }
           }
         },
@@ -231,6 +246,13 @@
               "index"
             ]
           }
+        },
+        "total_steps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sampling_limit_reached": {
+          "type": "boolean"
         }
       }
     }

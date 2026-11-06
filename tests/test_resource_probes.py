@@ -153,6 +153,62 @@ class TempGaugeTest(unittest.TestCase):
             self.assertEqual(probes.TempTreeGauge(root).read()["temp.file_count"], 0)
 
 
+class TempGaugeFailureModesTest(unittest.TestCase):
+    def test_missing_root_is_none_not_zero(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            gauge = probes.TempTreeGauge(Path(root) / "absent")
+            self.assertEqual(
+                gauge.read(), {"temp.file_count": None, "temp.bytes": None}
+            )
+
+    def test_symlink_root_is_not_measured(self) -> None:
+        with (
+            tempfile.TemporaryDirectory() as root,
+            tempfile.TemporaryDirectory() as target,
+        ):
+            (Path(target) / "x").write_bytes(b"1")
+            link = Path(root) / "link"
+            try:
+                os.symlink(target, link, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("symlink not permitted")
+            self.assertEqual(probes.TempTreeGauge(link).read()["temp.file_count"], None)
+
+    def test_deadline_is_checked_per_entry(self) -> None:
+        ticks = iter(range(1000))
+        with tempfile.TemporaryDirectory() as root:
+            for i in range(3):
+                (Path(root) / f"d{i}").mkdir()
+            gauge = probes.TempTreeGauge(
+                root, max_seconds=2, clock=lambda: float(next(ticks))
+            )
+            self.assertIsNone(gauge.read()["temp.file_count"])
+            self.assertTrue(gauge.truncated)
+
+    def test_unreadable_subtree_gives_none(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            (Path(root) / "sub").mkdir()
+            real_scandir = os.scandir
+
+            def broken(path: str):  # type: ignore[no-untyped-def]
+                if str(path).endswith("sub"):
+                    raise PermissionError
+                return real_scandir(path)
+
+            with unittest.mock.patch.object(probes.os, "scandir", broken):
+                self.assertIsNone(probes.TempTreeGauge(root).read()["temp.bytes"])
+
+
+class ReparentedDescendantTest(unittest.TestCase):
+    def test_seen_descendant_still_alive_is_counted_after_reparenting(self) -> None:
+        me = os.getpid()
+        gauge = probes.ProcessTreeGauges(
+            424242, lambda pid: {"os.handle_count": 5}, lambda root: []
+        )
+        gauge.seen.add((me, probes.process_creation_time(me)))
+        self.assertEqual(gauge.read()["os.handle_count"], 10)
+
+
 class GpuProbeTest(unittest.TestCase):
     def test_parse_process_vram_sums_target_pids_only(self) -> None:
         output = "10, 100 MiB\n11, 50 MiB\n12, 7 MiB\n"

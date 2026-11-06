@@ -215,6 +215,9 @@ def _validate_run_profile(layer: str, name: str, cfg: Any) -> None:
     per_segment = cfg.get("min_samples_per_segment")
     if not isinstance(per_segment, int) or per_segment < 8:
         raise _fail(f"{where}.min_samples_per_segment must be >= 8")
+    limit_samples = cfg.get("max_samples", DEFAULT_MAX_SAMPLES)
+    if not _is_int(limit_samples) or not 0 < limit_samples <= DEFAULT_MAX_SAMPLES:
+        raise _fail(f"{where}.max_samples must be an int in 1..{DEFAULT_MAX_SAMPLES}")
     sessions = cfg.get("sessions")
     minimum = 1 if layer == "integration" else 4
     if not isinstance(sessions, int) or sessions < minimum:
@@ -231,10 +234,8 @@ def _validate_run_profile(layer: str, name: str, cfg: Any) -> None:
             if not isinstance(cfg.get(key), int) or cfg[key] < 1:
                 raise _fail(f"{where}.{key} must be a positive int")
         expected = sessions * (cfg["steps_per_session"] // cfg["sample_every_steps"])
-        if expected > cfg.get("max_samples", DEFAULT_MAX_SAMPLES):
+        if expected > limit_samples:
             raise _fail(f"{where} would exceed max_samples")
-    if cfg.get("max_samples", DEFAULT_MAX_SAMPLES) > DEFAULT_MAX_SAMPLES:
-        raise _fail(f"{where}.max_samples exceeds {DEFAULT_MAX_SAMPLES}")
 
 
 def _check_tolerance(
@@ -251,6 +252,9 @@ def _check_tolerance(
         if absolute != 0 or rel != 0:
             raise _fail(f"{where} must be 0 for registry metrics")
         return
+    if cls == "count" and rel != 0:
+        # 件数の許容は絶対値だけ(baselineが大きいと相対許容が実質的な緩和になるため)
+        raise _fail(f"{where}.rel must be 0 for count metrics")
     if cls == "bytes" and (rel > _BYTES_REL_LIMIT or absolute > _BYTES_ABS_LIMIT):
         raise _fail(f"{where} exceeds the bytes hard limit")
     limit = _ABS_LIMITS.get(metric_id)
@@ -331,6 +335,11 @@ def parse_samples(
     ):
         if key not in header:
             raise _fail(f"header.{key} missing")
+    for key in ("run_id", "layer", "run_profile", "host_profile", "scenario"):
+        if not isinstance(header[key], str) or not header[key]:
+            raise _fail(f"header.{key} must be a non-empty string")
+    if not isinstance(header["metrics"], dict):
+        raise _fail("header.metrics must be an object")
     for metric_id, info in header["metrics"].items():
         if metric_traits(metric_id) is None:
             raise _fail(f"metric id outside the vocabulary: {metric_id}")
@@ -399,6 +408,9 @@ def _validate_footer(row: dict[str, Any]) -> None:
     orphans = row.get("orphan_count", 0)
     if not _is_int(orphans) or orphans < 0:
         raise _fail("footer.orphan_count must be a non-negative integer")
+    for key in ("total_steps",):
+        if key in row and (not _is_int(row[key]) or row[key] < 0):
+            raise _fail(f"footer.{key} must be a non-negative integer")
     exit_code = row.get("command_exit_code")
     if exit_code is not None and not _is_int(exit_code):
         raise _fail("footer.command_exit_code must be an integer or null")
@@ -534,6 +546,7 @@ def _evaluate_metric(run: _Run, metric_id: str, result: dict[str, Any]) -> None:
     judged = spec is not None and run.judged_spec(metric_id)
     segments = int(run.cfg["segments"])
     steady: list[tuple[float, float]] = []
+    by_session: dict[int, list[tuple[float, float]]] = {}
     steady_total = 0
     all_values: list[float] = []
     for s in run.samples:
@@ -543,9 +556,9 @@ def _evaluate_metric(run: _Run, metric_id: str, result: dict[str, Any]) -> None:
         if run.is_steady(s):
             steady_total += 1
             if value is not None:
-                steady.append(
-                    (s["session_index"] * run.stride + s["step"], float(value))
-                )
+                point = (s["session_index"] * run.stride + s["step"], float(value))
+                steady.append(point)
+                by_session.setdefault(s["session_index"], []).append(point)
     result.update(_stats(steady, all_values, segments))
     none_ratio = (steady_total - len(steady)) / steady_total if steady_total else 1.0
     if none_ratio > NONE_RATIO_LIMIT:
@@ -583,7 +596,8 @@ def _evaluate_metric(run: _Run, metric_id: str, result: dict[str, Any]) -> None:
     if cls == "latency":
         result["tolerance"] = {"abs": 0}
     else:
-        failed |= _judge_growth(run, metric_id, spec, steady, segments, result)
+        # 成長はSessionごとに判定する(Session内で増えclose時に解放される漏れを、連結で薄めない)
+        failed |= _judge_growth(run, metric_id, spec, by_session, segments, result)
     result["verdict"] = "fail" if failed else "pass"
 
 
@@ -591,56 +605,65 @@ def _judge_growth(
     run: _Run,
     metric_id: str,
     spec: dict[str, Any],
-    steady: list[tuple[float, float]],
+    by_session: dict[int, list[tuple[float, float]]],
     segments: int,
     result: dict[str, Any],
 ) -> bool:
-    medians = result["segment_medians"]
-    if not medians or any(math.isnan(m) for m in medians):
-        run.reasons.append(
-            _reason("metric_unreliable", "no_steady_samples", None, metric_id)
-        )
-        result["status"] = "unreliable"
-        result["judged"] = False
-        result["reasons"].append("metric_unreliable")
-        return True
-    tol = _tol(spec["tolerance"], medians[1] if len(medians) > 1 else medians[0])
-    result["tolerance"] = {"abs": tol}
-    drift = _tail_drift(steady, segments)
-    if drift is None:
-        # 計算不能はtail_growthだけで合格させずfail
-        result["status"] = "unreliable"
-        result["judged"] = False
-        result["reasons"].append("metric_unreliable")
-        run.reasons.append(
-            _reason(
-                "metric_unreliable",
-                "tail_slope_unavailable",
-                MIN_TAIL_SAMPLES,
-                metric_id,
+    failed = False
+    worst: tuple[float, float, list[float]] | None = (
+        None  # (growth, slope/1000, medians)
+    )
+    for index in run.sessions:
+        series = by_session.get(index, [])
+        parts = _split(series, segments)
+        medians = [_med([v for _, v in part]) if part else math.nan for part in parts]
+        drift = _tail_drift(series, segments) if series else None
+        if not series or any(math.isnan(m) for m in medians) or drift is None:
+            # 計算不能はtail_growthだけで合格させずfail
+            result["status"] = "unreliable"
+            result["judged"] = False
+            if "metric_unreliable" not in result["reasons"]:
+                result["reasons"].append("metric_unreliable")
+            run.reasons.append(
+                _reason(
+                    "metric_unreliable",
+                    "tail_slope_unavailable",
+                    MIN_TAIL_SAMPLES,
+                    metric_id,
+                    index,
+                )
             )
-        )
-        return True
-    slope, width = drift
-    result["tail_slope_per_1000_steps"] = slope * 1000
-    growth = float(result["tail_growth"])
-    drift_value = slope * width
-    if (
-        (growth > tol and drift_value > tol)
-        or growth > 2 * tol
-        or drift_value > 2 * tol
-    ):
-        run.reasons.append(
-            _reason(
-                "tail_growth",
-                {"tail_growth": growth, "drift": drift_value},
-                tol,
-                metric_id,
+            failed = True
+            continue
+        tol = _tol(spec["tolerance"], medians[1] if len(medians) > 1 else medians[0])
+        result["tolerance"] = {"abs": tol}
+        slope, width = drift
+        growth = medians[-1] - medians[math.ceil(segments / 2) - 1]
+        drift_value = slope * width
+        if worst is None or growth > worst[0]:
+            worst = (growth, slope * 1000, medians)
+        if (
+            (growth > tol and drift_value > tol)
+            or growth > 2 * tol
+            or drift_value > 2 * tol
+        ):
+            run.reasons.append(
+                _reason(
+                    "tail_growth",
+                    {"tail_growth": growth, "drift": drift_value},
+                    tol,
+                    metric_id,
+                    index,
+                )
             )
-        )
-        result["reasons"].append("tail_growth")
-        return True
-    return False
+            if "tail_growth" not in result["reasons"]:
+                result["reasons"].append("tail_growth")
+            failed = True
+    if worst is not None:
+        # 報告するのは最も増えたSessionの値
+        result["tail_growth"], result["tail_slope_per_1000_steps"] = worst[0], worst[1]
+        result["segment_medians"] = worst[2]
+    return failed
 
 
 def _session_values(run: _Run, metric_id: str) -> dict[int, dict[str, float | None]]:
@@ -773,18 +796,22 @@ def evaluate_run(
     run = _Run(profile, header, samples, footer)
     cfg = run.cfg
     needed_samples = int(cfg["segments"]) * int(cfg["min_samples_per_segment"])
-    steady_count = len(
-        {(s["session_index"], s["step"]) for s in samples if run.is_steady(s)}
-    )
+    steady_by_session: dict[int, set[int]] = {}
+    for s in samples:
+        if run.is_steady(s):
+            steady_by_session.setdefault(s["session_index"], set()).add(s["step"])
     # 1) 妥当性: 少ないdataで合格させない
     if run.layer != "integration" and len(run.sessions) < int(cfg["sessions"]):
         run.reasons.append(
             _reason("insufficient_sessions", len(run.sessions), cfg["sessions"])
         )
-    if steady_count < needed_samples:
-        run.reasons.append(
-            _reason("insufficient_samples", steady_count, needed_samples)
-        )
+    for index in run.sessions:
+        # Sessionごとに区間分割するため、各Sessionが必要数を満たすこと
+        count = len(steady_by_session.get(index, ()))
+        if count < needed_samples:
+            run.reasons.append(
+                _reason("insufficient_samples", count, needed_samples, session=index)
+            )
     ids = list(dict.fromkeys([*run.metrics_spec, *header["metrics"]]))
     metrics: dict[str, Any] = {}
     sessions_report: dict[int, dict[str, Any]] = {
@@ -898,6 +925,14 @@ def _finish(
             run.reasons.append(
                 _reason("orphan_process", int(run.footer["orphan_count"]), 0)
             )
+    # 観測対象の失敗・標本上限到達は成功扱いにしない(reportの利用者が終了コードを見なくても分かる)
+    exit_code = run.footer.get("command_exit_code")
+    if exit_code not in (None, 0):
+        run.reasons.append(_reason("scenario_error", exit_code, 0))
+    if run.footer.get("sampling_limit_reached"):
+        run.reasons.append(
+            _reason("scenario_error", "max_samples_reached", "max_samples")
+        )
     # 判定9: runner側のcleanup latencyは報告のみ。settle未安定も免除しない
     for row in sessions_report.values():
         if row["settle_timeout"]:
@@ -927,7 +962,13 @@ def _report(
         {
             "schema": REPORT_SCHEMA,
             "generated_at_utc": generated_at_utc,
-            "runtime": dict(environment.get("runtime", {})),
+            "runtime": {
+                "python": "unknown",
+                "implementation": "unknown",
+                "os": "unknown",
+                "machine": "unknown",
+                **dict(environment.get("runtime", {})),
+            },
             "code": dict(environment.get("code", {"commit": "unknown"})),
             "host": {
                 "profile_id": run.header["host_profile"],
@@ -941,7 +982,11 @@ def _report(
                 "enforcement": enforcement,
                 "gate_effective": enforcement == "enforce",
                 "duration_seconds": run.footer.get("duration_seconds"),
-                "steps": len({(s["session_index"], s["step"]) for s in run.samples}),
+                # 実行したstep数(footerのtotal_steps)。無ければ標本の座標数(実行規模ではない)
+                "steps": run.footer.get(
+                    "total_steps",
+                    len({(s["session_index"], s["step"]) for s in run.samples}),
+                ),
                 "sessions": len(run.sessions),
                 "command_exit_code": run.footer.get("command_exit_code"),
             },

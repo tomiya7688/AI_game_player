@@ -361,6 +361,20 @@ def process_creation_time(pid: int) -> int:
 
 
 # {
+#   責務: [_linux_state: /proc/<pid>/stat のprocess状態(R/S/Z等)を返す]
+#   処理: [statの")"以降の先頭項目を読む]
+#   引数: [pid: process ID]
+#   戻り値: [状態1文字(読めなければ空文字)]
+# }
+def _linux_state(pid: int) -> str:
+    try:
+        stat = _proc(pid, "stat").read_text(encoding="utf-8", errors="replace")
+        return stat.rsplit(")", 1)[1].split()[0]
+    except (OSError, IndexError):
+        return ""
+
+
+# {
 #   責務: [is_alive: (pid, 作成時刻)のprocessが今も生存しているか]
 #   処理: [作成時刻が一致するprocessだけを同一とみなす(pid再利用を除外)]
 #   引数: [pid: process ID, created: 観測時の作成時刻]
@@ -368,6 +382,8 @@ def process_creation_time(pid: int) -> int:
 # }
 def is_alive(pid: int, created: int) -> bool:
     now = process_creation_time(pid)
+    if IS_LINUX and _linux_state(pid) == "Z":
+        return False  # 終了済みで回収待ちのzombieは生存とみなさない
     if IS_WINDOWS:
         if now == 0:
             return False
@@ -406,8 +422,16 @@ class ProcessTreeGauges:
     def read(self) -> dict[str, int | None]:
         children = self.lister(self.root_pid)
         self.seen.update(children)
+        pids = [self.root_pid, *(p for p, _ in children)]
+        # 親が先に終了して再親化された観測済みの子孫も、生存中は木の一部として集計する
+        listed = set(pids)
+        pids.extend(
+            pid
+            for pid, created in sorted(self.seen)
+            if pid not in listed and is_alive(pid, created)
+        )
         totals: dict[str, int | None] = dict.fromkeys(PROCESS_METRICS, 0)
-        for pid in [self.root_pid, *(p for p, _ in children)]:
+        for pid in pids:
             reading = self.reader(pid)
             vanished = pid != self.root_pid and not _exists(pid)
             for metric in PROCESS_METRICS:
@@ -454,15 +478,25 @@ class TempTreeGauge:
         self.truncated = False
 
     def read(self) -> dict[str, int | None]:
+        # 走査できなかった(root不正・読取エラー・上限超過)ときは部分和を返さず両方を欠測にする
+        missing: dict[str, int | None] = {"temp.file_count": None, "temp.bytes": None}
         deadline = self.clock() + self.max_seconds
         count = total = 0
         self.truncated = False
+        if self.root.is_symlink() or not self.root.is_dir():
+            return missing  # symlinkのrootは別のdirectoryを測ってしまうため測定不能
         stack = [str(self.root)]
         while stack:
+            if self.clock() > deadline:
+                self.truncated = True
+                return missing
             current = stack.pop()
             try:
                 with os.scandir(current) as it:
                     for entry in it:
+                        if self.clock() > deadline:
+                            self.truncated = True
+                            return missing
                         if entry.is_symlink():
                             continue
                         if entry.is_dir(follow_symlinks=False):
@@ -470,11 +504,11 @@ class TempTreeGauge:
                             continue
                         count += 1
                         total += entry.stat(follow_symlinks=False).st_size
-                        if count >= self.max_files or self.clock() > deadline:
+                        if count >= self.max_files:
                             self.truncated = True
-                            return {"temp.file_count": None, "temp.bytes": None}
+                            return missing
             except OSError:
-                continue
+                return missing
         return {"temp.file_count": count, "temp.bytes": total}
 
 

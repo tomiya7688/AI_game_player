@@ -11,8 +11,10 @@ import argparse
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from collections.abc import Callable, Sequence
 from datetime import datetime, timezone
@@ -270,14 +272,29 @@ def observe_command(
     workdir: Path,
     seed: int,
     timeout: float | None = None,
+    lower_priority: bool = False,
 ) -> tuple[list[dict[str, Any]], int]:
     run_id = f"observed-{seed}"
-    temp_root = workdir / "tmp"
-    if temp_root.exists():
-        import shutil
-
+    # 実行ごとに固有のtemp root(並行実行で互いのfileを消さない・測らない)
+    temp_root = Path(tempfile.mkdtemp(prefix="rs-"))
+    try:
+        return _observe(
+            cfg, run_profile, command, temp_root, run_id, seed, timeout, lower_priority
+        )
+    finally:
         shutil.rmtree(temp_root, ignore_errors=True)
-    temp_root.mkdir(parents=True, exist_ok=True)
+
+
+def _observe(
+    cfg: dict[str, Any],
+    run_profile: str,
+    command: Sequence[str],
+    temp_root: Path,
+    run_id: str,
+    seed: int,
+    timeout: float | None,
+    lower_priority: bool,
+) -> tuple[list[dict[str, Any]], int]:
     temp_gauge = resource_probes.TempTreeGauge(temp_root)
     header = _tree_header(run_profile, scenarios.host_profile_id(), seed, run_id)
     rows: list[dict[str, Any]] = [header]
@@ -305,11 +322,14 @@ def observe_command(
     started = time.monotonic()
     proc = subprocess.Popen(list(command), env=env)  # nosemgrep
     tree = resource_probes.ProcessTreeGauges(proc.pid)
-    # 観測側は観測対象より低い優先度で動かす(対象はPopen時に既に通常優先度で起動済み)
-    resource_probes.lower_current_priority()
+    if lower_priority:
+        # 観測側は観測対象より低い優先度で動かす(優先度は子へ継承されるため起動後に下げる)
+        resource_probes.lower_current_priority()
     last_temp = temp_gauge.read()
     step = 0
     warmup = float(cfg["warmup_seconds"])
+    max_samples = int(cfg.get("max_samples", 20000))
+    limit_reached = False
     timed_out = False
     while proc.poll() is None:
         elapsed = time.monotonic() - started
@@ -317,6 +337,11 @@ def observe_command(
             timed_out = True
             _terminate_tree(proc, tree)
             break
+        if len(rows) >= max_samples:
+            # 後から黙って間引かない: 上限に達したら標本化を止めて報告に残す
+            limit_reached = True
+            time.sleep(interval)
+            continue
         step += 1
         # temp rootの走査はIOを伴うため TEMP_SCAN_EVERY 標本に1回だけ行い、間は直近の走査値を使う
         if step % TEMP_SCAN_EVERY == 1:
@@ -331,7 +356,9 @@ def observe_command(
     closed = time.monotonic()
     emit("closing", step + 1, {**nothing, **temp_gauge.read()})
     orphans = tree.orphans()
-    emit("post_close", step + 2, {**nothing, **temp_gauge.read()})
+    # settle: 終了直後の後始末が済むまで(settle_ms以内)temp rootが安定するのを待つ
+    settled, settle_timeout = _settle(temp_gauge, float(cfg["settle_ms"]) / 1000)
+    emit("post_close", step + 2, {**nothing, **settled})
     footer = {
         "schema": SAMPLE_SCHEMA,
         "kind": "footer",
@@ -339,16 +366,38 @@ def observe_command(
         "duration_seconds": round(closed - started, 3),
         "orphan_count": len(orphans),
         "command_exit_code": -1 if timed_out else exit_code,
+        "total_steps": step,
+        "sampling_limit_reached": limit_reached,
         "sessions": [
             {
                 "index": 0,
                 "cleanup_latency_ms": round((time.monotonic() - closed) * 1000, 1),
-                "settle_timeout": False,
+                "settle_timeout": settle_timeout,
             }
         ],
     }
     rows.append(footer)
     return rows, footer["command_exit_code"]  # type: ignore[return-value]
+
+
+# {
+#   責務: [_settle: temp rootの値が2連続で同じになるまで, 最大settle秒待って最後の値を返す]
+#   処理: [100msごとに走査, 連続一致で安定, 時間切れなら最後の値とsettle_timeout=Trueを返す(失敗の免除にしない)]
+#   引数: [gauge: temp走査, seconds: 待つ上限]
+#   戻り値: [(最後の走査値, settle_timeoutか)]
+# }
+def _settle(
+    gauge: resource_probes.TempTreeGauge, seconds: float
+) -> tuple[dict[str, int | None], bool]:
+    deadline = time.monotonic() + seconds
+    previous = gauge.read()
+    while time.monotonic() < deadline:
+        time.sleep(0.1)
+        current = gauge.read()
+        if current == previous:
+            return current, False
+        previous = current
+    return previous, True
 
 
 def _terminate_tree(
@@ -373,7 +422,13 @@ def _cmd_run_integration(
     cfg = profile["layers"]["integration"]["run_profiles"][args.run_profile]
     workdir = DEFAULT_OUTPUT.parent / "work"
     rows, command_exit = observe_command(
-        cfg, args.run_profile, command, workdir, args.seed, args.timeout_seconds
+        cfg,
+        args.run_profile,
+        command,
+        workdir,
+        args.seed,
+        args.timeout_seconds,
+        lower_priority=True,
     )
     _write_rows(Path(args.samples), rows)
     report = evaluate_rows(profile, rows, environment_info(), _now_utc())

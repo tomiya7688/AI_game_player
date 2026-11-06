@@ -36,7 +36,9 @@ jobs:
         if: always()
         with:
           name: resource-stability-fast-${{ matrix.os }}
-          path: build/resource-stability
+          path: |
+            build/resource-stability
+            !build/resource-stability/work
           if-no-files-found: error
 
   deep:
@@ -60,5 +62,7 @@ jobs:
         if: always()
         with:
           name: resource-stability-deep
-          path: build/resource-stability
+          path: |
+            build/resource-stability
+            !build/resource-stability/work
           if-no-files-found: error

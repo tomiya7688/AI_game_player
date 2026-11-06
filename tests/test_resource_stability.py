@@ -153,16 +153,27 @@ class GrowthJudgementTest(unittest.TestCase):
         return report, codes(report, metric)
 
     def test_persistent_small_leak_is_detected(self) -> None:
-        # 50stepごとに1つ解放しない(後半の傾きが正)
+        # 10stepごとに1つ解放しない(Session内の後半の傾きが正)
         def leak(session: int, step: int, metric: str) -> float | None:
             return (
-                100 + (session * 1000 + step) // 50
+                100 + (session * 1000 + step) // 10
                 if metric == "os.handle_count"
                 else BASE.get(metric, 0)
             )
 
         _, found = self.check(leak)
         self.assertIn("tail_growth", found)
+
+    def test_leak_inside_a_session_released_at_close_is_detected(self) -> None:
+        # 全Sessionで同じ鋸歯状に増えるため、Sessionを連結すると区間中央値が揃って見逃す
+        def sawtooth(session: int, step: int, metric: str) -> float | None:
+            if metric == "os.handle_count":
+                return 100 + (step // 10 if 0 < step <= 1000 else 0)
+            return BASE.get(metric, 0)
+
+        report, found = self.check(sawtooth)
+        self.assertIn("tail_growth", found)
+        self.assertNotIn("not_reclaimed", found)  # closeで回収されても成長は検出する
 
     def test_single_spike_is_not_growth_but_ceiling_applies(self) -> None:
         def spike(session: int, step: int, metric: str) -> float | None:
@@ -182,7 +193,7 @@ class GrowthJudgementTest(unittest.TestCase):
     def test_stepwise_increase_in_second_half_is_detected(self) -> None:
         def stair(session: int, step: int, metric: str) -> float | None:
             return (
-                100 + (60 if session >= 3 else 0)
+                100 + (60 if step >= 800 else 0)
                 if metric == "os.handle_count"
                 else BASE.get(metric, 0)
             )
@@ -255,6 +266,37 @@ class RecoveryAndBaselineTest(unittest.TestCase):
         report = evaluate(make_rows(stair))
         self.assertIn("baseline_staircase", codes(report, "os.handle_count"))
         self.assertEqual(report["baseline_drift"]["os.handle_count"]["verdict"], "fail")
+
+
+class ExitAndSamplingTest(unittest.TestCase):
+    def footer(self, **fields: Any) -> dict[str, Any]:
+        return {"schema": rs.SAMPLE_SCHEMA, "kind": "footer", "run_id": "t", **fields}
+
+    def test_nonzero_command_exit_is_a_scenario_error_in_the_report(self) -> None:
+        report = evaluate([*make_rows(), self.footer(command_exit_code=3)])
+        self.assertIn("scenario_error", codes(report))
+        self.assertEqual(report["verdict"], "fail")
+        self.assertEqual(report["run"]["command_exit_code"], 3)
+
+    def test_sampling_limit_reached_is_reported(self) -> None:
+        report = evaluate([*make_rows(), self.footer(sampling_limit_reached=True)])
+        self.assertIn("scenario_error", codes(report))
+
+    def test_total_steps_is_reported_and_runtime_has_required_fields(self) -> None:
+        report = evaluate([*make_rows(), self.footer(total_steps=5000)])
+        self.assertEqual(report["run"]["steps"], 5000)
+        self.assertEqual(
+            sorted(report["runtime"]), ["implementation", "machine", "os", "python"]
+        )
+
+    def test_each_session_needs_enough_steady_samples(self) -> None:
+        # 1 Sessionだけ十分で、他は端点しかない場合は合格させない
+        rows = make_rows()
+        kept = [
+            r for r in rows[1:] if r["session_index"] == 0 or r["phase"] != "steady"
+        ]
+        report = evaluate([rows[0], *kept])
+        self.assertIn("insufficient_samples", codes(report))
 
 
 class CoverageTest(unittest.TestCase):
@@ -437,6 +479,35 @@ class ProfileValidationTest(unittest.TestCase):
         ] = 0
         with self.assertRaises(rs.ProfileError):
             rs.validate_profile(profile)
+
+    def test_profile_type_and_count_rel_hard_limits(self) -> None:
+        layers = "layers"
+        cases: dict[str, Callable[[dict[str, Any]], None]] = {
+            "count rel": lambda p: p[layers]["integration"]["metrics"][
+                "os.handle_count"
+            ]["tolerance"].update(rel=0.5),
+            "max_samples null": lambda p: p[layers]["fast"]["run_profiles"][
+                "fast"
+            ].update(max_samples=None),
+            "max_samples str": lambda p: p[layers]["fast"]["run_profiles"][
+                "fast"
+            ].update(max_samples="9"),
+        }
+        for name, change in cases.items():
+            with self.subTest(name), self.assertRaises(rs.ProfileError):
+                rs.validate_profile(self.mutated(change))
+
+    def test_header_types_are_validated(self) -> None:
+        for key, bad in (
+            ("metrics", None),
+            ("layer", ["fast"]),
+            ("host_profile", 3),
+            ("scenario", ""),
+        ):
+            rows = make_rows()
+            rows[0][key] = bad
+            with self.subTest(key), self.assertRaises(rs.ProfileError):
+                rs.parse_samples(rows)
 
     def test_deepcopy_independence(self) -> None:
         profile = load_profile()

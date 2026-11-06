@@ -385,7 +385,9 @@ jobs:
         if: always()
         with:
           name: kadoka-windows-resource-stability
-          path: build/resource-stability
+          path: |
+            build/resource-stability/report.json
+            build/resource-stability/samples.jsonl
           if-no-files-found: error
 
   windows-planning-comparison:
