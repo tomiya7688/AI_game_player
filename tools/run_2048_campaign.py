@@ -1256,7 +1256,13 @@ class ReferenceGame2048Episode(CampaignEpisode):
         close_errors: list[Exception] = []
         # 診断行はcleanup前に作り、出力はcleanup後に行う（stdoutが詰まってもresource解放を妨げない）。
         budget_line = self._heartbeat_lease_budget_line()
-        self._save_startup_summary(self.startup_summary())
+        # テストの代替episodeでも動くよう、classのmethodを直接呼び、失敗はcloseへ影響させない。
+        try:
+            ReferenceGame2048Episode._save_startup_summary(
+                self, ReferenceGame2048Episode.startup_summary(self)
+            )
+        except Exception:
+            pass
         if self.pipeline is not None:
             try:
                 self.pipeline.close()
