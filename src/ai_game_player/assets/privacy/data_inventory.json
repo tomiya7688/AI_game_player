@@ -280,7 +280,7 @@
     {"site": "ai_game_player.planning_file_publisher:publish_planning_bytes", "data_class": "worker_ipc", "paths": ["request.json", "ready.json", "checkpoint.json", "finished.json"]},
     {"site": "ai_game_player.planning_worker_diagnostic:WorkerDiagnostic", "data_class": "crash_diagnostic", "paths": ["python_failure.json"]},
     {"site": "ai_game_player.retention_collector:LocalRetentionFileSystem", "data_class": null, "paths": ["retention-index.json"], "note": "Retention索引。digest・size・時刻だけを持つ。"},
-    {"site": "ai_game_player.runtime.session_composition:RuntimeComposition", "data_class": null, "paths": ["legacy_migration_v1.pending", "legacy_migration_v1.complete"], "note": "journal移行のmarker。journal名と移行元pathだけを持つ。"},
+    {"site": "ai_game_player.runtime.session_composition:RuntimeComposition", "data_class": null, "paths": ["legacy_migration_v1.pending", "legacy_migration_v1.complete", "session_artifacts"], "note": "journal移行のmarker（journal名と移行元pathだけを持つ）。session_artifacts/<session_id>/はSession専用のArtifact Store rootで、payloadの意味型・保持はartifact_typesで決まる。"},
     {"site": "ai_game_player.runtime.session_composition:_legacy_migration_lock", "data_class": null, "paths": [], "note": "移行用lock file。dataを書かない。"},
     {"site": "ai_game_player.runtime_log:RuntimeLog", "data_class": "runtime_log", "paths": ["user_data/output/log/ai_game_player.jsonl"]},
     {"site": "ai_game_player.runtime_mode_recorder:RuntimeModeRecorder", "data_class": "trace", "paths": []},

@@ -59,7 +59,7 @@ Protected記録はどの段階でも外しません。Protectedと外部参照�
 ## 非対象と残り
 
 - near-duplicate、prioritized replay、clustering/prototype、value-aware compactionは #165。
-- orphanの自動削除（#790）、Experience/Event Journalからの`live_references`自動収集は未実装です。runtimeへの接続（どのSessionがいつ`collect`を呼ぶか）も本Issueでは行いません。
+- orphanの自動削除（#790）は未実装です。Experience/Event Journalからの`live_references`収集と、どのSessionがいつ`collect`を呼ぶかは、Issue #788の[Runtime接続](#runtime-retention-adapterissue-788)で実装しました。
 
 ## Artifact Admission Transaction（Issue #789）
 
@@ -71,3 +71,15 @@ Protected記録はどの段階でも外しません。Protectedと外部参照�
 4. 検証後に`register`。失敗時は、このadmissionが新規作成したobject（`created_object`）だけを、索引・他のpending recordが参照しない場合に削除。既存digest・索引登録済みobjectは消しません。補償できない場合はpending recordを残し`ArtifactAdmissionError(pending_retained=True)`を送出します。
 5. `inspect_pending()`が`registered`/`indexed_by_other_entry`/`no_object`/`preexisting`/`orphan_created`に分類し、`recover_pending()`が安全に確認できる範囲で回収します（#790の入力）。
 6. `AdmissionTraceEvent`/`stats`でlock待ち・transaction時間・rollback数を観測できます。
+
+## Runtime Retention Adapter（Issue #788）
+
+`runtime/retention_adapter.py`の`RuntimeRetentionAdapter`が、本番Sessionから`RetentionCollector.collect`を呼ぶ唯一の経路です。削除の判断は`plan_retention`のままで、adapterは「いつ・どの参照集合で・どれだけ」GCするかだけを決めます。詳細は[設計](../design/issue-788-runtime-retention-adapter.md)。
+
+- **root**: `<game_directory>/session_artifacts/<session_id>/`。Sessionごとに分け、そのSessionのJournal参照だけでGCできるようにします。rootは最初の`persist()`でできるまで作りません（無ければ`store_absent`で見送り）。
+- **参照snapshot**: `JournalReferenceSource`（`EventJournal.artifact_refs_after`で前回位置からの増分だけ）、`ExperienceReferenceSource`（設定時のみ。writer契約: append-onlyかatomic replaceで、参照付き書込みを`recording(target="experience:<name>")`内で行う）、`PinnedReferenceSource`（保存途中・Replay中）を合成します。1つでも不完全・失敗・別Session・古い・世代不一致ならGCは**削除0件**で見送ります（`SkippedRetention.reason`）。
+- **競合**: `persist()`はadmit前にdigestをpinし、Journalへ参照を書く側は`recording()`のgate内で書きます。`EventJournal.set_reference_guard`により、gate外の参照付きappendは拒否されます。lock順序は gate → root lock → journal lock です。
+- **trigger**: `RetentionTriggerPolicy`の最短間隔（5秒）・保存件数（64件）・推定使用量・周期（5分）で、背景worker（初回の保存で開始する1本のthread）から起動します。`session_close`と`maintenance`は間隔と条件を迂回します。1回の物理削除は256件までで、残りは`deferred_artifacts`として次回に回します。
+- **close**: `ManagedSessionRuntime.close()`がJournalを閉じる前に最終GCを1回行い、結果を`retention_close_result`へ残します。skipやpressureでもcloseは失敗しません。
+- **Trace**: GC結果はJournalに`retention.gc/v1`として記録します（GC回数・削除bytes・blocked refs・各latency・over-budget。digestとpathは含めません）。
+- **既知の制約**: GC 1回の計算量は索引全件（上限`max_entries`）を読む`plan`に依存します。走査量の分割は#164側の課題です。終了済みSessionのrootの掃除は後続Issueです。

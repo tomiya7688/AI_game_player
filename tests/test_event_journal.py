@@ -896,3 +896,71 @@ class EventEnvelopeSchemaTest(unittest.TestCase):
         self.assertIn("monotonic_ns", schema["required"])
         self.assertIn("monotonic_epoch_id", schema["required"])
         self.assertIn("correlation_id", schema["required"])
+
+
+class EventJournalReferenceReadTest(unittest.TestCase):
+    def open_journal(self, directory: str) -> EventJournal:
+        journal = EventJournal(Path(directory) / "refs.sqlite3", session_id="refs")
+        self.addCleanup(journal.close)
+        return journal
+
+    def test_reads_only_references_in_sequence_order_with_a_resume_position(self):
+        first = ArtifactReference("frame.one", "a" * 64, "image/png", False)
+        second = ArtifactReference("frame.two", "b" * 64, "image/png", True)
+        with tempfile.TemporaryDirectory() as directory:
+            with self.open_journal(directory) as journal:
+                journal.append("plain.one")
+                journal.append("ref.one", artifact_refs=(first, second))
+                journal.append("plain.two")
+                journal.append("ref.two", artifact_refs=(second,))
+
+                everything = journal.artifact_refs_after(0, limit=10)
+                limited = journal.artifact_refs_after(0, limit=2)
+                resumed = journal.artifact_refs_after(limited.last_sequence, limit=10)
+                empty = journal.artifact_refs_after(4, limit=10)
+
+        self.assertEqual((first, second, second), everything.refs)
+        self.assertEqual(4, everything.last_sequence)
+        self.assertTrue(everything.exhausted)
+        self.assertEqual((first, second), limited.refs)
+        self.assertEqual(2, limited.last_sequence)
+        self.assertFalse(limited.exhausted)
+        self.assertEqual((second,), resumed.refs)
+        self.assertEqual((), empty.refs)
+        self.assertEqual(4, empty.last_sequence)
+
+    def test_rejects_bad_arguments_closed_journal_and_corrupt_rows(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.open_journal(directory) as journal:
+                journal.append("plain.one")
+                for bad in ({"sequence": -1, "limit": 1}, {"sequence": 0, "limit": 0}, {"sequence": 0, "limit": 100_001}, {"sequence": True, "limit": 1}):
+                    with self.assertRaises(ValueError):
+                        journal.artifact_refs_after(bad["sequence"], limit=bad["limit"])
+                with closing(sqlite3.connect(journal.path)) as connection:
+                    connection.execute("UPDATE events SET envelope_json='{broken' WHERE sequence=1")
+                    connection.commit()
+                with self.assertRaises(EventJournalCorruptionError):
+                    journal.artifact_refs_after(0, limit=10)
+                journal.close()
+                with self.assertRaises(EventJournalClosedError):
+                    journal.artifact_refs_after(0, limit=10)
+
+    def test_reference_guard_only_sees_reference_bearing_appends_and_can_reject(self):
+        reference = sample_artifact_reference()
+        seen = []
+
+        def guard(references):
+            seen.append(references)
+            raise RuntimeError("rejected")
+
+        with tempfile.TemporaryDirectory() as directory:
+            with self.open_journal(directory) as journal:
+                journal.set_reference_guard(guard)
+                journal.append("plain.one")
+                with self.assertRaises(RuntimeError):
+                    journal.append("ref.one", artifact_refs=(reference,))
+                self.assertEqual(1, journal.last_sequence)
+                self.assertEqual([(reference,)], seen)
+                journal.set_reference_guard(None)
+                journal.append("ref.two", artifact_refs=(reference,))
+                self.assertEqual(2, journal.last_sequence)
