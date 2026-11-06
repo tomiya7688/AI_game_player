@@ -472,3 +472,20 @@ class StartupCorrelationServerTests(unittest.TestCase):
             identifiers.append(server.correlation_snapshot()["correlation_id"])
             server.close()
         self.assertNotEqual(*identifiers)
+
+
+class ConnectionEventTests(unittest.TestCase):
+    def test_unknown_connection_event_latches_recording_incomplete(self):
+        counts = ResourceResponseCounts(correlation=True)
+        counts.connection_event("accepted")
+        self.assertFalse(counts.snapshot()["recording_incomplete"])
+        counts.connection_event("unexpected")
+        snapshot = counts.snapshot()
+        self.assertTrue(snapshot["recording_incomplete"])
+        self.assertEqual(snapshot["connections_accepted"], 1)
+        self.assertEqual(snapshot["connections_awaiting_request_line"], 1)
+
+    def test_connection_counters_are_absent_without_correlation(self):
+        counts = ResourceResponseCounts()
+        counts.connection_event("accepted")
+        self.assertNotIn("connections_accepted", counts.snapshot())

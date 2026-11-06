@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+import re
 from typing import Any, cast
 
 from ai_game_player.atomic_json import stage_json_write
@@ -27,7 +28,10 @@ def ci_context() -> dict[str, str | None]:
     context: dict[str, str | None] = {}
     for key, variable in CI_CONTEXT_VARIABLES:
         value = os.environ.get(variable)
-        context[key] = value[:64] if value else None
+        # 識別子として妥当な文字だけを受け入れ、それ以外は記録しない。
+        context[key] = (
+            value if value and re.fullmatch(r"[A-Za-z0-9_.:/-]{1,64}", value) else None
+        )
     return context
 
 
@@ -58,9 +62,12 @@ def _frame_section(episode: Any, preserved_ms: float | None) -> dict[str, object
     if isinstance(probe, dict):
         captured_at = probe.get("captured_at")
         if type(captured_at) in (int, float) and captured_at > 0:
-            captured_ms = episode.launcher.server.relative_ms(
-                int(captured_at * 1_000_000_000)
-            )
+            try:
+                captured_ms = episode.launcher.server.relative_ms(
+                    int(captured_at * 1_000_000_000)
+                )
+            except Exception:
+                captured_ms = None
         state = probe.get("state")
         if isinstance(state, dict) and state:
             empty_board = state.get("unavailable_reason") == "empty_nonterminal"

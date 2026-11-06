@@ -237,6 +237,9 @@ class ResourceResponseCounts:
                         c["requests_in_flight"] += 1
                 elif event == "done":
                     c["requests_in_flight"] = max(0, c["requests_in_flight"] - 1)
+                else:
+                    # 未知のイベントは数えず、記録が不完全だったことをlatchする。
+                    self._recording_incomplete = True
         except Exception:
             self._recording_incomplete = True
 

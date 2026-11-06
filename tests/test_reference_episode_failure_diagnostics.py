@@ -383,3 +383,23 @@ class CorrelationSectionTests(unittest.TestCase):
         with patch("ai_game_player.atomic_json.stage_json_write", side_effect=OSError):
             episode._save_startup_summary({"schema": "x"})
         episode._save_startup_summary(None)
+
+
+class CiContextTests(unittest.TestCase):
+    def test_only_identifier_like_values_are_recorded(self):
+        from tools.reference_episode_failure_diagnostics import ci_context
+
+        with patch.dict(
+            "os.environ",
+            {
+                "GITHUB_EVENT_NAME": "pull_request",
+                "GITHUB_RUN_ID": "123",
+                "GITHUB_RUN_ATTEMPT": "bad value with spaces",
+                "GITHUB_SHA": "a" * 65,
+            },
+        ):
+            value = ci_context()
+        self.assertEqual(value["event"], "pull_request")
+        self.assertEqual(value["run_id"], "123")
+        self.assertIsNone(value["run_attempt"])
+        self.assertIsNone(value["sha"])

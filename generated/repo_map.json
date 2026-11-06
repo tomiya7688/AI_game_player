@@ -185420,12 +185420,28 @@
               "name": "make_record"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 390,
+          "local_dependencies": [
+            "tools",
+            "tools.reference_episode_failure_diagnostics"
+          ],
+          "module": "tools.reference_episode_failure_diagnostics",
+          "names": [
+            {
+              "alias": null,
+              "name": "ci_context"
+            }
+          ]
         }
       ],
       "module": "tests.test_reference_episode_failure_diagnostics",
       "path": "tests/test_reference_episode_failure_diagnostics.py",
       "source_location": {
-        "end_line": 385,
+        "end_line": 405,
         "start_line": 1
       },
       "symbols": [
@@ -185983,6 +185999,51 @@
             "column": 4,
             "end_line": 385,
             "start_line": 371
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CiContextTests",
+          "parameters": [],
+          "qualified_name": "CiContextTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 405,
+            "start_line": 388
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_only_identifier_like_values_are_recorded",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CiContextTests.test_only_identifier_like_values_are_recorded",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 405,
+            "start_line": 389
           }
         }
       ]
@@ -187438,7 +187499,7 @@
       "module": "tests.test_reference_game_http_server",
       "path": "tests/test_reference_game_http_server.py",
       "source_location": {
-        "end_line": 474,
+        "end_line": 491,
         "start_line": 1
       },
       "symbols": [
@@ -188071,6 +188132,74 @@
             "column": 4,
             "end_line": 474,
             "start_line": 464
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ConnectionEventTests",
+          "parameters": [],
+          "qualified_name": "ConnectionEventTests",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 491,
+            "start_line": 477
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unknown_connection_event_latches_recording_incomplete",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConnectionEventTests.test_unknown_connection_event_latches_recording_incomplete",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 486,
+            "start_line": 478
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_connection_counters_are_absent_without_correlation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ConnectionEventTests.test_connection_counters_are_absent_without_correlation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 491,
+            "start_line": 488
           }
         }
       ]
@@ -240323,7 +240452,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 392,
+          "line": 395,
           "local_dependencies": [],
           "module": "ctypes",
           "names": [
@@ -240336,7 +240465,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 649,
+          "line": 652,
           "local_dependencies": [],
           "module": "websockets.asyncio.client",
           "names": [
@@ -240350,7 +240479,7 @@
       "module": "tools.reference_browser_diagnostics",
       "path": "tools/reference_browser_diagnostics.py",
       "source_location": {
-        "end_line": 751,
+        "end_line": 754,
         "start_line": 1
       },
       "symbols": [
@@ -240370,7 +240499,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 265,
+            "end_line": 268,
             "start_line": 78
           }
         },
@@ -240751,7 +240880,7 @@
           "signature": "(self, event: str) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 241,
+            "end_line": 244,
             "start_line": 218
           }
         },
@@ -240774,8 +240903,8 @@
           "signature": "(self) -> float",
           "source_location": {
             "column": 4,
-            "end_line": 245,
-            "start_line": 243
+            "end_line": 248,
+            "start_line": 246
           }
         },
         {
@@ -240803,8 +240932,8 @@
           "signature": "(self, monotonic_ns: int) -> float",
           "source_location": {
             "column": 4,
-            "end_line": 249,
-            "start_line": 247
+            "end_line": 252,
+            "start_line": 250
           }
         },
         {
@@ -240826,8 +240955,8 @@
           "signature": "(self) -> dict[str, object]",
           "source_location": {
             "column": 4,
-            "end_line": 265,
-            "start_line": 251
+            "end_line": 268,
+            "start_line": 254
           }
         },
         {
@@ -240848,8 +240977,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 385,
-            "start_line": 380
+            "end_line": 388,
+            "start_line": 383
           }
         },
         {
@@ -240871,8 +241000,8 @@
           "signature": "(self) -> int | None",
           "source_location": {
             "column": 4,
-            "end_line": 385,
-            "start_line": 385
+            "end_line": 388,
+            "start_line": 388
           }
         },
         {
@@ -240900,8 +241029,8 @@
           "signature": "(process: OwnedProcess, hwnd: int) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 408,
-            "start_line": 388
+            "end_line": 411,
+            "start_line": 391
           }
         },
         {
@@ -240929,8 +241058,8 @@
           "signature": "(value: object, depth: int = …) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 423,
-            "start_line": 411
+            "end_line": 426,
+            "start_line": 414
           }
         },
         {
@@ -240952,8 +241081,8 @@
           "signature": "(raw: str | bytes) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 429,
-            "start_line": 426
+            "end_line": 432,
+            "start_line": 429
           }
         },
         {
@@ -240975,8 +241104,8 @@
           "signature": "(url: str) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 444,
-            "start_line": 432
+            "end_line": 447,
+            "start_line": 435
           }
         },
         {
@@ -240998,8 +241127,8 @@
           "signature": "(profile: Path) -> int",
           "source_location": {
             "column": 0,
-            "end_line": 497,
-            "start_line": 447
+            "end_line": 500,
+            "start_line": 450
           }
         },
         {
@@ -241021,8 +241150,8 @@
           "signature": "(port: int) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 529,
-            "start_line": 500
+            "end_line": 532,
+            "start_line": 503
           }
         },
         {
@@ -241056,8 +241185,8 @@
           "signature": "(targets: object, url: str, port: int) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 553,
-            "start_line": 532
+            "end_line": 556,
+            "start_line": 535
           }
         },
         {
@@ -241079,8 +241208,8 @@
           "signature": "(value: object) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 573,
-            "start_line": 556
+            "end_line": 576,
+            "start_line": 559
           }
         },
         {
@@ -241102,8 +241231,8 @@
           "signature": "(value: object) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 643,
-            "start_line": 582
+            "end_line": 646,
+            "start_line": 585
           }
         },
         {
@@ -241143,8 +241272,8 @@
           "signature": "(profile: Path, url: str, process: OwnedProcess, hwnd: int) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 721,
-            "start_line": 646
+            "end_line": 724,
+            "start_line": 649
           }
         },
         {
@@ -241165,8 +241294,8 @@
           "signature": null,
           "source_location": {
             "column": 4,
-            "end_line": 654,
-            "start_line": 651
+            "end_line": 657,
+            "start_line": 654
           }
         },
         {
@@ -241194,8 +241323,8 @@
           "signature": "(self, exc: Exception) -> Exception",
           "source_location": {
             "column": 8,
-            "end_line": 654,
-            "start_line": 653
+            "end_line": 657,
+            "start_line": 656
           }
         },
         {
@@ -241235,8 +241364,8 @@
           "signature": "(profile: Path, url: str, process: OwnedProcess, hwnd: int) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 751,
-            "start_line": 724
+            "end_line": 754,
+            "start_line": 727
           }
         }
       ]
@@ -241289,9 +241418,22 @@
           ]
         },
         {
-          "kind": "from",
+          "kind": "import",
           "level": 0,
           "line": 6,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
           "local_dependencies": [],
           "module": "typing",
           "names": [
@@ -241308,7 +241450,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.atomic_json"
@@ -241324,7 +241466,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [
             "tools",
             "tools.reference_startup_correlation"
@@ -241345,7 +241487,7 @@
       "module": "tools.reference_episode_failure_diagnostics",
       "path": "tools/reference_episode_failure_diagnostics.py",
       "source_location": {
-        "end_line": 226,
+        "end_line": 233,
         "start_line": 1
       },
       "symbols": [
@@ -241361,8 +241503,8 @@
           "signature": "() -> dict[str, str | None]",
           "source_location": {
             "column": 0,
-            "end_line": 31,
-            "start_line": 26
+            "end_line": 35,
+            "start_line": 27
           }
         },
         {
@@ -241390,8 +241532,8 @@
           "signature": "(value: object, maximum_bytes: int) -> object",
           "source_location": {
             "column": 0,
-            "end_line": 43,
-            "start_line": 34
+            "end_line": 47,
+            "start_line": 38
           }
         },
         {
@@ -241419,8 +241561,8 @@
           "signature": "(episode: Any, preserved_ms: float | None) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 75,
-            "start_line": 52
+            "end_line": 82,
+            "start_line": 56
           }
         },
         {
@@ -241460,8 +241602,8 @@
           "signature": "(episode: Any, browser: dict, parts: dict, preserved_ms: float | None) -> dict[str, object]",
           "source_location": {
             "column": 0,
-            "end_line": 109,
-            "start_line": 84
+            "end_line": 116,
+            "start_line": 91
           }
         },
         {
@@ -241483,8 +241625,8 @@
           "signature": "(episode: Any) -> float | None",
           "source_location": {
             "column": 0,
-            "end_line": 123,
-            "start_line": 118
+            "end_line": 130,
+            "start_line": 125
           }
         },
         {
@@ -241512,8 +241654,8 @@
           "signature": "(episode: Any, *, frame_preserved: bool) -> dict[str, object] | None",
           "source_location": {
             "column": 0,
-            "end_line": 226,
-            "start_line": 126
+            "end_line": 233,
+            "start_line": 133
           }
         }
       ]
@@ -245820,7 +245962,7 @@
       "module": "tools.run_2048_campaign",
       "path": "tools/run_2048_campaign.py",
       "source_location": {
-        "end_line": 1437,
+        "end_line": 1443,
         "start_line": 1
       },
       "symbols": [
@@ -246272,7 +246414,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 1283,
+            "end_line": 1289,
             "start_line": 622
           }
         },
@@ -246883,7 +247025,7 @@
           "signature": "(self) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 1283,
+            "end_line": 1289,
             "start_line": 1252
           }
         },
@@ -246906,8 +247048,8 @@
           "signature": "(root: Path) -> str | None",
           "source_location": {
             "column": 0,
-            "end_line": 1299,
-            "start_line": 1286
+            "end_line": 1305,
+            "start_line": 1292
           }
         },
         {
@@ -246922,8 +247064,8 @@
           "signature": "() -> argparse.Namespace",
           "source_location": {
             "column": 0,
-            "end_line": 1358,
-            "start_line": 1302
+            "end_line": 1364,
+            "start_line": 1308
           }
         },
         {
@@ -246938,8 +247080,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 1433,
-            "start_line": 1361
+            "end_line": 1439,
+            "start_line": 1367
           }
         }
       ]
