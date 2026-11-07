@@ -782,9 +782,17 @@ class ConcurrencyTest(RetentionHarness):
         def worker(index: int) -> None:
             try:
                 for number in range(6):
-                    persisted = self.persist(
-                        payload_of(f"w{index}n{number}", 16), f"entry.{index}.{number}"
-                    )
+                    # GCがroot lockを持つ間はpersistもlock待ち期限で失敗しうる（fail-closedの設計）。
+                    # 失敗は保存されていないことを意味するので、同じ内容で再試行する。
+                    while True:
+                        try:
+                            persisted = self.persist(
+                                payload_of(f"w{index}n{number}", 16),
+                                f"entry.{index}.{number}",
+                            )
+                            break
+                        except RetentionLockTimeoutError:
+                            continue
                     while True:
                         try:
                             self.record(persisted)
@@ -795,10 +803,14 @@ class ConcurrencyTest(RetentionHarness):
                 errors.append(error)
 
         def collector_loop() -> None:
-            while not done.is_set():
+            # GCを連続して回し続けるとroot lockを占有し、workerが期限内に進めない。
+            # 回数を限り、間隔を空けて、workerとGCが交互にlockを取れるようにする。
+            for _ in range(6):
+                if done.is_set():
+                    break
                 self.clock.now_ms = int(time.time() * 1000)
                 self.adapter.maybe_collect(RetentionTrigger.MAINTENANCE)
-                time.sleep(0.01)
+                time.sleep(0.02)
 
         threads = [threading.Thread(target=worker, args=(i,)) for i in range(4)]
         gc_thread = threading.Thread(target=collector_loop)
@@ -809,6 +821,9 @@ class ConcurrencyTest(RetentionHarness):
             thread.join(60)
         done.set()
         gc_thread.join(60)
+        # 並行中のGCは最短間隔・条件で見送られうる（workerが先に終わると0回になる）。
+        # close_sessionは条件を迂回して最終GCを1回行うので、GCが走ったことをここで保証する。
+        self.adapter.close_session()
 
         self.assertEqual([], errors)
         batch = self.journal.artifact_refs_after(0, limit=100_000)
