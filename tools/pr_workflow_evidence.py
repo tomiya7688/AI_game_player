@@ -19,7 +19,7 @@ class WorkflowEvidenceError(RuntimeError):
 
 
 class WorkflowRunGate:
-    """対象repo・PR・head commit/branchと読み取り関数を保持し、必須8 workflow×2 eventを検証する。"""
+    """対象repo・PR・head commit/branchと読み取り関数を保持し、必須9 workflow×2 eventを検証する。"""
 
     def __init__(
         self, repository: str, pr_number: int, head_sha: str, head_ref: str, read_json: Callable[[str], object]
