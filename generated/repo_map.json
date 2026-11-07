@@ -243319,7 +243319,7 @@
       "module": "tests.test_windows_long_comparison_workflow",
       "path": "tests/test_windows_long_comparison_workflow.py",
       "source_location": {
-        "end_line": 53,
+        "end_line": 78,
         "start_line": 1
       },
       "symbols": [
@@ -243341,7 +243341,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 49,
+            "end_line": 74,
             "start_line": 13
           }
         },
@@ -243488,6 +243488,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_native_runtime_is_built_once_and_shared_by_every_block",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "WindowsLongComparisonWorkflowTests.test_native_runtime_is_built_once_and_shared_by_every_block",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 71,
+            "start_line": 48
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_workflow_passes_the_repository_security_scan",
           "parameters": [
             {
@@ -243502,8 +243525,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 49,
-            "start_line": 48
+            "end_line": 74,
+            "start_line": 73
           }
         }
       ]

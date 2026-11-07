@@ -52,9 +52,35 @@ jobs:
           path: build/windows-long-plan/manifest.json
           if-no-files-found: error
 
+  build-native:
+    name: Build Native Runtime once
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build Native Runtime with owned WGC capture
+        shell: pwsh
+        run: |
+          cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) { throw "Native configure failed" }
+          cmake --build build/native --config Release --parallel
+          if ($LASTEXITCODE -ne 0) { throw "Native build failed" }
+          $runtimes = @(Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll)
+          if ($runtimes.Count -ne 1) { throw "Expected exactly one native runtime, found $($runtimes.Count)" }
+          $runtime = $runtimes[0]
+          New-Item -ItemType Directory -Force build/windows-long-native | Out-Null
+          Copy-Item $runtime.FullName build/windows-long-native/kadoka_native_runtime.dll
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-long-native-runtime
+          path: build/windows-long-native/kadoka_native_runtime.dll
+          if-no-files-found: error
+
   block:
     name: Windows long block (seed ${{ matrix.seed }})
-    needs: plan
+    needs: [plan, build-native]
     runs-on: windows-latest
     timeout-minutes: 90
     strategy:
@@ -81,17 +107,17 @@ jobs:
           if (-not (Test-Path $ocr)) { throw "Comparison OCR executable missing" }
           "TESSERACT_CMD=$ocr" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           (Split-Path $ocr) | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
-      - name: Build Native Runtime with owned WGC capture
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-long-native-runtime
+          path: build/windows-long-native
+      - name: Use the shared Native Runtime built once by build-native
         id: comparison_native
         shell: pwsh
         run: |
-          cmake -S native -B build/native -DCMAKE_BUILD_TYPE=Release
-          if ($LASTEXITCODE -ne 0) { throw "Native configure failed" }
-          cmake --build build/native --config Release --parallel
-          if ($LASTEXITCODE -ne 0) { throw "Native build failed" }
-          $runtime = Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
-          if (-not $runtime) { throw "Native runtime missing" }
-          "KADOKA_NATIVE_RUNTIME=$($runtime.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $runtime = Join-Path $PWD "build/windows-long-native/kadoka_native_runtime.dll"
+          if (-not (Test-Path $runtime)) { throw "Shared native runtime artifact missing" }
+          "KADOKA_NATIVE_RUNTIME=$runtime" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Run the three providers sequentially on this VM
         if: ${{ steps.comparison_dependencies.outcome == 'success' && steps.comparison_native.outcome == 'success' }}
         shell: pwsh

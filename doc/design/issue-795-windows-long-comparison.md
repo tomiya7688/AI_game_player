@@ -102,6 +102,7 @@ wall予算の意味: play deadline（開始から600秒）以後は新しい判�
 ## CI上の置き場
 
 - 新workflow `windows-long-comparison.yml`: `on: workflow_dispatch`（入力: `seed_start`既定479、`seed_count`既定8（1〜32に検証）、`ref_class`）。`seed_count<8`の手動実行（動作確認）ではrun/block reportと表は通常どおり出るが、統計は`insufficient_samples`・`verdict`なしになる。この挙動を`report.md`の先頭に明示する＋ `schedule`（週1回、日曜夜UTC。実行時間と課金の根拠は下記）。`push`/`pull_request`は付けない。top-level `permissions: contents: read`、既存のpython-trust-floor actionと同じpin規則に従い、`tools/workflow_security_check.py`を通す。
+- `build-native`（windows-latest、Issue #850）: native DLLを**1回だけ**ビルドし`windows-long-native-runtime` artifactで共有する。各`block`は`needs: [plan, build-native]`でdownloadして`KADOKA_NATIVE_RUNTIME`に設定し、再ビルドしない。DLLがbyte単位で再現せず、block別ビルドでは`native_runtime_sha256`が揃わず集計が契約違反になった（run 42339712816、seed 479と480以降で相違）ため。`condition_fingerprint`にDLLのSHA256を含める厳格さは変えない（ゆるめない）。ビルド失敗時はblockが実行されず、期待manifestにより全blockが`missing`になる。
 - `plan`（ubuntu）: manifestとmatrix JSONを出力。`run`（windows-latest）: base seedごとのmatrix。1 jobで3 providerを逐次実行、`timeout-minutes: 90`（最悪3×780秒=39分＋依存install/native build/アップロードの余裕。短枠の20分とは別。runner遅延で打ち切られても、期待manifestにより`missing`として母数に残る）。`aggregate`（ubuntu）: artifactを集めて`report.json`/`report.md`を生成・upload・job summaryへ要約。
 - 判断: 毎晩ではなく**週1回のmain track＋手動のPR/branch track**。8 block×約40分≈5.3 windowsランナー時間/回で、毎晩は過剰。cron頻度はworkflow内の1行で変えられ、設計の正しさに影響しない。
 - `REQUIRED_WORKFLOW_PATHS`・branch protection・ruleset・必須32 checksには**触れない**。長枠は必須gateではなく測定。PRの`language-ci`の短比較・Cycling 600秒gateは無変更。
