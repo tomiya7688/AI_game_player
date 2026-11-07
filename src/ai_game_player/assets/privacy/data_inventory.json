@@ -137,7 +137,7 @@
       "default_retention_ms": 2592000000,
       "remote": "never",
       "contains": [],
-      "owner_modules": ["ai_game_player.challenger_update", "ai_game_player.knowledge_promotion"],
+      "owner_modules": ["ai_game_player.challenger_promotion", "ai_game_player.challenger_update", "ai_game_player.knowledge_promotion"],
       "implemented": true,
       "description": "昇格前の更新候補（model delta・部品parameterのChallenger等）と、その評価・検証report。"
     },
@@ -274,6 +274,7 @@
     {"site": "ai_game_player.event_journal:EventJournal", "data_class": "trace", "paths": ["session_events", ".sqlite3"]},
     {"site": "ai_game_player.execution_history:ExecutionHistory", "data_class": "history", "paths": ["execution_history.json"]},
     {"site": "ai_game_player.fail_safe_runtime:AtomicJsonStore", "data_class": "safety_audit", "paths": ["fail_safe", "journal.json", "lease.json", "input_ledger.json", ".kadoka-fail-safe"]},
+    {"site": "ai_game_player.challenger_promotion:ChampionRegistry", "data_class": "challenger_artifact", "paths": []},
     {"site": "ai_game_player.history:HistoryStore", "data_class": "history", "paths": ["history.json"]},
     {"site": "ai_game_player.knowledge:KnowledgeStore", "data_class": "knowledge", "paths": ["knowledge.json"]},
     {"site": "ai_game_player.knowledge_promotion:KnowledgePromotionGate", "data_class": "challenger_artifact", "paths": ["reports", "state.json"]},

@@ -19041,6 +19041,1293 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.atomic_json",
+        "ai_game_player.bounded_file",
+        "ai_game_player.challenger_promotion_models",
+        "ai_game_player.challenger_update_models",
+        "ai_game_player.cross_process_lock",
+        "ai_game_player.knowledge_scope"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "threading",
+          "names": [
+            {
+              "alias": null,
+              "name": "threading"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.atomic_json"
+          ],
+          "module": "ai_game_player.atomic_json",
+          "names": [
+            {
+              "alias": null,
+              "name": "stage_json_write"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.bounded_file"
+          ],
+          "module": "ai_game_player.bounded_file",
+          "names": [
+            {
+              "alias": null,
+              "name": "read_regular_file"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 15,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_promotion_models"
+          ],
+          "module": "ai_game_player.challenger_promotion_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "PROMOTION_SCHEMA_VERSION"
+            },
+            {
+              "alias": null,
+              "name": "ROLLBACK_REASONS"
+            },
+            {
+              "alias": null,
+              "name": "CandidateEvaluation"
+            },
+            {
+              "alias": null,
+              "name": "PromotionCriteria"
+            },
+            {
+              "alias": null,
+              "name": "PromotionDecision"
+            },
+            {
+              "alias": null,
+              "name": "PromotionError"
+            },
+            {
+              "alias": null,
+              "name": "to_json_bytes"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update_models"
+          ],
+          "module": "ai_game_player.challenger_update_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ChallengerArtifact"
+            },
+            {
+              "alias": null,
+              "name": "ChallengerUpdateError"
+            },
+            {
+              "alias": null,
+              "name": "ComponentParameters"
+            },
+            {
+              "alias": null,
+              "name": "validate_created_at"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 30,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.cross_process_lock"
+          ],
+          "module": "ai_game_player.cross_process_lock",
+          "names": [
+            {
+              "alias": null,
+              "name": "cross_process_file_lock"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 31,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.knowledge_scope"
+          ],
+          "module": "ai_game_player.knowledge_scope",
+          "names": [
+            {
+              "alias": null,
+              "name": "KnowledgeScope"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.challenger_promotion",
+      "path": "src/ai_game_player/challenger_promotion.py",
+      "source_location": {
+        "end_line": 352,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ChampionRegistry",
+          "parameters": [],
+          "qualified_name": "ChampionRegistry",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 175,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "ChampionRegistry.__init__",
+          "return_annotation": "None",
+          "signature": "(self, path: Path) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "initialize",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "champion"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "at"
+            }
+          ],
+          "qualified_name": "ChampionRegistry.initialize",
+          "return_annotation": "PromotionDecision",
+          "signature": "(self, champion: ComponentParameters, *, at: str) -> PromotionDecision",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "decide",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ChallengerArtifact",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": "CandidateEvaluation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evaluation"
+            },
+            {
+              "annotation": "PromotionCriteria",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "criteria"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "at"
+            }
+          ],
+          "qualified_name": "ChampionRegistry.decide",
+          "return_annotation": "PromotionDecision",
+          "signature": "(self, artifact: ChallengerArtifact, evaluation: CandidateEvaluation, criteria: PromotionCriteria, *, at: str) -> PromotionDecision",
+          "source_location": {
+            "column": 4,
+            "end_line": 114,
+            "start_line": 77
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "rollback",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "component"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "reason"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "at"
+            }
+          ],
+          "qualified_name": "ChampionRegistry.rollback",
+          "return_annotation": "PromotionDecision",
+          "signature": "(self, component: str, scope: KnowledgeScope, *, reason: str, at: str) -> PromotionDecision",
+          "source_location": {
+            "column": 4,
+            "end_line": 141,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "champion",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "component"
+            },
+            {
+              "annotation": "KnowledgeScope",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scope"
+            }
+          ],
+          "qualified_name": "ChampionRegistry.champion",
+          "return_annotation": "ComponentParameters | None",
+          "signature": "(self, component: str, scope: KnowledgeScope) -> ComponentParameters | None",
+          "source_location": {
+            "column": 4,
+            "end_line": 151,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "audit_events",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChampionRegistry.audit_events",
+          "return_annotation": "list[dict[str, Any]]",
+          "signature": "(self) -> list[dict[str, Any]]",
+          "source_location": {
+            "column": 4,
+            "end_line": 159,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_locked",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ChampionRegistry._locked",
+          "return_annotation": "REDACTED",
+          "signature": "(self) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 162,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_commit",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "ChampionRegistry._commit",
+          "return_annotation": "None",
+          "signature": "(self, state: dict[str, Any]) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 175,
+            "start_line": 164
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "_StateSession",
+          "parameters": [],
+          "qualified_name": "_StateSession",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 205,
+            "start_line": 178
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ChampionRegistry",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "registry"
+            }
+          ],
+          "qualified_name": "_StateSession.__init__",
+          "return_annotation": "None",
+          "signature": "(self, registry: ChampionRegistry) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 183,
+            "start_line": 181
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__enter__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "_StateSession.__enter__",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 194,
+            "start_line": 185
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__exit__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "exc_info"
+            }
+          ],
+          "qualified_name": "_StateSession.__exit__",
+          "return_annotation": "None",
+          "signature": "(self, *exc_info: Any) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 197,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_release",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "exc_info"
+            }
+          ],
+          "qualified_name": "_StateSession._release",
+          "return_annotation": "None",
+          "signature": "(self, exc_info: Any) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 205,
+            "start_line": 199
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_reasons",
+          "parameters": [
+            {
+              "annotation": "ChallengerArtifact",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": "CandidateEvaluation",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evaluation"
+            },
+            {
+              "annotation": "PromotionCriteria",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "criteria"
+            },
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "current"
+            }
+          ],
+          "qualified_name": "_reject_reasons",
+          "return_annotation": "tuple[str, ...]",
+          "signature": "(artifact: ChallengerArtifact, evaluation: CandidateEvaluation, criteria: PromotionCriteria, current: ComponentParameters) -> tuple[str, ...]",
+          "source_location": {
+            "column": 0,
+            "end_line": 234,
+            "start_line": 208
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_append_audit",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action"
+            },
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "subject"
+            },
+            {
+              "annotation": "ChallengerArtifact | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "to_sha256"
+            },
+            {
+              "annotation": "CandidateEvaluation | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evaluation"
+            },
+            {
+              "annotation": "PromotionCriteria | None",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "criteria"
+            },
+            {
+              "annotation": "tuple[str, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reasons"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "at"
+            },
+            {
+              "annotation": "str | None",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "from_sha256"
+            }
+          ],
+          "qualified_name": "_append_audit",
+          "return_annotation": "None",
+          "signature": "(state: dict[str, Any], action: str, subject: ComponentParameters, artifact: ChallengerArtifact | None, to_sha256: str, evaluation: CandidateEvaluation | None, criteria: PromotionCriteria | None, reasons: tuple[str, ...], at: str, *, from_sha256: str | None = …) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 266,
+            "start_line": 237
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_event_digest",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "_event_digest",
+          "return_annotation": "str",
+          "signature": "(event: dict[str, Any]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 271,
+            "start_line": 269
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_key",
+          "parameters": [
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parameters"
+            }
+          ],
+          "qualified_name": "_key",
+          "return_annotation": "str",
+          "signature": "(parameters: ComponentParameters) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 275,
+            "start_line": 274
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_time",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_check_time",
+          "return_annotation": "None",
+          "signature": "(value: object) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 282,
+            "start_line": 278
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_new_state",
+          "parameters": [],
+          "qualified_name": "_new_state",
+          "return_annotation": "dict[str, Any]",
+          "signature": "() -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 294,
+            "start_line": 285
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_read_state",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            }
+          ],
+          "qualified_name": "_read_state",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(path: Path) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 306,
+            "start_line": 297
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_validate_state",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "_validate_state",
+          "return_annotation": "None",
+          "signature": "(state: Any) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 338,
+            "start_line": 309
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unique_object",
+          "parameters": [
+            {
+              "annotation": "list[tuple[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_unique_object",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 347,
+            "start_line": 341
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_constant",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_reject_constant",
+          "return_annotation": "Any",
+          "signature": "(value: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 351,
+            "start_line": 350
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.challenger_promotion_models",
+      "path": "src/ai_game_player/challenger_promotion_models.py",
+      "source_location": {
+        "end_line": 151,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PromotionError",
+          "parameters": [],
+          "qualified_name": "PromotionError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 37,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            }
+          ],
+          "qualified_name": "PromotionError.__init__",
+          "return_annotation": "None",
+          "signature": "(self, code: str, message: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 37,
+            "start_line": 35
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PromotionCriteria",
+          "parameters": [],
+          "qualified_name": "PromotionCriteria",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 85,
+            "start_line": 47
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionCriteria.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 60
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "fingerprint",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionCriteria.fingerprint",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 85,
+            "start_line": 79
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "CandidateEvaluation",
+          "parameters": [],
+          "qualified_name": "CandidateEvaluation",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 124,
+            "start_line": 94
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateEvaluation.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PromotionDecision",
+          "parameters": [],
+          "qualified_name": "PromotionDecision",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 142,
+            "start_line": 133
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "promoted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionDecision.promoted",
+          "return_annotation": "bool",
+          "signature": "(self) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 141
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_ratio",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_ratio",
+          "return_annotation": "bool",
+          "signature": "(value: object) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 146,
+            "start_line": 145
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "to_json_bytes",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "to_json_bytes",
+          "return_annotation": "bytes",
+          "signature": "(value: Any) -> bytes",
+          "source_location": {
+            "column": 0,
+            "end_line": 151,
+            "start_line": 149
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store",
         "ai_game_player.challenger_update_models",
         "ai_game_player.challenger_update_policy",
@@ -127637,6 +128924,666 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.challenger_promotion",
+        "ai_game_player.challenger_promotion_models",
+        "ai_game_player.challenger_update",
+        "tests.test_challenger_update"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_promotion"
+          ],
+          "module": "ai_game_player.challenger_promotion",
+          "names": [
+            {
+              "alias": null,
+              "name": "MAX_AUDIT_EVENTS"
+            },
+            {
+              "alias": null,
+              "name": "ChampionRegistry"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_promotion_models"
+          ],
+          "module": "ai_game_player.challenger_promotion_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateEvaluation"
+            },
+            {
+              "alias": null,
+              "name": "PromotionCriteria"
+            },
+            {
+              "alias": null,
+              "name": "PromotionError"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update"
+          ],
+          "module": "ai_game_player.challenger_update",
+          "names": [
+            {
+              "alias": null,
+              "name": "build_challenger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "tests.test_challenger_update"
+          ],
+          "module": "tests.test_challenger_update",
+          "names": [
+            {
+              "alias": null,
+              "name": "DECISION"
+            },
+            {
+              "alias": null,
+              "name": "OTHER_SCOPE"
+            },
+            {
+              "alias": null,
+              "name": "SCOPE"
+            },
+            {
+              "alias": null,
+              "name": "TIME"
+            },
+            {
+              "alias": null,
+              "name": "RECOGNITION"
+            },
+            {
+              "alias": null,
+              "name": "overconfident"
+            },
+            {
+              "alias": null,
+              "name": "proposals_for"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_challenger_promotion",
+      "path": "tests/test_challenger_promotion.py",
+      "source_location": {
+        "end_line": 187,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluation_for",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "evaluation_for",
+          "return_annotation": null,
+          "signature": "(artifact, **overrides)",
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PromotionGateTest",
+          "parameters": [],
+          "qualified_name": "PromotionGateTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 183,
+            "start_line": 45
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 53,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "decide",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.decide",
+          "return_annotation": null,
+          "signature": "(self, artifact = …, **overrides)",
+          "source_location": {
+            "column": 4,
+            "end_line": 59,
+            "start_line": 55
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_improvement_promotes_and_moves_pointer",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_improvement_promotes_and_moves_pointer",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 66,
+            "start_line": 61
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_no_improvement_is_rejected_and_pointer_stays",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_no_improvement_is_rejected_and_pointer_stays",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 71,
+            "start_line": 68
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_regression_is_rejected_even_with_big_gain",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_regression_is_rejected_even_with_big_gain",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 76,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_too_few_cases_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_too_few_cases_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 83,
+            "start_line": 78
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_resource_limit_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_resource_limit_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 90,
+            "start_line": 85
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_evaluation_of_other_artifact_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_evaluation_of_other_artifact_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 92
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_stale_champion_is_rejected_after_another_promotion",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_stale_champion_is_rejected_after_another_promotion",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rollback_restores_previous_champion",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_rollback_restores_previous_champion",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 112,
+            "start_line": 103
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rollback_reason_is_a_fixed_code",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_rollback_reason_is_a_fixed_code",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 118,
+            "start_line": 114
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_audit_records_every_outcome_with_chain",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_audit_records_every_outcome_with_chain",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 120
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_targets_are_isolated_by_component_and_scope",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_targets_are_isolated_by_component_and_scope",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 141,
+            "start_line": 135
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_uninitialized_and_duplicate_initialize_fail",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_uninitialized_and_duplicate_initialize_fail",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 143
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_state_survives_new_registry_instance",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_state_survives_new_registry_instance",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 157,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tampered_state_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_tampered_state_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 166,
+            "start_line": 159
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bad_inputs_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_bad_inputs_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 176,
+            "start_line": 168
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_audit_is_bounded_and_chain_stays_valid",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_audit_is_bounded_and_chain_stays_valid",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 183,
+            "start_line": 178
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.artifact_store",
         "ai_game_player.challenger_update",
         "ai_game_player.challenger_update_models",
@@ -156220,7 +158167,7 @@
       "module": "tests.test_issue_context_priority",
       "path": "tests/test_issue_context_priority.py",
       "source_location": {
-        "end_line": 60,
+        "end_line": 89,
         "start_line": 1
       },
       "symbols": [
@@ -156277,7 +158224,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 56,
+            "end_line": 85,
             "start_line": 22
           }
         },
@@ -156417,6 +158364,98 @@
             "column": 4,
             "end_line": 56,
             "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_claimed_issue_is_skipped",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_claimed_issue_is_skipped",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 62,
+            "start_line": 58
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_all_claimed_returns_none",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_all_claimed_returns_none",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 65,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_claimed_numbers_come_from_issue_branches",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_claimed_numbers_come_from_issue_branches",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 74,
+            "start_line": 67
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_commented_claim_is_skipped_in_priority_order",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_commented_claim_is_skipped_in_priority_order",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 85,
+            "start_line": 76
           }
         }
       ]
@@ -260678,7 +262717,7 @@
       "module": "tools.issue_context",
       "path": "tools/issue_context.py",
       "source_location": {
-        "end_line": 550,
+        "end_line": 616,
         "start_line": 1
       },
       "symbols": [
@@ -260710,6 +262749,22 @@
           "data_model": null,
           "decorators": [],
           "kind": "function",
+          "name": "fetch_issues_rest",
+          "parameters": [],
+          "qualified_name": "fetch_issues_rest",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 61,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
           "name": "fetch_issues",
           "parameters": [],
           "qualified_name": "fetch_issues",
@@ -260717,8 +262772,24 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 57,
-            "start_line": 41
+            "end_line": 69,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fetch_issues_graphql",
+          "parameters": [],
+          "qualified_name": "fetch_issues_graphql",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 87,
+            "start_line": 72
           }
         },
         {
@@ -260740,8 +262811,8 @@
           "signature": "(number)",
           "source_location": {
             "column": 0,
-            "end_line": 65,
-            "start_line": 60
+            "end_line": 95,
+            "start_line": 90
           }
         },
         {
@@ -260756,8 +262827,8 @@
           "signature": "()",
           "source_location": {
             "column": 0,
-            "end_line": 89,
-            "start_line": 68
+            "end_line": 119,
+            "start_line": 98
           }
         },
         {
@@ -260779,8 +262850,8 @@
           "signature": "(path = …)",
           "source_location": {
             "column": 0,
-            "end_line": 126,
-            "start_line": 92
+            "end_line": 156,
+            "start_line": 122
           }
         },
         {
@@ -260802,8 +262873,8 @@
           "signature": "(value)",
           "source_location": {
             "column": 0,
-            "end_line": 135,
-            "start_line": 129
+            "end_line": 165,
+            "start_line": 159
           }
         },
         {
@@ -260831,8 +262902,8 @@
           "signature": "(text, identifier)",
           "source_location": {
             "column": 0,
-            "end_line": 144,
-            "start_line": 138
+            "end_line": 174,
+            "start_line": 168
           }
         },
         {
@@ -260860,8 +262931,8 @@
           "signature": "(text, module_name)",
           "source_location": {
             "column": 0,
-            "end_line": 153,
-            "start_line": 147
+            "end_line": 183,
+            "start_line": 177
           }
         },
         {
@@ -260907,8 +262978,8 @@
           "signature": "(issue, repository_map, changed_paths, *, tests_only, related_sources = …)",
           "source_location": {
             "column": 0,
-            "end_line": 246,
-            "start_line": 156
+            "end_line": 276,
+            "start_line": 186
           }
         },
         {
@@ -260942,8 +263013,8 @@
           "signature": "(issue, repository_map, modules)",
           "source_location": {
             "column": 0,
-            "end_line": 287,
-            "start_line": 249
+            "end_line": 317,
+            "start_line": 279
           }
         },
         {
@@ -260989,8 +263060,8 @@
           "signature": "(issue, repository_map, changed_paths, map_error = …, max_chars = …)",
           "source_location": {
             "column": 0,
-            "end_line": 428,
-            "start_line": 290
+            "end_line": 458,
+            "start_line": 320
           }
         },
         {
@@ -261005,8 +263076,8 @@
           "signature": "()",
           "source_location": {
             "column": 4,
-            "end_line": 343,
-            "start_line": 328
+            "end_line": 373,
+            "start_line": 358
           }
         },
         {
@@ -261034,8 +263105,8 @@
           "signature": "(line, label)",
           "source_location": {
             "column": 12,
-            "end_line": 380,
-            "start_line": 352
+            "end_line": 410,
+            "start_line": 382
           }
         },
         {
@@ -261050,8 +263121,8 @@
           "signature": "()",
           "source_location": {
             "column": 12,
-            "end_line": 394,
-            "start_line": 389
+            "end_line": 424,
+            "start_line": 419
           }
         },
         {
@@ -261073,8 +263144,82 @@
           "signature": "(issue)",
           "source_location": {
             "column": 0,
-            "end_line": 432,
-            "start_line": 430
+            "end_line": 462,
+            "start_line": 460
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "fetch_claimed_issue_numbers",
+          "parameters": [],
+          "qualified_name": "fetch_claimed_issue_numbers",
+          "return_annotation": null,
+          "signature": "()",
+          "source_location": {
+            "column": 0,
+            "end_line": 478,
+            "start_line": 464
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "has_claim_comment",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "number"
+            }
+          ],
+          "qualified_name": "has_claim_comment",
+          "return_annotation": null,
+          "signature": "(number)",
+          "source_location": {
+            "column": 0,
+            "end_line": 484,
+            "start_line": 481
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "select_unclaimed_issue",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "issues"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "claimed"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "limit"
+            }
+          ],
+          "qualified_name": "select_unclaimed_issue",
+          "return_annotation": null,
+          "signature": "(issues, claimed, limit = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 496,
+            "start_line": 487
           }
         },
         {
@@ -261089,15 +263234,21 @@
               "has_default": false,
               "kind": "positional_or_keyword",
               "name": "issues"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "claimed"
             }
           ],
           "qualified_name": "select_issue",
           "return_annotation": null,
-          "signature": "(issues)",
+          "signature": "(issues, claimed = …)",
           "source_location": {
             "column": 0,
-            "end_line": 441,
-            "start_line": 434
+            "end_line": 507,
+            "start_line": 499
           }
         },
         {
@@ -261143,8 +263294,8 @@
           "signature": "(issue, max_chars = …, repository_map = …, changed_paths = …, map_error = …)",
           "source_location": {
             "column": 0,
-            "end_line": 511,
-            "start_line": 444
+            "end_line": 577,
+            "start_line": 510
           }
         },
         {
@@ -261166,8 +263317,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 547,
-            "start_line": 514
+            "end_line": 613,
+            "start_line": 580
           }
         }
       ]

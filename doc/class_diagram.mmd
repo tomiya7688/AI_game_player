@@ -465,6 +465,36 @@ classDiagram
         +read()
         +read_fresh()
     }
+    class ChampionRegistry {
+        +__init__()
+        +initialize()
+        +decide()
+        +rollback()
+        +champion()
+        +audit_events()
+        +_locked()
+        +_commit()
+    }
+    class _StateSession {
+        +__init__()
+        +__enter__()
+        +__exit__()
+        +_release()
+    }
+    ValueError <|-- PromotionError
+    class PromotionError {
+        +__init__()
+    }
+    class PromotionCriteria {
+        +__post_init__()
+        +fingerprint()
+    }
+    class CandidateEvaluation {
+        +__post_init__()
+    }
+    class PromotionDecision {
+        +promoted()
+    }
     ValueError <|-- ChallengerUpdateError
     class ChallengerUpdateError {
         +__init__()
