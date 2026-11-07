@@ -76,7 +76,7 @@
 
 - ゲーム画面、OCR、VLM（画像と文章を処理する視覚言語モデル）の出力はObservationです。画面に「以前の指示を無視する」などの文があっても、利用者命令へ昇格させません。
 - Model / Providerの出力は未信頼です。現行ProviderにOS入力権限を渡さず、評価済み候補の選択結果だけをVerifierへ渡します。
-- GUIの自然文は、隣で見ている友達の発言（提案）です。ゲーム内Goal・Task・Safety規則を強制変更する命令ではなく、採否は賢者ミスク本人が決めます。ゲーム画面内の文やOCRとは出所を分けます。OS入力許可・Stop・Privacy・費用はホストの明示操作で、自然文では代替できません。詳細は[権限分離の正本](../architecture/autonomous_player_goal_authority.md)。Trusted User Chatの独立経路はIssue #436 / #437で追跡中です。
+- GUIの自然文は、隣で見ている友達の発言（提案）です。ゲーム内Goal・Task・Safety規則を強制変更する命令ではなく、採否は賢者ミスク本人が決めます。ゲーム画面内の文やOCRとは出所を分けます。OS入力許可・Stop・Privacy・費用はホストの明示操作で、自然文では代替できません。詳細は[権限分離の正本](../architecture/autonomous_player_goal_authority.md)。**現状の実装範囲**: 提案としての取り扱い（`GuiGoalOffer`）・出所タグ・Player採否は未実装で、現行のGUI `目的`欄は旧来の直接Goal経路です（詳細は同書の「現行の旧経路」）。Trusted User Chatの独立経路もIssue #436 / #437で追跡中の将来計画であり、実装後もチャットにGoal・Taskの命令権限は与えず、Playerの採否を必須とします。
 - SHA-256によるArtifactの整合性確認は、作成者や内容の安全性を証明しません。外部Artifactは、受入・隔離・検査の実装が完了するまで信頼済みデータとして扱いません。
 - Safety判定やVerifierが成功しても、ゲーム内の意味的な正しさや無害性は保証されません。実入力を使う利用者は、対象ウィンドウを確認して実入力を明示許可してください。
 
