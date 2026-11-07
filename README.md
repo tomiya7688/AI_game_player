@@ -1,5 +1,10 @@
 # AI Game Player
 
+**賢者ミスクは、ユーザーのゲーム操作を代行するマクロではなく、ゲームを一から遊ぶプレイヤー本人です。** 画面を見て自分でGoalを見つけ、「何が良い結果か」を考え、判断・操作・反省を繰り返す自律Playerを目指します。GUIの人間は隣でプレイを見ている友達として「こうしたら？」と話しかけられますが、賢者ミスクは助言を採用・断る・保留する・質問することができます。ホストの停止・入力許可・通信/Privacy管理は別の強制制御です。
+
+[自律Playerと友達のChatの設計正本](doc/architecture/autonomous_player_goal_authority.md)（#843/#844：将来のGoal発見・評価Planの実装は未完了）
+
+
 未知のGUIゲームを、画面観測・候補評価・AI判断・安全な操作・結果評価のループでプレイする実験用エンジンです。ローカル規則またはOllamaを使い、実入力は明示許可までdry-runで扱います。
 
 恒久構成はQt 6 Widgets/C++のネイティブGUI（WebViewなし）、Rust常駐Core、任意のPython/AI workerへ移行する方針です。**移行は未実装**で、現在のTkinter/Python+C++とWindows E2Eを維持します。[決定・現在との境界・4つの実装Issue](doc/architecture/qt_rust_migration.md)を参照してください。
