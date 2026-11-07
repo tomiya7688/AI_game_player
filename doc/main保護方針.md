@@ -23,19 +23,18 @@ gh api --method PUT repos/tomiya7688/AI_game_player/rulesets/24724858 --input .g
 | 必要な承認数 | 0 | 現在は人の保守者が1人で、作業者のAIも同じアカウントでPRを作るため、自分のPRを承認できない。承認数を1以上にすると通常のマージができなくなる。承認数が0の間は、古い承認の破棄（`dismiss_stale_reviews_on_push`）と最終pushの承認（`require_last_push_approval`）は効果がないため無効にしている。領域別の承認規則はIssue #79で決め、承認数を上げるときにこの2つも見直す。 |
 | 許可するマージ方式 | merge・squash・rebase（`allowed_merge_methods`） | 既存の`Mainguard`の設定を維持する。`tools/finish_pr_merge.py`はmerge commit（`gh pr merge --merge`）でマージする。方式を1つに絞るかはIssue #79のマージ方針で決める。 |
 | 未解決のreview threadの禁止 | `required_review_thread_resolution: true` | `tools/finish_pr_merge.py`のマージ条件（未解決threadがないこと）と一致させる。 |
-| 必須status check | 必須8 workflowの全job（38件） | 後述。 |
+| 必須status check | 必須9 workflowの全job（40件） | 後述。 |
 | 最新化の要求 | `strict_required_status_checks_policy: false` | 後述。 |
-| Copilotの自動レビュー | `copilot_code_review`（push時、Draftは除く） | ワークフローのAIレビュー依頼と同じ目的。マージ条件にはしない。 |
 | bypass | なし（`bypass_actors: []`） | 後述。 |
 
 ## 必須status check
 
-`language-ci`の`Runtime contract / language boundary`も必須checkに含めます。宣言の不一致を検出する配置manifest検査です。リポジトリのJSON定義は38件を要求しますが、GitHub上で適用済みかはAPIで別途確認してください。JSONを変更しただけではGitHub上の設定は変わりません。
+`language-ci`の`Runtime contract / language boundary`も必須checkに含めます。宣言の不一致を検出する配置manifest検査です。リポジトリのJSON定義は40件を要求しますが、GitHub上で適用済みかはAPIで別途確認してください。JSONを変更しただけではGitHub上の設定は変わりません。
 
-- 必須とするのは、`tools/pr_workflow_evidence.py`の`REQUIRED_WORKFLOW_PATHS`に列挙した8つのworkflow（`tests`、`language-ci`、`safety-ci`、`fail-safe-ci`、`bug-ci`、`performance-ci`、`upd-architecture-ci`、`python-security-ci`）が報告する全jobです。マージゲート`tools/finish_pr_merge.py`も同じ8 workflowの成功を要求するため、GitHub側の保護とマージゲートの条件が一致します。
+- 必須とするのは、`tools/pr_workflow_evidence.py`の`REQUIRED_WORKFLOW_PATHS`に列挙した9つのworkflow（`tests`、`language-ci`、`safety-ci`、`fail-safe-ci`、`bug-ci`、`performance-ci`、`upd-architecture-ci`、`python-security-ci`、`resource-stability-ci`）が報告する全jobです。マージゲート`tools/finish_pr_merge.py`も同じ9 workflowの成功を要求するため、GitHub側の保護とマージゲートの条件が一致します。
 - 各checkは`integration_id: 15368`（GitHub Actions）からの報告だけを受け付けます。別のGitHub Appが同じ名前のcheckを成功として報告しても、条件を満たしたことになりません。
-- 8 workflowはどれもpath filterを持たず、すべてのPRで全jobが実行されます。したがって、文書だけのPRで必須checkが報告されずに待ち続けることはありません。文書だけのPRに重いjobを実行しない方針（Issue #92の非対象）は、Issue #91でPR Fast Gateを定義した時点で、必須checkの範囲と合わせて見直します。
-- CodeRabbit、Sourcery、Copilotのレビュー結果は必須checkにしません。無料枠の都合で応答しない場合があるためです。マージゲート`tools/finish_pr_merge.py`も、GitHub Appの`CodeRabbit`・`Sourcery review`のcheck（`gh pr checks`のworkflow欄が空文字のもの）が`skipping`（無料枠切れなど）で終わった場合だけは、記録して停止しません。名前は完全一致で判定します。これらのcheckが失敗・保留・取消の場合、workflow欄が欠落している場合、同じ名前のGitHub Actions jobが`skipping`の場合、報告されたcheckがこの2つだけでCIが確認できない場合は、従来どおりマージを止めます。
+- 9 workflowはどれもpath filterを持たず、すべてのPRで全jobが実行されます。したがって、文書だけのPRで必須checkが報告されずに待ち続けることはありません。文書だけのPRに重いjobを実行しない方針（Issue #92の非対象）は、Issue #91でPR Fast Gateを定義した時点で、必須checkの範囲と合わせて見直します。
+- CodeRabbit、Sourceryのレビュー結果は必須checkにしません（Copilotの自動レビュー規則`copilot_code_review`は、Copilotへのレビュー依頼を停止したため2026-11-07にJSON定義から外した）。無料枠の都合で応答しない場合があるためです。マージゲート`tools/finish_pr_merge.py`も、GitHub Appの`CodeRabbit`・`Sourcery review`のcheck（`gh pr checks`のworkflow欄が空文字のもの）が`skipping`（無料枠切れなど）で終わった場合だけは、記録して停止しません。名前は完全一致で判定します。これらのcheckが失敗・保留・取消の場合、workflow欄が欠落している場合、同じ名前のGitHub Actions jobが`skipping`の場合、報告されたcheckがこの2つだけでCIが確認できない場合は、従来どおりマージを止めます。
 
 ## 最新化（up-to-date）を要求しない理由
 
@@ -64,7 +63,7 @@ Ruleset全体を無効化している間は、必須checkだけでなく、直�
 
 GitHubは必須checkをjobの表示名（`name:`、matrixの値を展開した名前）で照合します。必須checkの名前と実際のjob名がずれると、存在しないcheckを待ち続けて全PRがマージできなくなるか、新しいjobが必須にならずに失敗したまま通ります。
 
-1. `tools/ruleset_check.py`は、必須8 workflowのjob名から期待するcheck名を求め、`.github/rulesets/main-protection.json`の一覧と比べます。差があればCI（`tests.yml`の`Python quality (Ruff + syntax)`）と`finish_task.bat`が失敗します。
+1. `tools/ruleset_check.py`は、必須9 workflowのjob名から期待するcheck名を求め、`.github/rulesets/main-protection.json`の一覧と比べます。差があればCI（`tests.yml`の`Python quality (Ruff + syntax)`）と`finish_task.bat`が失敗します。
 2. job名、matrixの値、必須workflowを変更したPRでは、`python tools/ruleset_check.py --print-expected`の出力（各要素に`"integration_id": 15368`が付いたJSON配列）で、`.github/rulesets/main-protection.json`の`required_status_checks`の値を同じPR内で置き換えます。
 3. 有効なGitHub上のrulesetは古い名前を要求し続けるため、名前を変えたPRは次の順序でマージします。
    1. 名前を変えたPRのCIが成功し、マージできる状態になるまで待つ。

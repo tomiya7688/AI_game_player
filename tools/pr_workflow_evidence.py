@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 REQUIRED_WORKFLOW_PATHS = frozenset(
     f".github/workflows/{name}.yml"
     for name in ("tests", "language-ci", "safety-ci", "fail-safe-ci", "bug-ci", "performance-ci", "upd-architecture-ci",
-                 "python-security-ci")
+                 "python-security-ci", "resource-stability-ci")
 )
 WORKFLOW_EVENTS = ("push", "pull_request")
 PAGE_SIZE = 100

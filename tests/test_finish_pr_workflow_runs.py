@@ -130,7 +130,6 @@ class WorkflowRunGateTests(unittest.TestCase):
         # resource-stability-ci.ymlは#787の設計書「CIへの組み込み方」で合意済み。必須化(ruleset)はowner作業。
         measurement_only = {
             ".github/workflows/windows-long-comparison.yml",
-            ".github/workflows/resource-stability-ci.yml",
             ".github/workflows/resource-stability-deep.yml",
         }
         self.assertTrue(measurement_only <= actual)
