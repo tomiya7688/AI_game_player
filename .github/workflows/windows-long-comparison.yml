@@ -67,8 +67,9 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Native configure failed" }
           cmake --build build/native --config Release --parallel
           if ($LASTEXITCODE -ne 0) { throw "Native build failed" }
-          $runtime = Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll | Select-Object -First 1
-          if (-not $runtime) { throw "Native runtime missing" }
+          $runtimes = @(Get-ChildItem build/native -Recurse -Filter kadoka_native_runtime.dll)
+          if ($runtimes.Count -ne 1) { throw "Expected exactly one native runtime, found $($runtimes.Count)" }
+          $runtime = $runtimes[0]
           New-Item -ItemType Directory -Force build/windows-long-native | Out-Null
           Copy-Item $runtime.FullName build/windows-long-native/kadoka_native_runtime.dll
       - uses: actions/upload-artifact@v4
