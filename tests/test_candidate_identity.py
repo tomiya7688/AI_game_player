@@ -138,3 +138,26 @@ class CandidateIdentityTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_issue_853_disjoint_rects_are_not_merged_by_proximity() -> None:
+    from ai_game_player.candidate_merger import CandidateMerger
+    from ai_game_player.models import ActionCandidate
+
+    first = ActionCandidate("a", "click", "OK", 10, 10, 0.9, False, (0, 0, 10, 10))
+    second = ActionCandidate("b", "click", "OK", 20, 10, 0.9, False, (15, 0, 10, 10))
+    report = CandidateMerger(proximity=20).merge_detailed([first, second], [])
+    assert len(report.candidates) == 2
+
+
+def test_issue_853_incoming_is_checked_against_all_group_members() -> None:
+    from ai_game_player.candidate_identity import MergeContext, REASON_AMBIGUOUS
+    from ai_game_player.candidate_merger import CandidateMerger
+    from ai_game_player.models import ActionCandidate
+
+    rep = ActionCandidate("a", "click", "", 10, 10, 0.9, False, (0, 0, 10, 10))
+    same = ActionCandidate("b", "click", "", 10, 10, 0.5, False, (0, 0, 10, 10))
+    other_gen = ActionCandidate("c", "click", "", 10, 10, 0.5, False, (0, 0, 10, 10))
+    ctx = MergeContext(generations={"automation": 1, "ocr": 1, "image": 2})
+    report = CandidateMerger().merge_detailed([rep, same], [], [other_gen], ctx)
+    assert report.reason == REASON_AMBIGUOUS
