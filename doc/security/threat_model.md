@@ -25,6 +25,12 @@
 - TLS: ネットワーク通信の盗聴・改ざんを防ぐ暗号化方式です。
 - SAST: ソースコードを実行せずに調べる静的アプリケーションセキュリティ検査です。
 
+## 2026-11-07 Goalとユーザー権限の境界訂正（#843/#844）
+
+賢者ミスクはユーザーのマクロではなく、ゲームのプレイヤー本人。**ゲーム内Goal/評価Planを選ぶのは賢者ミスクであり、GUIからの文章は隣の友達による助言/会話**。ユーザーが真正なChatに書いたことはUserChat provenanceを保証するだけで、Goal/Taskを強制する権限を与えない。Interpreter(#437)は意味を解釈し、Player(#843)のACCEPTだけが次StepのGame Goalへ反映できる。ゲームOCRは友達のメッセージに昇格させない。
+
+ただしホスト/利用者が明示するStop/Pause/Emergency Stop・入力許可・対象Window・Privacy/Remote/課金同意・Resource/資産保護は強制制御でありPlayer承諾を待たない。「止まって」というChat本文は自然文助言であって緊急停止操作ではない。具体契約：[自律Player Goal権限](../architecture/autonomous_player_goal_authority.md)。
+
 ## 信頼境界
 
 次の図は、現行の判断・入力経路と、未実装の拡張経路を示します。画面内の文字列、Providerの返答、外部ファイルは信頼できる命令として扱いません。
@@ -76,7 +82,7 @@
 
 - ゲーム画面、OCR、VLM（画像と文章を処理する視覚言語モデル）の出力はObservationです。画面に「以前の指示を無視する」などの文があっても、利用者命令へ昇格させません。
 - Model / Providerの出力は未信頼です。現行ProviderにOS入力権限を渡さず、評価済み候補の選択結果だけをVerifierへ渡します。
-- 利用者が明示したゲーム目標とゲーム画面内の文は別の入力です。Trusted User Chatの独立経路はIssue #436 / #437で追跡中であり、現行UIの自然文を一般的な安全命令チャネルとはみなしません。
+- Player自身が採用したゲーム目標とゲーム画面内の文は別です。GUI利用者の自然言語は友達の提案であり、受諾前はPlayer Goalではありません。Trusted User Chatの独立経路はIssue #436 / #437で追跡中であり、現行UIの自然文を一般的な安全命令チャネルとはみなしません。
 - SHA-256によるArtifactの整合性確認は、作成者や内容の安全性を証明しません。外部Artifactは、受入・隔離・検査の実装が完了するまで信頼済みデータとして扱いません。
 - Safety判定やVerifierが成功しても、ゲーム内の意味的な正しさや無害性は保証されません。実入力を使う利用者は、対象ウィンドウを確認して実入力を明示許可してください。
 
@@ -85,10 +91,10 @@
 ### TM-01 — ゲーム画面を通じた間接Prompt Injection
 
 - 資産・入口・影響・露出: 利用者の操作権限とゲーム状態を脅かします。画面・OCR由来の情報は`DecisionContext`に入り、Ollama利用時は判断用要求へ含まれます。露出は現行、影響はHighです。
-- Prevent: 現行の`DecisionContext`はOCR要約を`state.visible_text`に、利用者のゲーム目標を`goal`に分けて格納します。Ollamaは両方を含むJSONを受け取りますが、画面文字列へ強制可能なtrust labelを付ける機構はありません。`OllamaProvider`は許可候補IDから選ぶよう要求し、`DecisionVerifier`は許可済み候補以外を拒否します。この候補制限は実行範囲を狭めますが、許可候補内の選択に対する画面文字列の影響は防ぎません。
+- Prevent: 現行の互換`DecisionContext`はOCR要約を`state.visible_text`に、host構成の従来`goal`値を別欄に格納します。これは現在コードの記録であり、完成版でユーザーがGoalを強制できるという仕様ではありません（#843のPlayer自己決定へ移行）。Ollamaは両方を含むJSONを受け取りますが、画面文字列へ強制可能なtrust labelを付ける機構はありません。`OllamaProvider`は許可候補IDから選ぶよう要求し、`DecisionVerifier`は許可済み候補以外を拒否します。この候補制限は実行範囲を狭めますが、許可候補内の選択に対する画面文字列の影響は防ぎません。
 - Detect: `DecisionVerifier`は候補、snapshot / screen / state参照、判断理由と選択候補の明示的な矛盾を検査します。これは注入検出器ではなく、注入が許可候補内の選択を誘導した場合は検出できません。
 - Contain: `ActionSafetyEvaluator`が意味的リスクを評価し、`SafetyGuard`が危険キー、対象、座標、反復、停止状態を独立して検査します。Safety Guardはゲーム内の全ての誤操作を防ぐものではありません。
-- Recover: 利用者はStop / Emergency Stopを押して追加入力を止めてください。停止処理は保持中の入力を解放し、再開には明示操作を要求します。自然文の利用者命令をゲーム文字列と別経路へ分離する作業は#436 / #437です。
+- Recover: 利用者はStop / Emergency Stopを押して追加入力を止めてください。停止処理は保持中の入力を解放し、再開には明示操作を要求します。GUI友達の発言をゲーム文字列と別のprovenanceへ分離する作業は#436 / #437です。Goalへの採否は#843へ委譲します。
 - 残余リスク・確認先: 許可済み候補が有害な選択肢なら、モデルがその候補を選ぶことは残ります。確認先はReasoning / Safety領域です。回帰確認は`tests/test_provider_decision.py`、`tests/test_decision_verifier.py`、`tests/test_action_safety.py`、`tests/test_safety_guard.py`です。
 
 ### TM-02 — UI偽装、誤ウィンドウ、古い画面への入力

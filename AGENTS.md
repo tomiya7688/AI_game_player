@@ -1,5 +1,12 @@
 # AI Game Player: Agent Guide
 
+## Product invariant: the autonomous Player owns gameplay goals
+
+**賢者ミスク（またはそのPlayer Instance）がゲームのプレイヤー本人。GUI利用者は隣でプレイを見て話しかける友達であり、ゲーム内GoalやTaskを強制する依頼主ではない。** Playerが自分でGoalを発見・選択・修正し、評価計画も自分で作る（#843/#844）。GUIの自然文はPending Friend Message/Offerとして意味解釈だけ先に行い、ACCEPT|DECLINE|DEFER|CLARIFYをPlayer自身が決める。未受諾提案でactive Goal/TaskQueue/優先度を変更しない。
+
+**ホストのStop/Pause/Emergency Stop、OS入力許可、Window指定、Privacy/通信/課金同意、Resource Budgetは別の強制境界**。Playerの承諾を待たず適用でき、Model confidence/多数決で上書きできない。古いIssueの「User Goalが最優先」「Chat発言でGoal変更」は失効。正本：[自律プレイヤーGoal権限](doc/architecture/autonomous_player_goal_authority.md)、Issue #19/#843/#844。
+
+
 ## Standard start: minimum context
 
 0. Read `AI_CONTEXT.md` first. It is the compact ai-context-reducer entrypoint and defines exploration stop conditions.

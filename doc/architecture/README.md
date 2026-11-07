@@ -6,6 +6,7 @@
 
 | 知りたいこと | 読む順番 |
 |---|---|
+| 賢者ミスク本人のGoal/評価Planと隣の友達のChat提案・ホスト停止の権限分離 | [自律Player Goal権限の正本](autonomous_player_goal_authority.md)（#843/#844、未実装部分を区別） |
 | 恒久GUIと常駐Coreの選定、現在との移行差分 | [Qt6 Widgets / Rust Coreの決定と未実装gate](qt_rust_migration.md) |
 | 新しい画面から次の操作までの順番 | [一回の判断と実行の流れ](flow_for_readers.md) |
 | UI・Python・Windows・任意サービスの役割 | [部品と実行場所](runtime_map_for_readers.md) |
