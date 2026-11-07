@@ -4,6 +4,12 @@
 Traceへ接続する。評価の追加はModeのARTIFACT_EVALUATIONとは別であり、INFERENCE_ONLYでも
 通常の評価・Outcome・Verifier・Safetyを継続する。gradient/Model推論/GPU/IOをAdapterへ追加しない。
 
+## 2026-11-07：実装済み互換経路と目標所有者を混同しない（#843・#844）
+
+この文書の`host`による`evaluation_goal_id`・`EvaluationProfile`注入は、**現在存在するv1互換Runtimeの技術的な設定経路**の説明であり、完成版でGUI利用者が賢者ミスクのゲーム内Goalを命令・上書きすることを認める設計ではない。賢者ミスク本人が観測と経験からGoalPlanを発見/選択し(#843)、何が良い結果かをEvaluationDesignPlanから設計する(#844)。Chatの人間は隣で助言する友達で、Player受諾なしではGoal/候補順位の実効値を変えない。
+
+v2 Runtimeへの接続(#767)では、Playerが採用したGoalPlan/Profileだけを次Step境界で使用する。HostのStop/OS入力/Privacy/Consent/Resource上限は別の強制制御として維持する。詳細は[自律PlayerのGoal権限](autonomous_player_goal_authority.md)。
+
 ## 本番経路と境界
 
 ```text
