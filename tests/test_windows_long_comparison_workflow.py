@@ -45,6 +45,23 @@ class WindowsLongComparisonWorkflowTests(unittest.TestCase):
         self.assertIn("tools/aggregate_2048_windows_long.py plan", self.text)
         self.assertIn("SEED_COUNT: ${{ inputs.seed_count || '8' }}", self.text)
 
+    def test_native_runtime_is_built_once_and_shared_by_every_block(self):
+        # Issue #850: blockごとのDLL再ビルドでnative_runtime_sha256が揃わなかった。
+        self.assertEqual(1, self.text.count("cmake --build"))
+        build_job = self.text.split("  build-native:\n", 1)[1].split("\n  block:\n", 1)[
+            0
+        ]
+        block_job = self.text.split("\n  block:\n", 1)[1].split("\n  aggregate:\n", 1)[
+            0
+        ]
+        self.assertIn("cmake --build", build_job)
+        self.assertIn("name: windows-long-native-runtime", build_job)
+        self.assertNotIn("cmake", block_job)
+        self.assertIn("needs: [plan, build-native]", block_job)
+        self.assertIn("download-artifact@v4", block_job)
+        self.assertIn("name: windows-long-native-runtime", block_job)
+        self.assertIn("KADOKA_NATIVE_RUNTIME=", block_job)
+
     def test_workflow_passes_the_repository_security_scan(self):
         self.assertEqual([], scan_workflow_path(WORKFLOW, date(2026, 11, 7)))
 
