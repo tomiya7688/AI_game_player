@@ -56,6 +56,14 @@ class WindowsLongComparisonWorkflowTests(unittest.TestCase):
         ]
         self.assertIn("cmake --build", build_job)
         self.assertIn("name: windows-long-native-runtime", build_job)
+        self.assertIn(
+            "path: build/windows-long-native/kadoka_native_runtime.dll", build_job
+        )
+        self.assertIn(
+            "Copy-Item $runtime.FullName build/windows-long-native/kadoka_native_runtime.dll",
+            build_job,
+        )
+        self.assertIn("if-no-files-found: error", build_job)
         self.assertNotIn("cmake", block_job)
         self.assertIn("needs: [plan, build-native]", block_job)
         self.assertIn("download-artifact@v4", block_job)
