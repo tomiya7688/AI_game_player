@@ -133,6 +133,14 @@
             "integration_id": 15368
           },
           {
+            "context": "Resource stability fast gate (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "Resource stability fast gate (windows-latest)",
+            "integration_id": 15368
+          },
+          {
             "context": "Runtime contract / language boundary",
             "integration_id": 15368
           },
@@ -193,13 +201,6 @@
             "integration_id": 15368
           }
         ]
-      }
-    },
-    {
-      "type": "copilot_code_review",
-      "parameters": {
-        "review_on_push": true,
-        "review_draft_pull_requests": false
       }
     }
   ]
