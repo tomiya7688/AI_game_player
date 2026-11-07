@@ -127,7 +127,7 @@ class WorkflowRunGateTests(unittest.TestCase):
         actual = {path.relative_to(root).as_posix() for pattern in ("*.yml", "*.yaml")
                   for path in (root / ".github/workflows").glob(pattern)}
         # 測定専用で必須gateにしないworkflow。ここに足すには設計書での合意が要る。
-        # resource-stability-ci.ymlは#787の設計書「CIへの組み込み方」で合意済み。必須化(ruleset)はowner作業。
+        # resource-stability-ci.ymlはREQUIRED_WORKFLOW_PATHSへ昇格済み(必須check 40件)のため、ここには含めない。
         measurement_only = {
             ".github/workflows/windows-long-comparison.yml",
             ".github/workflows/resource-stability-deep.yml",
