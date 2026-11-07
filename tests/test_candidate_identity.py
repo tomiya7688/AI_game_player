@@ -161,3 +161,27 @@ def test_issue_853_incoming_is_checked_against_all_group_members() -> None:
     ctx = MergeContext(generations={"automation": 1, "ocr": 1, "image": 2})
     report = CandidateMerger().merge_detailed([rep, same], [], [other_gen], ctx)
     assert report.reason == REASON_AMBIGUOUS
+
+
+def test_issue_853_chain_member_difference_blocks_merge() -> None:
+    from ai_game_player.candidate_merger import CandidateMerger
+    from ai_game_player.models import ActionCandidate
+
+    items = [
+        ActionCandidate(f"id{i}", "click", "OK", 5 + x, 5, 0.9, False, (x, 0, 10, 10))
+        for i, x in enumerate((0, 5, 10))
+    ]
+    report = CandidateMerger(iou_threshold=0.3).merge_detailed(items, [])
+    assert len(report.candidates) + len(report.rejected) >= 2
+    assert all("id2" not in ids for ids in report.origin_ids)
+    assert [c.action_id for c, _ in report.rejected] == ["id2"]
+
+
+def test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart() -> None:
+    from ai_game_player.candidate_merger import CandidateMerger
+    from ai_game_player.models import ActionCandidate
+
+    first = ActionCandidate("a", "click", "OK", 5, 5, 0.9, False, (0, 0, 10, 10))
+    second = ActionCandidate("b", "click", "OK", 50, 5, 0.9, False, (40, 0, 10, 10))
+    report = CandidateMerger(iou_threshold=0).merge_detailed([first, second], [])
+    assert len(report.candidates) == 2

@@ -96,20 +96,24 @@ class CandidateMerger:
                 duplicate = None
                 ambiguous = False
                 for index in range(len(result)):
-                    grounding = Grounding.DIFFERENT
+                    pairs = set()
                     for member in members[index]:
                         comparisons += 1
-                        pair = ground_pair(
-                            member,
-                            incoming_identity,
-                            self.proximity,
-                            self.iou_threshold,
+                        pairs.add(
+                            ground_pair(
+                                member,
+                                incoming_identity,
+                                self.proximity,
+                                self.iou_threshold,
+                            )
                         )
-                        if pair is Grounding.SAME:
-                            grounding = pair
-                            break
-                        if pair is Grounding.AMBIGUOUS:
-                            grounding = pair
+                    # 全メンバーを確認し、1つでもSAME以外があれば統合せず曖昧として保留する
+                    if pairs == {Grounding.SAME}:
+                        grounding = Grounding.SAME
+                    elif Grounding.SAME in pairs or Grounding.AMBIGUOUS in pairs:
+                        grounding = Grounding.AMBIGUOUS
+                    else:
+                        grounding = Grounding.DIFFERENT
                     if grounding is Grounding.SAME:
                         duplicate = index
                         break

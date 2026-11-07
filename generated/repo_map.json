@@ -17834,7 +17834,7 @@
       "module": "ai_game_player.candidate_merger",
       "path": "src/ai_game_player/candidate_merger.py",
       "source_location": {
-        "end_line": 243,
+        "end_line": 247,
         "start_line": 1
       },
       "symbols": [
@@ -17854,7 +17854,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 243,
+            "end_line": 247,
             "start_line": 26
           }
         },
@@ -18018,7 +18018,7 @@
           "signature": "(self, automation: list[ActionCandidate], ocr: Sequence[CandidateInput], image: Sequence[CandidateInput] | None = …, context: MergeContext | None = …) -> CandidateMergeReport",
           "source_location": {
             "column": 4,
-            "end_line": 167,
+            "end_line": 171,
             "start_line": 71
           }
         },
@@ -18049,8 +18049,8 @@
           "signature": "(collisions: tuple[ActionCandidate, ...], rejected: list[tuple[ActionCandidate, str]]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 179,
-            "start_line": 171
+            "end_line": 183,
+            "start_line": 175
           }
         },
         {
@@ -18078,8 +18078,8 @@
           "signature": "(self, candidate: ActionCandidate) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 181
+            "end_line": 194,
+            "start_line": 185
           }
         },
         {
@@ -18113,8 +18113,8 @@
           "signature": "(self, view: CandidateView, context: MergeContext) -> CandidateIdentity",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 192
+            "end_line": 215,
+            "start_line": 196
           }
         },
         {
@@ -18148,8 +18148,8 @@
           "signature": "(self, value: CandidateInput, group: str) -> CandidateView",
           "source_location": {
             "column": 4,
-            "end_line": 228,
-            "start_line": 213
+            "end_line": 232,
+            "start_line": 217
           }
         },
         {
@@ -18183,8 +18183,8 @@
           "signature": "(self, incoming: CandidateView, existing: CandidateView) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 230
+            "end_line": 241,
+            "start_line": 234
           }
         },
         {
@@ -18212,8 +18212,8 @@
           "signature": "(self, group: str) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 240,
-            "start_line": 239
+            "end_line": 244,
+            "start_line": 243
           }
         },
         {
@@ -18241,8 +18241,8 @@
           "signature": "(self, text: str | None) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 243,
-            "start_line": 242
+            "end_line": 247,
+            "start_line": 246
           }
         }
       ]
@@ -127076,12 +127076,76 @@
               "name": "ActionCandidate"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 167,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_merger"
+          ],
+          "module": "ai_game_player.candidate_merger",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateMerger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 168,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 181,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_merger"
+          ],
+          "module": "ai_game_player.candidate_merger",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateMerger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 182,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            }
+          ]
         }
       ],
       "module": "tests.test_candidate_identity",
       "path": "tests/test_candidate_identity.py",
       "source_location": {
-        "end_line": 163,
+        "end_line": 187,
         "start_line": 1
       },
       "symbols": [
@@ -127535,6 +127599,38 @@
             "column": 0,
             "end_line": 163,
             "start_line": 153
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "test_issue_853_chain_member_difference_blocks_merge",
+          "parameters": [],
+          "qualified_name": "test_issue_853_chain_member_difference_blocks_merge",
+          "return_annotation": "None",
+          "signature": "() -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 177,
+            "start_line": 166
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart",
+          "parameters": [],
+          "qualified_name": "test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart",
+          "return_annotation": "None",
+          "signature": "() -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 187,
+            "start_line": 180
           }
         }
       ]
