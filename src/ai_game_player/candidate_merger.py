@@ -1,4 +1,20 @@
 from collections.abc import Sequence
+from math import isfinite
+
+from ai_game_player.candidate_identity import (
+    MAX_CANDIDATES,
+    REASON_AMBIGUOUS,
+    REASON_CAPACITY,
+    REASON_COLLISION,
+    REASON_INVALID,
+    REASON_OK,
+    CandidateIdentity,
+    CandidateMergeReport,
+    Grounding,
+    MergeContext,
+    ground_pair,
+    valid_bbox,
+)
 
 from ai_game_player.models import ActionCandidate, DetectedElement
 
@@ -8,7 +24,7 @@ CandidateView = tuple[ActionCandidate, str, str | None]
 
 
 class CandidateMerger:
-    def __init__(self, proximity: int = 20, iou_threshold: float = .5) -> None:
+    def __init__(self, proximity: int = 20, iou_threshold: float = 0.5) -> None:
         if not 0 <= iou_threshold <= 1:
             raise ValueError("IoU threshold must be between 0 and 1")
         self.proximity = proximity
@@ -33,7 +49,7 @@ class CandidateMerger:
 
     # {
     #   責務: [merge_with_sources: 候補を統合し、代表候補に寄与した入力元も呼び出し元へ返す]
-    #   処理: [候補の優先順位と確信度で代表を選び、重複統合した入力元を自動操作・認識文字・画像の順で記録する]
+    #   処理: [merge_detailedの結果から、衝突・拒否を除いた代表候補と入力元の組だけを返す従来形式のアダプタ]
     #   引数: [automation: 利用者設定または自動操作から得た候補, ocr: 文字認識結果, image: 画像解析結果]
     #   戻り値: [list[tuple[ActionCandidate, tuple[str, ...]]]: 代表候補とその候補を検出した入力元の組]
     # }
@@ -43,33 +59,128 @@ class CandidateMerger:
         ocr: Sequence[CandidateInput],
         image: Sequence[CandidateInput] | None = None,
     ) -> list[tuple[ActionCandidate, tuple[str, ...]]]:
-        result: list[tuple[CandidateView, set[str]]] = [
-            (self._view(candidate, "automation"), {"automation"})
-            for candidate in automation
-        ]
-        for group, candidates in (("ocr", ocr), ("image", image or [])):
+        report = self.merge_detailed(automation, ocr, image)
+        return list(zip(report.candidates, report.sources))
+
+    # {
+    #   責務: [merge_detailed: 同一IDの無条件統合を行わず、対象の一致を証拠で確認して候補を統合する]
+    #   処理: [入力を検証し、ground_pairで同一と判定した組だけ統合する。同じIDが複数の異なる対象に残る場合は全て衝突として退避し許可候補から外す。世代・座標系が食い違う候補と不正な矩形は理由付きで拒否する。件数が上限を超えたら全候補を保留する]
+    #   引数: [automation: 利用者設定または自動操作から得た候補, ocr: 文字認識結果, image: 画像解析結果, context: 入力元ごとの座標系・Frame・世代（省略時は単一Frame内とみなす）]
+    #   戻り値: [CandidateMergeReport: 許可候補・入力元・元ID・衝突・拒否・固定理由・比較回数]
+    # }
+    def merge_detailed(
+        self,
+        automation: list[ActionCandidate],
+        ocr: Sequence[CandidateInput],
+        image: Sequence[CandidateInput] | None = None,
+        context: MergeContext | None = None,
+    ) -> CandidateMergeReport:
+        context = context or MergeContext()
+        image = image or []
+        if len(automation) + len(ocr) + len(image) > MAX_CANDIDATES:
+            # 上限超過は無制限のO(n^2)比較を避け、全候補を保留する
+            return CandidateMergeReport(reason=REASON_CAPACITY)
+        result: list[tuple[CandidateView, set[str], list[str]]] = []
+        rejected: list[tuple[ActionCandidate, str]] = []
+        comparisons = 0
+        groups = (("automation", automation), ("ocr", ocr), ("image", image))
+        for group, candidates in groups:
             for value in candidates:
                 incoming = self._view(value, group)
-                duplicate = next(
-                    (
-                        index
-                        for index, (existing, _sources) in enumerate(result)
-                        if self._same(existing, incoming)
-                    ),
-                    None,
-                )
-                if duplicate is None:
-                    result.append((incoming, {group}))
+                if not self._geometry_is_valid(incoming[0]):
+                    rejected.append((incoming[0], REASON_INVALID))
                     continue
-                existing, existing_sources = result[duplicate]
-                merged_sources = existing_sources | {group}
-                representative = incoming if self._prefer(incoming, existing) else existing
-                result[duplicate] = (representative, merged_sources)
+                incoming_identity = self._identity(incoming, context)
+                duplicate = None
+                ambiguous = False
+                for index, (existing, _sources, _ids) in enumerate(result):
+                    comparisons += 1
+                    grounding = ground_pair(
+                        self._identity(existing, context),
+                        incoming_identity,
+                        self.proximity,
+                        self.iou_threshold,
+                    )
+                    if grounding is Grounding.SAME:
+                        duplicate = index
+                        break
+                    ambiguous = ambiguous or grounding is Grounding.AMBIGUOUS
+                if duplicate is None:
+                    if ambiguous:
+                        rejected.append((incoming[0], REASON_AMBIGUOUS))
+                        continue
+                    result.append((incoming, {group}, [incoming[0].action_id]))
+                    continue
+                existing, existing_sources, existing_ids = result[duplicate]
+                ids = (
+                    existing_ids
+                    if incoming[0].action_id in existing_ids
+                    else [*existing_ids, incoming[0].action_id]
+                )
+                representative = (
+                    incoming if self._prefer(incoming, existing) else existing
+                )
+                result[duplicate] = (representative, existing_sources | {group}, ids)
+        counts: dict[str, int] = {}
+        for view, _sources, _ids in result:
+            counts[view[0].action_id] = counts.get(view[0].action_id, 0) + 1
+        collisions = tuple(
+            view[0] for view, _s, _i in result if counts[view[0].action_id] > 1
+        )
+        kept = [entry for entry in result if counts[entry[0][0].action_id] == 1]
         source_order = ("automation", "ocr", "image")
-        return [
-            (view[0], tuple(source for source in source_order if source in sources))
-            for view, sources in result
-        ]
+        return CandidateMergeReport(
+            candidates=tuple(view[0] for view, _s, _i in kept),
+            sources=tuple(
+                tuple(name for name in source_order if name in sources)
+                for _v, sources, _i in kept
+            ),
+            origin_ids=tuple(tuple(ids) for _v, _s, ids in kept),
+            collisions=collisions,
+            rejected=tuple(rejected),
+            reason=self._report_reason(collisions, rejected),
+            comparisons=comparisons,
+        )
+
+    # {"責務": "報告全体のreasonを衝突>幾何不正>曖昧>okの優先順で決める", "処理": "衝突があれば衝突、棄却に不正幾何があれば不正幾何、棄却のみなら曖昧、なければok", "引数": ["collisions: 衝突候補", "rejected: (候補, 理由)の棄却一覧"], "戻り値": ["reason文字列"]}
+    @staticmethod
+    def _report_reason(
+        collisions: tuple[ActionCandidate, ...],
+        rejected: list[tuple[ActionCandidate, str]],
+    ) -> str:
+        if collisions:
+            return REASON_COLLISION
+        if any(reason == REASON_INVALID for _c, reason in rejected):
+            return REASON_INVALID
+        return REASON_AMBIGUOUS if rejected else REASON_OK
+
+    def _geometry_is_valid(self, candidate: ActionCandidate) -> bool:
+        if candidate.bbox is not None and not valid_bbox(candidate.bbox):
+            return False
+        return all(
+            value is None or isfinite(value) for value in (candidate.x, candidate.y)
+        )
+
+    def _identity(
+        self, view: CandidateView, context: MergeContext
+    ) -> CandidateIdentity:
+        candidate, group, text = view
+        center = (
+            None
+            if candidate.x is None or candidate.y is None
+            else (candidate.x, candidate.y)
+        )
+        return CandidateIdentity(
+            candidate.action_id,
+            candidate.kind,
+            candidate.bbox,
+            center,
+            group,
+            context.coordinate_spaces.get(group),
+            context.frame_refs.get(group),
+            context.generations.get(group),
+            self._normalize_text(text),
+        )
 
     def _view(self, value: CandidateInput, group: str) -> CandidateView:
         if isinstance(value, DetectedElement):
@@ -88,26 +199,6 @@ class CandidateMerger:
         text = None if group == "image" else value.label
         return value, group, text
 
-    def _same(self, left: CandidateView, right: CandidateView) -> bool:
-        left_candidate, left_group, left_text = left
-        right_candidate, right_group, right_text = right
-        if left_candidate.action_id == right_candidate.action_id:
-            return True
-        normalized_left = self._normalize_text(left_text)
-        normalized_right = self._normalize_text(right_text)
-        if left_candidate.bbox is not None and right_candidate.bbox is not None:
-            if self._iou(left_candidate.bbox, right_candidate.bbox) >= self.iou_threshold:
-                if normalized_left and normalized_right:
-                    return normalized_left == normalized_right
-                return True
-        if left_candidate.x is None or left_candidate.y is None or right_candidate.x is None or right_candidate.y is None:
-            return False
-        if abs(left_candidate.x - right_candidate.x) > self.proximity or abs(left_candidate.y - right_candidate.y) > self.proximity:
-            return False
-        if normalized_left and normalized_right:
-            return normalized_left == normalized_right
-        return "image" in {left_group, right_group}
-
     def _prefer(self, incoming: CandidateView, existing: CandidateView) -> bool:
         incoming_candidate, incoming_group, _ = incoming
         existing_candidate, existing_group, _ = existing
@@ -122,11 +213,3 @@ class CandidateMerger:
 
     def _normalize_text(self, text: str | None) -> str:
         return " ".join(text.casefold().split()) if text else ""
-
-    def _iou(self, left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> float:
-        left_x, left_y, left_width, left_height = left
-        right_x, right_y, right_width, right_height = right
-        overlap_width = max(0, min(left_x + left_width, right_x + right_width) - max(left_x, right_x))
-        overlap_height = max(0, min(left_y + left_height, right_y + right_height) - max(left_y, right_y))
-        overlap = overlap_width * overlap_height
-        return overlap / (left_width * left_height + right_width * right_height - overlap)

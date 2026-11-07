@@ -414,16 +414,27 @@ classDiagram
         +close_after_run()
         +_create_episode()
     }
+    Enum <|-- Grounding
+    class Grounding {
+    }
+    class CandidateIdentity {
+    }
+    class MergeContext {
+    }
+    class CandidateMergeReport {
+    }
     class CandidateMerger {
         +__init__()
         +merge()
         +merge_with_sources()
+        +merge_detailed()
+        +_report_reason()
+        +_geometry_is_valid()
+        +_identity()
         +_view()
-        +_same()
         +_prefer()
         +_priority()
         +_normalize_text()
-        +_iou()
     }
     class CaptureGeometry {
         +__post_init__()

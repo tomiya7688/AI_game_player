@@ -174,6 +174,7 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
+- Issue #495: `CandidateMerger`の「同一IDなら同一対象」の無条件統合を廃止。`CandidateIdentity`/`ground_pair`で対象の同一性を証拠から判定し、同ID異対象は衝突として許可候補から除外、異ID同対象は出所と元IDを保持して統合する（`merge_detailed`追加、既存APIは互換）。128候補・16,384比較の上限付き。[仕様](design/issue-495-candidate-identity.md)
 - Issue #845（設計のみ）: 賢者ミスク本人がPlayer、GUI発言は友達の提案、ホスト制御は別という権限分離の正本（[根本目標](根本目標.md)・[権限分離](architecture/autonomous_player_goal_authority.md)）を追加。現行の`目的`欄を旧来の直接Goal経路と明記し、脅威モデルと旧契約が残るIssueを整合。実装はなし。
 - Issue #787（設計のみ）: Long-session Resource Stability Gateの設計書を追加。warmup分離・区間中央値とTheil-Senの傾き・Session終了後の回収・複数Session反復のbaseline driftで資源の非有界増加を判定し、測定不能を成功扱いしない（unsupported語彙・`no_judged_metrics`）。fast（fake資源世界とcanary）・integration（既存campaignを外部から観測）・real_hardware（#250へ同一schema）の3層、report/sample schema、CI組込み方針（required checksは設計のみ）を定める。実装は後続PR。[設計](design/issue-787-long-session-resource-stability-gate.md)
 - Issue #791（設計のみ）: 2048の空盤面・HTMLActuator欠落を、Frame・HTTP・JS・DOMの証拠を起動世代の相関IDと親processの単調時計で結び、境界順の原因カテゴリへ分類する診断（`reference-startup-correlation/v1`、`classify_startup_failure`、証拠欠落時は`evidence_incomplete`でfail-closed）と、起動時間p50/p95・失敗率のcohort別集計の実装Packetを追加。根因未確定のため製品の挙動修正は行わず、修正の条件を定めました。実装は後続PRです。[設計](design/issue-791-2048-empty-board-diagnosis.md)
