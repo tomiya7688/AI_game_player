@@ -4,6 +4,8 @@
 
 恒久構成はQt 6 Widgets/C++のネイティブGUI（WebViewなし）、Rust常駐Core、任意のPython/AI workerへ移行する方針です。**移行は未実装**で、現在のTkinter/Python+C++とWindows E2Eを維持します。[決定・現在との境界・4つの実装Issue](doc/architecture/qt_rust_migration.md)を参照してください。
 
+**このプロジェクトの根本目標：** 賢者ミスクは利用者の代行マクロではなく、ゲームを自分で遊ぶ独立したPlayerです。GUIからの発言は隣の友達の提案で、採否はPlayerが決めます。まず[根本目標](doc/根本目標.md)を読んでください。
+
 ## 基本フロー
 
 ```text
