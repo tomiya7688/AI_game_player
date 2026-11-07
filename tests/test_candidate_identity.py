@@ -99,6 +99,21 @@ class CandidateIdentityTest(unittest.TestCase):
         self.assertEqual({reason for _c, reason in report.rejected}, {REASON_INVALID})
         self.assertEqual(report.reason, REASON_INVALID)
 
+    def test_collision_uses_merged_origin_ids_and_keeps_them_in_report(self):
+        report = CandidateMerger().merge_detailed(
+            [button("a", 20, 20), button("x", 300, 300)], [button("x", 20, 20)]
+        )
+        self.assertEqual(report.candidates, ())
+        self.assertEqual(report.reason, REASON_COLLISION)
+        self.assertIn(("a", "x"), report.collision_origin_ids)
+        self.assertEqual(len(report.collision_sources), 2)
+
+    def test_huge_integer_coordinate_is_rejected_not_raised(self):
+        huge = ActionCandidate("h", "click", "H", 10**400, 1)
+        report = CandidateMerger().merge_detailed([huge], [])
+        self.assertEqual(report.candidates, ())
+        self.assertEqual(report.reason, REASON_INVALID)
+
     def test_over_capacity_is_held_as_unknown(self):
         many = [button(f"c{i}", i * 30, 0) for i in range(MAX_CANDIDATES + 1)]
         report = CandidateMerger().merge_detailed(many, [])

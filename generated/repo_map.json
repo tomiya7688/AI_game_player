@@ -17530,7 +17530,7 @@
       "module": "ai_game_player.candidate_identity",
       "path": "src/ai_game_player/candidate_identity.py",
       "source_location": {
-        "end_line": 144,
+        "end_line": 150,
         "start_line": 1
       },
       "symbols": [
@@ -17618,7 +17618,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 64,
+            "end_line": 66,
             "start_line": 57
           }
         },
@@ -17641,8 +17641,8 @@
           "signature": "(bbox: tuple[int, int, int, int]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 79,
-            "start_line": 73
+            "end_line": 85,
+            "start_line": 75
           }
         },
         {
@@ -17670,8 +17670,8 @@
           "signature": "(left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 98,
-            "start_line": 88
+            "end_line": 104,
+            "start_line": 94
           }
         },
         {
@@ -17711,8 +17711,8 @@
           "signature": "(left: CandidateIdentity, right: CandidateIdentity, proximity: int = …, iou_threshold: float = …) -> Grounding",
           "source_location": {
             "column": 0,
-            "end_line": 144,
-            "start_line": 107
+            "end_line": 150,
+            "start_line": 113
           }
         }
       ]
@@ -17834,7 +17834,7 @@
       "module": "ai_game_player.candidate_merger",
       "path": "src/ai_game_player/candidate_merger.py",
       "source_location": {
-        "end_line": 215,
+        "end_line": 232,
         "start_line": 1
       },
       "symbols": [
@@ -17854,7 +17854,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 215,
+            "end_line": 232,
             "start_line": 26
           }
         },
@@ -18018,7 +18018,7 @@
           "signature": "(self, automation: list[ActionCandidate], ocr: Sequence[CandidateInput], image: Sequence[CandidateInput] | None = …, context: MergeContext | None = …) -> CandidateMergeReport",
           "source_location": {
             "column": 4,
-            "end_line": 143,
+            "end_line": 156,
             "start_line": 71
           }
         },
@@ -18049,8 +18049,8 @@
           "signature": "(collisions: tuple[ActionCandidate, ...], rejected: list[tuple[ActionCandidate, str]]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 155,
-            "start_line": 147
+            "end_line": 168,
+            "start_line": 160
           }
         },
         {
@@ -18078,8 +18078,8 @@
           "signature": "(self, candidate: ActionCandidate) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 162,
-            "start_line": 157
+            "end_line": 179,
+            "start_line": 170
           }
         },
         {
@@ -18113,8 +18113,8 @@
           "signature": "(self, view: CandidateView, context: MergeContext) -> CandidateIdentity",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 164
+            "end_line": 200,
+            "start_line": 181
           }
         },
         {
@@ -18148,8 +18148,8 @@
           "signature": "(self, value: CandidateInput, group: str) -> CandidateView",
           "source_location": {
             "column": 4,
-            "end_line": 200,
-            "start_line": 185
+            "end_line": 217,
+            "start_line": 202
           }
         },
         {
@@ -18183,8 +18183,8 @@
           "signature": "(self, incoming: CandidateView, existing: CandidateView) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 209,
-            "start_line": 202
+            "end_line": 226,
+            "start_line": 219
           }
         },
         {
@@ -18212,8 +18212,8 @@
           "signature": "(self, group: str) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 212,
-            "start_line": 211
+            "end_line": 229,
+            "start_line": 228
           }
         },
         {
@@ -18241,8 +18241,8 @@
           "signature": "(self, text: str | None) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 214
+            "end_line": 232,
+            "start_line": 231
           }
         }
       ]
@@ -126997,7 +126997,7 @@
       "module": "tests.test_candidate_identity",
       "path": "tests/test_candidate_identity.py",
       "source_location": {
-        "end_line": 125,
+        "end_line": 140,
         "start_line": 1
       },
       "symbols": [
@@ -127072,7 +127072,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 121,
+            "end_line": 136,
             "start_line": 23
           }
         },
@@ -127311,6 +127311,52 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_collision_uses_merged_origin_ids_and_keeps_them_in_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_collision_uses_merged_origin_ids_and_keeps_them_in_report",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 102
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_huge_integer_coordinate_is_rejected_not_raised",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_huge_integer_coordinate_is_rejected_not_raised",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_over_capacity_is_held_as_unknown",
           "parameters": [
             {
@@ -127325,8 +127371,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 106,
-            "start_line": 102
+            "end_line": 121,
+            "start_line": 117
           }
         },
         {
@@ -127348,8 +127394,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 115,
-            "start_line": 108
+            "end_line": 130,
+            "start_line": 123
           }
         },
         {
@@ -127371,8 +127417,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 117
+            "end_line": 136,
+            "start_line": 132
           }
         }
       ]

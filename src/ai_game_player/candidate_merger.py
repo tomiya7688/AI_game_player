@@ -121,13 +121,21 @@ class CandidateMerger:
                     incoming if self._prefer(incoming, existing) else existing
                 )
                 result[duplicate] = (representative, existing_sources | {group}, ids)
+        # 代表IDだけでなく統合された全元IDで衝突を判定する
         counts: dict[str, int] = {}
-        for view, _sources, _ids in result:
-            counts[view[0].action_id] = counts.get(view[0].action_id, 0) + 1
-        collisions = tuple(
-            view[0] for view, _s, _i in result if counts[view[0].action_id] > 1
-        )
-        kept = [entry for entry in result if counts[entry[0][0].action_id] == 1]
+        for _view, _sources, ids in result:
+            for action_id in set(ids) | {_view[0].action_id}:
+                counts[action_id] = counts.get(action_id, 0) + 1
+        colliding = [
+            entry
+            for entry in result
+            if any(
+                counts[action_id] > 1
+                for action_id in set(entry[2]) | {entry[0][0].action_id}
+            )
+        ]
+        collisions = tuple(view[0] for view, _s, _i in colliding)
+        kept = [entry for entry in result if entry not in colliding]
         source_order = ("automation", "ocr", "image")
         return CandidateMergeReport(
             candidates=tuple(view[0] for view, _s, _i in kept),
@@ -137,6 +145,11 @@ class CandidateMerger:
             ),
             origin_ids=tuple(tuple(ids) for _v, _s, ids in kept),
             collisions=collisions,
+            collision_origin_ids=tuple(tuple(ids) for _v, _s, ids in colliding),
+            collision_sources=tuple(
+                tuple(name for name in source_order if name in sources)
+                for _v, sources, _i in colliding
+            ),
             rejected=tuple(rejected),
             reason=self._report_reason(collisions, rejected),
             comparisons=comparisons,
@@ -157,9 +170,13 @@ class CandidateMerger:
     def _geometry_is_valid(self, candidate: ActionCandidate) -> bool:
         if candidate.bbox is not None and not valid_bbox(candidate.bbox):
             return False
-        return all(
-            value is None or isfinite(value) for value in (candidate.x, candidate.y)
-        )
+        try:
+            return all(
+                value is None or isfinite(value) for value in (candidate.x, candidate.y)
+            )
+        except OverflowError:
+            # 巨大な整数座標はfloat変換できないため不正な幾何として扱う
+            return False
 
     def _identity(
         self, view: CandidateView, context: MergeContext

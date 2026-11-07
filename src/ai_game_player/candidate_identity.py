@@ -59,6 +59,8 @@ class CandidateMergeReport:
     sources: tuple[tuple[str, ...], ...] = ()
     origin_ids: tuple[tuple[str, ...], ...] = ()
     collisions: tuple[ActionCandidate, ...] = ()
+    collision_origin_ids: tuple[tuple[str, ...], ...] = ()
+    collision_sources: tuple[tuple[str, ...], ...] = ()
     rejected: tuple[tuple[ActionCandidate, str], ...] = ()
     reason: str = REASON_OK
     comparisons: int = 0
@@ -71,12 +73,16 @@ class CandidateMergeReport:
 #   戻り値: [bool: 利用できる矩形ならTrue]
 # }
 def valid_bbox(bbox: tuple[int, int, int, int]) -> bool:
-    return (
-        len(bbox) == 4
-        and all(isfinite(value) for value in bbox)
-        and bbox[2] > 0
-        and bbox[3] > 0
-    )
+    try:
+        return (
+            len(bbox) == 4
+            and all(isfinite(value) for value in bbox)
+            and bbox[2] > 0
+            and bbox[3] > 0
+        )
+    except OverflowError:
+        # 巨大な整数はfloat変換できないため不正な幾何として扱う
+        return False
 
 
 # {
