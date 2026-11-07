@@ -26,7 +26,9 @@ Full rules: `doc/ワークフロー/ワークフロー.md` ("複数AI・人が�
 
 ## Compressed project state (Issue #19)
 
-Goal: establish a safe closed loop for one GUI game without hand-editing candidate JSON.
+Root goal (read [doc/根本目標.md](doc/根本目標.md) first): 賢者ミスク is an independent player that plays games itself and decides its own in-game Goals and evaluation. The GUI user is a friend beside it: chat is a proposal, never a command. Host controls (OS input, Stop, privacy, cost) are separate and need no Player consent. Authority: [doc/architecture/autonomous_player_goal_authority.md](doc/architecture/autonomous_player_goal_authority.md). Any older text that makes user goals override the Player is void.
+
+Near-term goal: establish a safe closed loop for one GUI game without hand-editing candidate JSON.
 
 Issue #661 fixes the permanent target to Qt 6 Widgets (C++ native, no embedded WebView) + a separate Rust resident Core + optional Python/AI workers. Current Tkinter/Python+C++ C ABI v1 and Windows E2E remain compatibility implementations. New permanent UI work follows #664–#667 and `doc/architecture/qt_rust_migration.md`; target/planned declarations do not prove runtime or Qt distribution readiness. UI-independent Python reference algorithms remain valid migration inputs.
 
@@ -98,6 +100,7 @@ Non-negotiable constraints:
 - Follow `doc/ワークフロー/ワークフロー.md`.
 - Read and apply `doc/レビュー基準.md` to every PR; code and documentation changes must follow `doc/コーディング規約.md`.
 - Follow Issue #19: implementation PRs must map specified methods to actual implementation, runtime wiring, evidence, justified replacements, and deferred deliverables with Open Issue references. Separate Core, Runtime, and Real-play completion; the automated gate belongs to Issue #508.
+- Write the spec with the implementation: every feature PR adds or updates its design/spec document under `doc/` (purpose, scope, data, flow, tests, limits, open items, last-checked date) and links it from `doc/architecture/README.md` or the task router. Source code alone is not the specification. Do not claim behavior that is not verified on a real run.
 - Before every commit, run `finish_task.bat`. Do not commit when it fails.
 - `finish_task.bat` includes generated docs, unit tests, compile checks, high-confidence bug checks, runtime-boundary contract validation, runtime performance budgets, and `git diff --check`.
 - UPD architecture rules are enforced by `upd-architecture-ci`; the checker is a development/CI dependency and must not enter the normal game runtime import path.

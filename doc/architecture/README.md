@@ -7,6 +7,7 @@
 | 知りたいこと | 読む順番 |
 |---|---|
 | 恒久GUIと常駐Coreの選定、現在との移行差分 | [Qt6 Widgets / Rust Coreの決定と未実装gate](qt_rust_migration.md) |
+| Player・友達（GUI発言）・ホストの権限分離とGoal発見 | [自律Playerと権限分離](autonomous_player_goal_authority.md)・[根本目標](../根本目標.md) |
 | 新しい画面から次の操作までの順番 | [一回の判断と実行の流れ](flow_for_readers.md) |
 | UI・Python・Windows・任意サービスの役割 | [部品と実行場所](runtime_map_for_readers.md) |
 | PythonとC++の分け方を開発者として考える | [既存Runtime Architecture](runtime_layers.md)・[Native境界](native_runtime_boundary.md) |

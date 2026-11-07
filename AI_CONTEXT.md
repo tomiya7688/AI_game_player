@@ -4,7 +4,8 @@
 
 ## Project
 - Name: Kadoka AI Game Player
-- Goal: `Screen -> State -> Decide -> Act -> Observe -> Evaluate -> next decision`
+- Root goal: [doc/根本目標.md](doc/根本目標.md) — 賢者ミスク plays the game itself; GUI chat is a friend's proposal, not a command; host controls are separate ([authority](doc/architecture/autonomous_player_goal_authority.md))
+- Loop: `Screen -> State -> Decide -> Act -> Observe -> Evaluate -> next decision`
 - Current compatibility runtime: Tkinter/Python + C++ C ABI v1. Target (#661): Qt 6 Widgets/C++ native GUI, separate Rust resident Core, optional Python/AI worker; no embedded WebView. Target is planned, not implemented. See `doc/architecture/qt_rust_migration.md`.
 
 ## Source of Truth
