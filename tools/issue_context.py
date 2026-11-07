@@ -38,8 +38,38 @@ def gh_json(args):
     return json.loads(result)
 
 
+def fetch_issues_rest():
+    """GraphQLが使えない環境（クラウドセッション等）向けに、RESTでメタデータのみ全ページ取得する。"""
+    # --paginateはLinkヘッダ経由でrepositories/{id}へ飛びプロキシに拒否されるため、ページ番号を明示する。
+    pages = []
+    for number in range(1, 101):
+        page = gh_json(["api", f"repos/{REPO}/issues?state=open&per_page=100&page={number}"])
+        pages.append(page)
+        if len(page) < 100:
+            break
+    else:
+        raise ValueError("GitHub pagination is incomplete; refusing partial selection.")
+    issues = []
+    for page in pages:
+        for node in page:
+            if node.get("pull_request") is not None:
+                continue
+            issues.append({
+                "number": node["number"], "title": node["title"], "url": node["html_url"],
+                "labels": [{"name": label["name"]} for label in node["labels"]],
+            })
+    return issues
+
+
 def fetch_issues():
     """Paginate metadata only, including older Issues beyond the first 100."""
+    try:
+        return fetch_issues_graphql()
+    except subprocess.CalledProcessError:
+        return fetch_issues_rest()
+
+
+def fetch_issues_graphql():
     owner, name = REPO.split("/")
     pages = gh_json([
         "api", "graphql", "--paginate", "--slurp", "-f", f"query={QUERY}",
