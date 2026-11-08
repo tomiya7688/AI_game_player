@@ -13,6 +13,7 @@ from typing import Any
 PROMOTION_SCHEMA_VERSION = 1
 MAX_CASES = 1_000_000
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
+TIMESTAMP_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 IDENTIFIER_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
 ROLLBACK_REASONS = ("operator_request", "regression_detected", "safety_stop")
 
@@ -77,12 +78,13 @@ class PromotionCriteria:
 
 # {
 #   責務: [CandidateEvaluation: #173系の比較評価がChampionとChallengerを同じケースで測った結果を保持する。passedフラグは持たない]
-#   フィールド: [evaluation_ref: 評価実行の識別子, artifact_id: 評価対象のChallenger artifact, champion_sha256/challenger_sha256: 比較したparameterの内容hash,
+#   フィールド: [evaluation_ref: 評価実行の識別子, evaluated_at: 評価を測り終えたUTC Z時刻(targetの最後の変更より後のものだけが有効), artifact_id: 評価対象のChallenger artifact, champion_sha256/challenger_sha256: 比較したparameterの内容hash,
 #     target_cases/regression_cases: 失敗・Timeoutを含めた母数, target_*: 対象指標(0..1、大きいほど良い), regression_*: 回帰指標(0..1、大きいほど良い)]
 # }
 @dataclass(frozen=True, slots=True)
 class CandidateEvaluation:
     evaluation_ref: str
+    evaluated_at: str
     artifact_id: str
     champion_sha256: str
     challenger_sha256: str
@@ -102,6 +104,8 @@ class CandidateEvaluation:
         for name in ("evaluation_ref", "artifact_id"):
             if type(getattr(self, name)) is not str or not IDENTIFIER_PATTERN.fullmatch(getattr(self, name)):
                 raise PromotionError("invalid_input", f"{name} is not a bounded identifier")
+        if type(self.evaluated_at) is not str or not TIMESTAMP_PATTERN.fullmatch(self.evaluated_at):
+            raise PromotionError("invalid_input", "evaluated_at must be a UTC Z timestamp")
         for name in ("champion_sha256", "challenger_sha256"):
             if type(getattr(self, name)) is not str or not SHA256_PATTERN.fullmatch(getattr(self, name)):
                 raise PromotionError("invalid_input", f"{name} must be a sha256 hex digest")

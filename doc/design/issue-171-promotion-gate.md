@@ -19,11 +19,11 @@ Parent: #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner�
 
 ## 採否の規則（`decide`）
 
-外部の`passed`フラグは受け付けず、`CandidateEvaluation`の数値からGateが計算する。却下理由は固定コードで、1〜3の前提（stale・評価不一致・評価の再利用）は他の条件を調べずに単独の理由で返し、4〜7の数値条件は満たさないものをすべて列挙する。
+外部の`passed`フラグは受け付けず、`CandidateEvaluation`の数値からGateが計算する。却下理由は固定コードで、1〜3の前提（stale・評価不一致・評価の鮮度）は他の条件を調べずに単独の理由で返し、4〜7の数値条件は満たさないものをすべて列挙する。
 
 1. 現在のChampionが`artifact.parent`と一致しない → `stale_champion`（同じartifactの二重昇格もここで拒否）
 2. 評価の`artifact_id`・champion/challenger hashがartifactと一致しない → `evaluation_mismatch`
-3. 同じ`evaluation_ref`が保持中の監査で既に昇格に使われている → `evaluation_reused`（rollback後に同じ評価で再昇格させない。再評価は新しい`evaluation_ref`で行う）
+3. 評価の`evaluated_at`が、そのtargetの最後の変更（初期化・昇格・rollback）の時刻`last_change_at`以前 → `stale_evaluation`（rollback後に、変更前に測った評価で再昇格させない。再評価は変更後に測り直す）。判定時刻より後の`evaluated_at`は`evaluation_in_future`
 4. 件数が`min_target_cases`/`min_regression_cases`未満 → `insufficient_*_cases`（失敗・Timeoutを母数に含めて渡す前提）
 5. 対象指標の改善が`min_target_gain`未満 → `no_target_improvement`
 6. 回帰指標の低下が`max_regression_drop`（既定0）を超える → `regression`（対象指標が大きく改善しても昇格しない）
@@ -33,7 +33,7 @@ Parent: #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner�
 
 ## 状態と監査
 
-1ファイルのJSON（`schema: challenger-champion-registry`）。各操作は`cross_process_file_lock`内で状態を読み直し、検証し、一時ファイル経由で原子的に置換する（失敗時は旧状態）。audit eventは`prev_digest`/`digest`のhash連鎖で、保持上限128件。切り詰めた分は`audit_base_digest`に連鎖を引き継ぐ。読込時にkeyとparameterの整合、連鎖、重複key、NaNを検査し、不整合は`PromotionError(invalid_state)`にする。
+1ファイルのJSON（`schema: challenger-champion-registry`）。targetごとにChampion・rollback履歴・`last_change_at`を持つ。評価の再利用防止は監査ログではなくこの`last_change_at`（targetごとに1つの単調な時刻）で行うので、監査の保持上限(128件)に依存せず永続的に効き、状態は増えない。各操作は`cross_process_file_lock`内で状態を読み直し、検証し、一時ファイル経由で原子的に置換する（失敗時は旧状態）。audit eventは`prev_digest`/`digest`のhash連鎖で、保持上限128件。切り詰めた分は`audit_base_digest`に連鎖を引き継ぐ。読込時にkeyとparameterの整合、連鎖、重複key、NaNを検査し、不整合は`PromotionError(invalid_state)`にする。
 
 ## テスト（`tests/test_challenger_promotion.py`）
 

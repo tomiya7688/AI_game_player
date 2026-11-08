@@ -62,7 +62,7 @@ class ChampionRegistry:
             key = _key(champion)
             if key in state["targets"]:
                 raise PromotionError("already_initialized", "champion already registered")
-            state["targets"][key] = {"champion": champion.to_dict(), "history": []}
+            state["targets"][key] = {"champion": champion.to_dict(), "history": [], "last_change_at": at}
             _append_audit(state, "initialize", champion, None, champion.sha256, None, None, (), at)
             self._commit(state)
             return PromotionDecision("promoted", (), state["generation"], champion.version, "")
@@ -96,7 +96,7 @@ class ChampionRegistry:
                 raise PromotionError("not_initialized", "no champion registered for this target")
             current = ComponentParameters.from_dict(target["champion"])
             reasons = _reject_reasons(
-                artifact, evaluation, criteria, current, _promoted_evaluation_refs(state)
+                artifact, evaluation, criteria, current, target["last_change_at"], at
             )
             if reasons:
                 _append_audit(
@@ -106,6 +106,7 @@ class ChampionRegistry:
                 return PromotionDecision("rejected", reasons, state["generation"], current.version, criteria.fingerprint)
             target["history"] = (target["history"] + [target["champion"]])[-MAX_ROLLBACK_VERSIONS:]
             target["champion"] = artifact.challenger.to_dict()
+            target["last_change_at"] = at
             _append_audit(
                 state, "promote", artifact.challenger, artifact, artifact.challenger.sha256,
                 evaluation, criteria, (), at, from_sha256=current.sha256,
@@ -135,6 +136,7 @@ class ChampionRegistry:
             current = ComponentParameters.from_dict(target["champion"])
             previous = ComponentParameters.from_dict(target["history"].pop())
             target["champion"] = previous.to_dict()
+            target["last_change_at"] = at
             _append_audit(
                 state, "rollback", previous, None, previous.sha256, None, None, (reason,), at,
                 from_sha256=current.sha256,
@@ -215,7 +217,8 @@ def _reject_reasons(
     evaluation: CandidateEvaluation,
     criteria: PromotionCriteria,
     current: ComponentParameters,
-    used_evaluation_refs: frozenset[str],
+    last_change_at: str,
+    decided_at: str,
 ) -> tuple[str, ...]:
     if artifact.parent.sha256 != current.sha256:
         return ("stale_champion",)
@@ -225,8 +228,12 @@ def _reject_reasons(
         or evaluation.challenger_sha256 != artifact.challenger.sha256
     ):
         return ("evaluation_mismatch",)
-    if evaluation.evaluation_ref in used_evaluation_refs:
-        return ("evaluation_reused",)
+    # 評価はtargetの最後の変更(初期化・昇格・rollback)より後に測ったものだけを受け付ける。
+    # 時刻は対象ごとに1つだけ持つので、監査ログの保持上限(128件)に依存せず永続的に効く。
+    if evaluation.evaluated_at <= last_change_at:
+        return ("stale_evaluation",)
+    if evaluation.evaluated_at > decided_at:
+        return ("evaluation_in_future",)
     reasons = []
     if evaluation.target_cases < criteria.min_target_cases:
         reasons.append("insufficient_target_cases")
@@ -240,15 +247,6 @@ def _reject_reasons(
     if cost.parameter_bytes > criteria.max_parameter_bytes or cost.delta_bytes > criteria.max_delta_bytes:
         reasons.append("resource_exceeded")
     return tuple(sorted(reasons))
-
-
-def _promoted_evaluation_refs(state: dict[str, Any]) -> frozenset[str]:
-    """保持している監査で昇格に使われた評価の識別子。rollback後の同一評価による再昇格を防ぐ。"""
-    return frozenset(
-        event["evaluation_ref"]
-        for event in state["audit"]
-        if event["action"] == "promote" and event["evaluation_ref"] is not None
-    )
 
 
 def _gap(larger: float, smaller: float) -> float:
@@ -343,9 +341,12 @@ def _validate_state(state: Any) -> None:
     for key, target in state["targets"].items():
         if not isinstance(target, dict) or not isinstance(target.get("history"), list):
             raise ValueError("target history must be a list")
+        if type(target.get("last_change_at")) is not str:
+            raise ValueError("target last_change_at must be a timestamp")
+        _check_time(target["last_change_at"])
         champion = ComponentParameters.from_dict(target["champion"])
         history = [ComponentParameters.from_dict(item) for item in target["history"]]
-        if set(target) != {"champion", "history"} or len(history) > MAX_ROLLBACK_VERSIONS:
+        if set(target) != {"champion", "history", "last_change_at"} or len(history) > MAX_ROLLBACK_VERSIONS:
             raise ValueError("target record does not match the contract")
         if key != _key(champion) or any(_key(item) != key for item in history):
             raise ValueError("target key does not match its parameters")
@@ -368,8 +369,16 @@ def _validate_state(state: Any) -> None:
 def _validate_pointer_binding(state: dict[str, Any]) -> None:
     """Champion pointerと世代を、保持している監査eventの最新状態へ束縛する。"""
     latest: dict[str, dict[str, Any]] = {}
+    last_change: dict[str, dict[str, Any]] = {}
     for event in state["audit"]:
         latest[event["target"]] = event
+        if event["action"] != "reject":
+            last_change[event["target"]] = event
+    # 評価の鮮度基準(last_change_at)は、保持している最新の変更eventの時刻と一致しなければならない。
+    for key, event in last_change.items():
+        target = state["targets"].get(key)
+        if target is None or target["last_change_at"] != event["at"]:
+            raise ValueError("last change time does not match the audit trail")
     for key, event in latest.items():
         target = state["targets"].get(key)
         if target is None or ComponentParameters.from_dict(target["champion"]).sha256 != event["to_sha256"]:

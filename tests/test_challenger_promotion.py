@@ -24,12 +24,15 @@ from tests.test_challenger_update import (
 )
 
 LATER = "2026-11-06T01:00:00Z"
+EVALUATED = "2026-11-06T00:30:00Z"  # 初期化(TIME)より後、判定(LATER)より前
+AFTER_ROLLBACK = "2026-11-06T02:30:00Z"
 CRITERIA = PromotionCriteria()
 
 
 def evaluation_for(artifact, **overrides):
     values = {
         "evaluation_ref": "eval.one",
+        "evaluated_at": EVALUATED,
         "artifact_id": artifact.artifact_id,
         "champion_sha256": artifact.parent.sha256,
         "challenger_sha256": artifact.challenger.sha256,
@@ -54,10 +57,10 @@ class PromotionGateTest(unittest.TestCase):
         self.artifact = build_challenger(proposal, DECISION, created_at=TIME)
         self.registry.initialize(DECISION, at=TIME)
 
-    def decide(self, artifact=None, **overrides):
+    def decide(self, artifact=None, at=LATER, **overrides):
         artifact = artifact or self.artifact
         return self.registry.decide(
-            artifact, evaluation_for(artifact, **overrides), CRITERIA, at=LATER
+            artifact, evaluation_for(artifact, **overrides), CRITERIA, at=at
         )
 
     def test_improvement_promotes_and_moves_pointer(self):
@@ -203,12 +206,42 @@ class PromotionGateTest(unittest.TestCase):
         self.path.write_text(valid, encoding="utf-8")
         self.assertIsNotNone(self.registry.champion("decision", SCOPE))
 
-    def test_used_evaluation_cannot_repromote_after_rollback(self):
+    def test_evaluation_before_rollback_cannot_repromote(self):
         self.assertTrue(self.decide().promoted)
-        self.registry.rollback("decision", SCOPE, reason="regression_detected", at=LATER)
-        self.assertEqual(self.decide().reasons, ("evaluation_reused",))
-        fresh = self.decide(evaluation_ref="eval.two")
+        self.registry.rollback("decision", SCOPE, reason="regression_detected", at="2026-11-06T02:00:00Z")
+        self.assertEqual(self.decide(at="2026-11-06T03:00:00Z").reasons, ("stale_evaluation",))
+        fresh = self.decide(at="2026-11-06T03:00:00Z", evaluated_at=AFTER_ROLLBACK)
         self.assertTrue(fresh.promoted)
+
+    def test_stale_evaluation_stays_rejected_after_audit_is_truncated(self):
+        # オーナー指摘の回帰: promote(R)→rollback→監査128件超→同じRで再試行。再生成後も拒否する。
+        self.assertTrue(self.decide().promoted)
+        self.registry.rollback("decision", SCOPE, reason="regression_detected", at="2026-11-06T02:00:00Z")
+        for _ in range(MAX_AUDIT_EVENTS + 2):
+            self.assertEqual(self.decide(at="2026-11-06T03:00:00Z").reasons, ("stale_evaluation",))
+        events = self.registry.audit_events()
+        self.assertEqual(len(events), MAX_AUDIT_EVENTS)
+        self.assertNotIn("promote", [event["action"] for event in events])
+        for registry in (self.registry, ChampionRegistry(self.path)):
+            decision = registry.decide(
+                self.artifact, evaluation_for(self.artifact), CRITERIA, at="2026-11-06T03:00:00Z"
+            )
+            self.assertEqual(decision.reasons, ("stale_evaluation",))
+        self.assertEqual(self.registry.champion("decision", SCOPE).sha256, DECISION.sha256)
+
+    def test_evaluation_from_the_future_is_rejected(self):
+        decision = self.decide(evaluated_at="2026-11-06T01:00:01Z")
+        self.assertEqual(decision.reasons, ("evaluation_in_future",))
+
+    def test_tampered_last_change_time_is_rejected(self):
+        self.decide()
+        state = json.loads(self.path.read_text(encoding="utf-8"))
+        key = next(iter(state["targets"]))
+        state["targets"][key]["last_change_at"] = "2000-01-01T00:00:00Z"
+        self.path.write_text(json.dumps(state), encoding="utf-8")
+        with self.assertRaises(PromotionError) as context:
+            self.registry.champion("decision", SCOPE)
+        self.assertEqual(context.exception.code, "invalid_state")
 
     def test_swapped_rollback_history_is_rejected(self):
         self.decide()
@@ -251,6 +284,8 @@ class PromotionGateTest(unittest.TestCase):
             evaluation_for(self.artifact, target_candidate=float("nan"))
         with self.assertRaises(PromotionError):
             evaluation_for(self.artifact, target_cases=-1)
+        with self.assertRaises(PromotionError):
+            evaluation_for(self.artifact, evaluated_at="yesterday")
         with self.assertRaises(PromotionError):
             PromotionCriteria(min_target_gain=0)
         with self.assertRaises(PromotionError):
