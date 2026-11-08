@@ -84,6 +84,14 @@ class IssueContextPriorityTest(unittest.TestCase):
             MODULE.has_claim_comment = original
         self.assertEqual(selected["number"], 30)
 
+    def test_fullwidth_colon_claim_comment_is_detected(self):
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: [{"body": "着手：Codex, branch"}]
+        try:
+            self.assertTrue(MODULE.has_claim_comment(1))
+        finally:
+            MODULE.gh_json = original
+
 
 if __name__ == "__main__":
     unittest.main()

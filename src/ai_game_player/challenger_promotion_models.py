@@ -14,16 +14,6 @@ PROMOTION_SCHEMA_VERSION = 1
 MAX_CASES = 1_000_000
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 IDENTIFIER_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")
-# 却下理由の固定コード。採否の根拠を自由文にせず、監査で集計できるようにする。
-REJECT_REASONS = (
-    "evaluation_mismatch",
-    "insufficient_target_cases",
-    "insufficient_regression_cases",
-    "no_target_improvement",
-    "regression",
-    "resource_exceeded",
-    "stale_champion",
-)
 ROLLBACK_REASONS = ("operator_request", "regression_detected", "safety_stop")
 
 

@@ -48,6 +48,6 @@ Parent: #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner�
 
 - 実runtime（Decision等）が`ChampionRegistry`のpointerを読む配線は未実装。
 - 評価値の真正性は呼出側（#173）の責務。Gateは数値の範囲・対象一致・件数だけ検査する。
-- 履歴32世代・監査128件を超えた古い分は保持しない。
+- 履歴32世代・監査128件を超えた古い分は保持しない。読込時にChampion pointerと世代は、保持している監査eventの最新状態と一致することを検査する（切り詰めで消えたtargetは監査との照合ができない）。
 - Windows実機・複数processの同時書込みの実測は未実施（lockはdependency-freeなadvisory lock）。
 - #426のaggressivenessは生成側にだけ影響し、本Gateの最低条件は弱めない。#427の複数candidateは、best candidateを1件ずつ`decide`へ渡す。

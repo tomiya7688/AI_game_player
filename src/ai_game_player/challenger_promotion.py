@@ -333,6 +333,7 @@ def _validate_state(state: Any) -> None:
             raise ValueError("target record does not match the contract")
         if key != _key(champion) or any(_key(item) != key for item in history):
             raise ValueError("target key does not match its parameters")
+    _validate_pointer_binding(state)
     previous = state["audit_base_digest"]
     sequence = state["audit_first_sequence"]
     for event in state["audit"]:
@@ -344,6 +345,19 @@ def _validate_state(state: Any) -> None:
             raise ValueError("audit chain is broken")
         previous = event["digest"]
         sequence += 1
+
+
+def _validate_pointer_binding(state: dict[str, Any]) -> None:
+    """Champion pointerと世代を、保持している監査eventの最新状態へ束縛する。"""
+    latest: dict[str, dict[str, Any]] = {}
+    for event in state["audit"]:
+        latest[event["target"]] = event
+    for key, event in latest.items():
+        target = state["targets"].get(key)
+        if target is None or ComponentParameters.from_dict(target["champion"]).sha256 != event["to_sha256"]:
+            raise ValueError("champion pointer does not match the audit trail")
+    if state["audit"] and state["audit"][-1]["generation"] != state["generation"]:
+        raise ValueError("generation does not match the audit trail")
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:

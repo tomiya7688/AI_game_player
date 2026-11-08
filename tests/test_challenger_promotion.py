@@ -170,6 +170,24 @@ class PromotionGateTest(unittest.TestCase):
             self.registry.champion("decision", SCOPE)
         self.assertEqual(context.exception.code, "invalid_state")
 
+    def test_swapped_pointer_is_rejected(self):
+        self.decide()
+        state = json.loads(self.path.read_text(encoding="utf-8"))
+        key = next(iter(state["targets"]))
+        state["targets"][key]["champion"] = DECISION.to_dict()
+        self.path.write_text(json.dumps(state), encoding="utf-8")
+        with self.assertRaises(PromotionError) as context:
+            self.registry.champion("decision", SCOPE)
+        self.assertEqual(context.exception.code, "invalid_state")
+
+    def test_duplicate_key_and_nan_state_are_rejected(self):
+        for text in ('{"schema": 1, "schema": 2}', '{"generation": NaN}'):
+            with self.subTest(text=text):
+                self.path.write_text(text, encoding="utf-8")
+                with self.assertRaises(PromotionError) as context:
+                    self.registry.champion("decision", SCOPE)
+                self.assertEqual(context.exception.code, "invalid_state")
+
     def test_bad_inputs_are_rejected(self):
         with self.assertRaises(PromotionError):
             evaluation_for(self.artifact, target_candidate=float("nan"))
