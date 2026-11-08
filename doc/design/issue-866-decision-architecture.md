@@ -69,7 +69,7 @@ Last-Checked: 2026-11-08
 
 | 内容 | 所有者 |
 |---|---|
-| 取得・配置・版・キャッシュ | Model Artifact Manager（#242） |
+| 取得・配置・版・キャッシュ | Model Artifact Manager（#242）。**旧版のGC・世代保持は#18（Retention）が方針を持つ**（D6） |
 | 載せてよいか・どれだけ載せるか | Admission（#425）。VRAM/RAM予算 |
 | どのモデルを載せるか・warmにするか | Router（#161）。マクロ用の大きいモデルは呼出し頻度が低いため退避を許し、loadの遅延は呼出しのdeadlineに含める |
 | 実際のload/unload | Provider adapter（Ollama等）または#241の同梱service |
@@ -117,6 +117,7 @@ frame・録画（rolling、#256/#257）
 
 Champion・Challenger・Knowledgeの履歴:
 - Champion世代は直近N世代と、rollback履歴（#171は32）を上限とする。
+- **旧版のModel artifactのGC・世代保持。** 方針は#18（Retention）が持つ。保持するのは、現在のChampionが参照するモデルと、rollback履歴（上記）が参照するモデル、進行中のSessionが使うモデルまで。それ以外の旧版は、`retention_core`の計画（参照中・Protectedは削除しない、fail-closed）に従って削除する。実際の削除はModel Artifact Manager（#242）が実行する。取得中・load中のモデルは削除しない。
 - 不採用のChallengerは、評価の証跡（evaluation event）を残し、parameter本体は保持期限の後に削除する。
 - Knowledge/promotion/challengerの各Storeは現在Session rootの対象外（#788）。別rootのretention policyが必要で、所有者を#18（Retention）とする。
 
