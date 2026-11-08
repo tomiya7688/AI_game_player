@@ -22,6 +22,7 @@ RESPONSIBILITY_PATTERN = re.compile(r"^\s*#\s*責務:\s*\[(?P<body>[^\]\n]+)\]\s
 MULTILINE_START_PATTERN = re.compile(r"^\s*#\s*責務:\s*\[\s*$")
 MAX_RESPONSIBILITY_CHARS = 90
 HUB_LIMIT = 15
+NAME_LIST_LIMIT = 5
 NO_RESPONSIBILITY = "(責務コメントなし)"
 
 
@@ -102,6 +103,18 @@ def _group_label(group: str) -> str:
     return f"`{group}/`"
 
 
+def _name_list(module_names: list[str]) -> str:
+    """Return up to NAME_LIST_LIMIT short module names, then the remaining count."""
+    if not module_names:
+        return "-"
+    shown = ", ".join(
+        f"`{n.removeprefix(ROOT_PACKAGE + '.')}`"
+        for n in module_names[:NAME_LIST_LIMIT]
+    )
+    rest = len(module_names) - NAME_LIST_LIMIT
+    return f"{len(module_names)}: {shown}" + (f" 他{rest}" if rest > 0 else "")
+
+
 def _top_level_classes(module: dict[str, Any]) -> list[str]:
     return [
         s["name"]
@@ -120,6 +133,7 @@ def render_module_index(root: Path, repo_map_text: str) -> str:
     names = {m["module"] for m in modules}
     prefixes = _prefix_groups(sorted(names))
     dependents: Counter[str] = Counter()
+    dependent_names: dict[str, list[str]] = {}
     edges: Counter[tuple[str, str]] = Counter()
     for module in modules:
         source_group = _group_of(module["module"], prefixes)
@@ -127,6 +141,7 @@ def render_module_index(root: Path, repo_map_text: str) -> str:
             if dependency not in names or dependency == module["module"]:
                 continue
             dependents[dependency] += 1
+            dependent_names.setdefault(dependency, []).append(module["module"])
             target_group = _group_of(dependency, prefixes)
             if target_group != source_group:
                 edges[(source_group, target_group)] += 1
@@ -148,7 +163,7 @@ def render_module_index(root: Path, repo_map_text: str) -> str:
         "# モジュール目次・責務表・依存図",
         "",
         "ソースを探す前にここを読みます。責務は各クラス直前の構造化コメント「責務」（なければモジュールの説明）の1行目です。",
-        "依存先・依存元は`src/ai_game_player`内のimportだけを数えます。",
+        "依存先・依存元は`src/ai_game_player`内のimportだけを数え、「件数: 名前（最大5件）」の形で載せます。",
         "",
         f"責務コメントなし: {missing}件（読む前に、先に構造化コメントの追加を検討する）。",
         "",
@@ -200,16 +215,15 @@ def render_module_index(root: Path, repo_map_text: str) -> str:
         ]
         for module in groups[group]:
             classes = ", ".join(f"`{c}`" for c in _top_level_classes(module)[:3]) or "-"
-            outgoing = len(
-                [
-                    d
-                    for d in module["dependencies"]
-                    if d in names and d != module["module"]
-                ]
+            outgoing = sorted(
+                d
+                for d in module["dependencies"]
+                if d in names and d != module["module"]
             )
+            incoming = sorted(dependent_names.get(module["module"], []))
             short = module["module"].removeprefix(ROOT_PACKAGE + ".")
             lines.append(
-                f"| [`{short}`](../{module['path']}) | {classes} | {responsibilities[module['module']]} | {outgoing} | {dependents[module['module']]} |"
+                f"| [`{short}`](../{module['path']}) | {classes} | {responsibilities[module['module']]} | {_name_list(outgoing)} | {_name_list(incoming)} |"
             )
         lines.append("")
     return "\n".join(lines)

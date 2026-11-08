@@ -68,6 +68,8 @@ class ModuleIndexTest(unittest.TestCase):
         self.assertIn("Session wiring.", text)
         self.assertIn("group_misc_top -->|1| group_pkg_runtime", text)
         self.assertIn("責務コメントなし: 0件", text)
+        self.assertIn("1: `runtime.session`", text)
+        self.assertIn("1: `core`", text)
 
 
 class ModuleIndexEdgeCaseTest(unittest.TestCase):
