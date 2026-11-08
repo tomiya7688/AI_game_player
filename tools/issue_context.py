@@ -38,8 +38,38 @@ def gh_json(args):
     return json.loads(result)
 
 
+def fetch_issues_rest():
+    """GraphQLが使えない環境（クラウドセッション等）向けに、RESTでメタデータのみ全ページ取得する。"""
+    # --paginateはLinkヘッダ経由でrepositories/{id}へ飛びプロキシに拒否されるため、ページ番号を明示する。
+    pages = []
+    for number in range(1, 101):
+        page = gh_json(["api", f"repos/{REPO}/issues?state=open&per_page=100&page={number}"])
+        pages.append(page)
+        if len(page) < 100:
+            break
+    else:
+        raise ValueError("GitHub pagination is incomplete; refusing partial selection.")
+    issues = []
+    for page in pages:
+        for node in page:
+            if node.get("pull_request") is not None:
+                continue
+            issues.append({
+                "number": node["number"], "title": node["title"], "url": node["html_url"],
+                "labels": [{"name": label["name"]} for label in node["labels"]],
+            })
+    return issues
+
+
 def fetch_issues():
     """Paginate metadata only, including older Issues beyond the first 100."""
+    try:
+        return fetch_issues_graphql()
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return fetch_issues_rest()
+
+
+def fetch_issues_graphql():
     owner, name = REPO.split("/")
     pages = gh_json([
         "api", "graphql", "--paginate", "--slurp", "-f", f"query={QUERY}",
@@ -431,10 +461,51 @@ def key(issue):
     labels = {x["name"].lower() for x in issue.get("labels", [])}
     return min([RANK[x] for x in labels if x in RANK] or [50]), issue["number"]
 
-def select_issue(issues):
+def fetch_claimed_issue_numbers():
+    """他の作業者が占有済みのIssue番号を返す（`<agent>/issue-N-要約` 形式のbranchが存在するもの）。
+
+    取得できない場合は占有判定ができないため、呼び出し側で停止する（部分結果は返さない）。
+    """
+    claimed = set()
+    for number in range(1, 101):
+        page = gh_json(["api", f"repos/{REPO}/branches?per_page=100&page={number}"])
+        for branch in page:
+            match = re.search(r"(?:^|/)issue-(\d+)(?:-|$)", branch["name"])
+            if match:
+                claimed.add(int(match.group(1)))
+        if len(page) < 100:
+            return claimed
+    raise ValueError("GitHub branch pagination is incomplete; refusing partial claim detection.")
+
+
+def has_claim_comment(number):
+    """Issueに「着手:」で始まるコメントがあるか（branch削除後も占有の記録が残るため）。"""
+    for page_number in range(1, 21):
+        comments = gh_json(["api", f"repos/{REPO}/issues/{number}/comments?per_page=100&page={page_number}"])
+        if any(re.match(r"\s*着手[:：]", c.get("body") or "") for c in comments):
+            return True
+        if len(comments) < 100:
+            return False
+    raise ValueError("GitHub comment pagination is incomplete; refusing to guess the claim state.")
+
+
+def select_unclaimed_issue(issues, claimed, limit=200):
+    """優先順に、branchにもコメントにも占有記録がない最初の作業Issueを返す。"""
+    ordered = sorted(
+        (i for i in issues if select_issue([i], claimed) is not None), key=key
+    )
+    for issue in ordered[:limit]:
+        if not has_claim_comment(issue["number"]):
+            return issue
+        print(f"[skip] #{issue['number']} は着手コメントあり（他の作業者が占有済み）")
+    return None
+
+
+def select_issue(issues, claimed=frozenset()):
     work = [
         issue for issue in issues
         if issue["number"] != 19
+        and issue["number"] not in claimed
         and not re.search(r"\bparent\b|親Issue", issue["title"], re.IGNORECASE)
         and not any(x["name"].lower() == "parent" for x in issue.get("labels", []))
     ]
@@ -521,7 +592,7 @@ def main(argv=None):
     if not 2000 <= args.max_chars <= 16000:
         parser.error("--max-chars must be between 2000 and 16000")
     try:
-        selected = {"number": args.issue} if args.issue else select_issue(fetch_issues())
+        selected = {"number": args.issue} if args.issue else select_unclaimed_issue(fetch_issues(), fetch_claimed_issue_numbers())
         if selected is None:
             raise ValueError("No open work Issues. Previous context, if any, must not be reused.")
         issue = fetch_issue(selected["number"])

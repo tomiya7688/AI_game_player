@@ -55,6 +55,52 @@ class IssueContextPriorityTest(unittest.TestCase):
             20,
         )
 
+    def test_claimed_issue_is_skipped(self):
+        selected = MODULE.select_issue(
+            [issue(514, "P0"), issue(20, "P1")], claimed={514}
+        )
+        self.assertEqual(selected["number"], 20)
+
+    def test_all_claimed_returns_none(self):
+        self.assertIsNone(MODULE.select_issue([issue(514, "P0")], claimed={514}))
+
+    def test_claimed_numbers_come_from_issue_branches(self):
+        pages = [[{"name": "main"}, {"name": "claude/issue-514-trust-pin"}, {"name": "codex/issue-7"}]]
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: pages.pop(0)
+        try:
+            self.assertEqual(MODULE.fetch_claimed_issue_numbers(), {514, 7})
+        finally:
+            MODULE.gh_json = original
+
+    def test_commented_claim_is_skipped_in_priority_order(self):
+        original = MODULE.has_claim_comment
+        MODULE.has_claim_comment = lambda number: number == 92
+        try:
+            selected = MODULE.select_unclaimed_issue(
+                [issue(92, "P1"), issue(30, "P2"), issue(40, "P3")], set()
+            )
+        finally:
+            MODULE.has_claim_comment = original
+        self.assertEqual(selected["number"], 30)
+
+    def test_fullwidth_colon_claim_comment_is_detected(self):
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: [{"body": "着手：Codex, branch"}]
+        try:
+            self.assertTrue(MODULE.has_claim_comment(1))
+        finally:
+            MODULE.gh_json = original
+
+    def test_claim_comment_on_later_page_is_found(self):
+        pages = [[{"body": "雑談"}] * 100, [{"body": "着手: Codex"}]]
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: pages.pop(0)
+        try:
+            self.assertTrue(MODULE.has_claim_comment(1))
+        finally:
+            MODULE.gh_json = original
+
 
 if __name__ == "__main__":
     unittest.main()
