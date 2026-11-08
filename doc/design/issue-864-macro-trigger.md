@@ -23,6 +23,9 @@ Last-Checked: 2026-11-08
 
 「重い」は固定の名前ではなく、実測latencyとその層の期限から判定します（#19の「重い処理は実測とResource Budgetで判定する」と同じ考え方）。
 
+### この資料の「LLM」について
+上位（マクロ）の判断機はLLMである必要がありません。言語入力からクラス分類に特化したモデルの方が向く判断なら、それを使います。LLMは最も高価で最も汎用的なworkerの一つにすぎません。この資料で「LLM」と書く箇所は、マクロ判断を担うworkerの代表例であり、LLMに限りません。判断を**タスク**（何をさせるか）として定義し、実行する**worker**はRouterが能力・コスト・遅延・予算で選びます（[統合設計 #866](issue-866-decision-architecture.md)のD9）。
+
 ## 判断・操作の段階（全て別の層）
 画面の認識から改善までを、次の段階に分けます。各段階は入力と出力の型が違うため、別の層として扱い、段階間はStageEnvelopeで受け渡します。
 
@@ -100,8 +103,8 @@ LLMの結果をそのまま実行しません（応答が届く頃には画面�
 - **候補の意味カテゴリ**: 現在の候補の`kind`はclick/keyなど操作の種類で、戦略上の意味（例: 進む・戻る・購入・攻撃）を区別できない。意味カテゴリは`kind`とは別のfieldとして、候補生成側（段階4）が決定的な規則で付与する。LLMが付与することはしない。
 - **state class**: scene_changedの検出とpriorの参照が同じ値を使うよう、`DecisionContext.state`のscreen_id・signatureを入力に、LLMを使わない1つの関数でstate classを算出する。生の視覚要約をそのままキーにしない。算出規則と、揺れを吸収する正規化は実装Issue 1で定める。
 
-## MacroProvider（マクロ専用の契約）
-マクロの呼出しは、既存の`provider`（`ActionDecision`を返す1操作ごとの判断）とは別の**MacroProvider**契約にします。入力は整理済みのDecisionContext要約と呼出し理由の集合、出力は固定スキーマの応答（`PriorCompiler`が`StrategicPrior`へ変換）です。`GamePlayerEngine.step`の既存の判断経路は置き換えず、Ollama等の既存providerはMacroProviderのadapterを別に用意して接続します。
+## MacroProvider（マクロ判断タスクの契約）
+`MacroProvider`は、マクロ判断**タスク**の入出力スキーマを満たす任意のworker（規則、分類モデル、小型モデル、LLM、VLM、探索）が実装できる契約です。LLM専用ではありません。マクロの呼出しは、既存の`provider`（`ActionDecision`を返す1操作ごとの判断）とは別の**MacroProvider**契約にします。入力は整理済みのDecisionContext要約と呼出し理由の集合、出力は固定スキーマの応答（`PriorCompiler`が`StrategicPrior`へ変換）です。`GamePlayerEngine.step`の既存の判断経路は置き換えず、Ollama等の既存providerはMacroProviderのadapterを別に用意して接続します。
 
 ## MacroTrigger（マクロ層で、いつ重い判断を依頼するか。ここではLLM/VLM）
 Triggerは全てLLM以外の監視部品が、**決定的な証拠だけ**で計算します。LLMを呼ぶかどうかの判断にLLM/VLMを使いません。特に、`outcome_fusion`の意味的評価（`semantic_provider.assess_outcome`でOllama等を呼ぶ経路）は、Trigger検出では**無効化**し、局所的・決定的な証拠だけを使います。
