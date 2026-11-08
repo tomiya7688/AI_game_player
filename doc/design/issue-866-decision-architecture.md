@@ -1,6 +1,6 @@
 Spec-Status: READY
 Depends-On: #864（MacroTrigger設計。段階表と判断機の名簿の正本）
-Decision-Gaps: #800（自己成長ループの設計書、設計者採否待ち）との境界、#440と#162の統合方法、#171と#532のGate共通化は設計者の確認が必要（本資料の「未決・設計者への確認」）
+Decision-Gaps: #800のD1〜D21の採否（設計者）。#440と#162の実装の統合方法、#171と#532のGateの共通化は、子Issueで評価する
 Parent: #19
 Last-Checked: 2026-11-08
 
@@ -162,10 +162,39 @@ K（辞典の検証・保存） → C、J
 ```
 先行条件のない子Issueから順に起票し、依存先が決まるまで実装には入らない。
 
-## 未決・設計者への確認
-1. **#800との境界。** 自己成長ループの設計書(`self_improvement_loop.md`)が設計者の採否待ち。本資料のD4・D5は境界だけを決めているが、重なる箇所があれば#800を優先する。
-2. **#440（同期Cascade）と#162（非同期Queue）の統合方法。** D1は責務で分けたが、実装を1つのRouter/Queueにまとめるかは設計者の判断。
-3. **#171と#532のGate共通化。** 共通の契約にするか、別のままにするか。
+## #800との境界
+[#800](https://github.com/tomiya7688/AI_game_player/issues/800)は、自己成長ループの設計書6本（`self_improvement_loop.md`、`self_evolving_reasoner.md`、`generic_evaluation_v2.md`、`outcome_interpretation.md`、`gameplay_capability_benchmark.md`、`adaptive_compute_reliability.md`）と、設計者の採否待ちの提案D1〜D21を持つ。本資料（#866）と[#868](issue-868-human-cognition-tasks.md)は、次の分担とする。
+
+| 担当 | 持つもの |
+|---|---|
+| #800の設計書 | 成長ループの本体（診断→Challenger→昇格）、評価（`generic_evaluation_v2`）、結果の解釈、能力のbenchmark、計算資源と信頼性（`adaptive_compute_reliability`。#404〜#411、#425、#539〜#555を含む） |
+| #866 | 判断・操作の層構造、呼出しの仕組みの責務分割（Trigger/Router/Queue/Admission/Cascade）、各空白の所有者の割当て、子Issue案 |
+| #868 | 人間のゲームプレイ中の認知タスクの一覧と、タスク別のモデル・手法 |
+
+**重なる箇所は、#800の設計書を優先する。** 本資料と#868の記述が#800の設計書と食い違う場合は、#800側に合わせて直す。具体的な重なりは次のとおり。
+
+| #800の提案・設計書 | 本資料・#868の該当 | 扱い |
+|---|---|---|
+| D2 Holdout消費台帳、D3 学習信号の分離 | #868 E3（保留データ、借り物の勝利の防止） | #800のD2/D3が採用されたら、E3はそれに従う |
+| D4 自己発見GoalのPROVISIONAL化 | #868 M5、StrategicPriorの`goal_ref` | goal authorityとD4に従う |
+| D8 評価器の相関・多様性 | #868 E3（独立性） | D8の測り方を採用 |
+| D9 評価式をRust VMへコンパイル | #868 E1（Typed DSL） | D9と整合させる |
+| D12 探索結果の蒸留、D13 Skill/Evaluator Library | #868 X2、M7（スキルの保存） | D12/D13に従う |
+| D14 Quality-Diversity Archive、D19 PolicySnapshotの昇格Gate | #866 D6（履歴の保持）、D4（Gateの共通契約） | 子Issue Iで評価 |
+| D16 cheap-firstの探索予算 | #866 D1/D9（Cascade、安いworkerから） | 同じ方針 |
+| `adaptive_compute_reliability`（#425、#411） | #866 D2（Admissionの一本化） | #800の設計書に合わせる |
+
+D1〜D21の採否は設計者の判断であり、本資料は採否を決めない。
+
+## 決定と未決
+**決定（設計者の指示「それを元に進める」による）**
+1. #800の設計書との重なりは、#800を優先する（上表）。
+2. #440（同期Cascade）と#162（非同期Queue）は、D1の責務の分割で進める。実装を1つにまとめるかは、子Issueで評価する。
+3. #171と#532のGateの共通化は、子Issue Iで評価する。
+
+**未決**
+- D1〜D21の採否（設計者）。
+- #440と#162の実装の統合方法（子Issueで評価）。
 
 ## テスト（子Issueでの受入の方向）
 - 非同期の重い判断機が全てAdmissionを通ること、予算超過でミクロ層だけで継続すること。
