@@ -479,13 +479,18 @@ def fetch_claimed_issue_numbers():
 
 
 def has_claim_comment(number):
-    """Issueに「着手:」で始まるコメントがあるか（branch削除後も占有の記録が残るため）。"""
+    """Issueが「着手:」コメントで占有中か。コメントは時系列で見て、最後が「中断:」「解除:」「放棄:」なら手放した扱い。"""
+    claimed = False
     for page_number in range(1, 21):
         comments = gh_json(["api", f"repos/{REPO}/issues/{number}/comments?per_page=100&page={page_number}"])
-        if any(re.match(r"\s*着手[:：]", c.get("body") or "") for c in comments):
-            return True
+        for comment in comments:
+            body = comment.get("body") or ""
+            if re.match(r"\s*着手[:：]", body):
+                claimed = True
+            elif re.match(r"\s*(?:中断|解除|放棄)[:：]", body):
+                claimed = False
         if len(comments) < 100:
-            return False
+            return claimed
     raise ValueError("GitHub comment pagination is incomplete; refusing to guess the claim state.")
 
 

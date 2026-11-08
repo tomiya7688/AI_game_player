@@ -148,6 +148,20 @@ class IssueContextPriorityTest(unittest.TestCase):
         finally:
             MODULE.gh_json = original
 
+    def test_release_comment_after_claim_frees_the_issue(self):
+        def claimed_by(bodies):
+            original = MODULE.gh_json
+            MODULE.gh_json = lambda args: [{"body": body} for body in bodies]
+            try:
+                return MODULE.has_claim_comment(1)
+            finally:
+                MODULE.gh_json = original
+
+        self.assertTrue(claimed_by(["着手: Codex"]))
+        self.assertFalse(claimed_by(["着手: Codex", "中断: 別作業を優先"]))
+        self.assertTrue(claimed_by(["着手: Codex", "解除: 一時停止", "着手：Claude"]))
+        self.assertFalse(claimed_by(["雑談"]))
+
 
 if __name__ == "__main__":
     unittest.main()
