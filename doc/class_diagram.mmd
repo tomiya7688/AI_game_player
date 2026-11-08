@@ -476,6 +476,26 @@ classDiagram
         +read()
         +read_fresh()
     }
+    ValueError <|-- EvaluationError
+    class EvaluationError {
+        +__init__()
+    }
+    class EvaluationCase {
+        +__post_init__()
+    }
+    class EvaluationPolicy {
+        +__post_init__()
+        +fingerprint()
+    }
+    class ArmSummary {
+        +__post_init__()
+        +to_dict()
+    }
+    class EvaluationEvent {
+        +__post_init__()
+        +to_dict()
+        +from_dict()
+    }
     class ChampionRegistry {
         +__init__()
         +initialize()
