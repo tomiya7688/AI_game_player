@@ -1,4 +1,5 @@
 import json
+import re
 import tempfile
 import unittest
 import unittest.mock
@@ -182,12 +183,25 @@ class PromotionGateTest(unittest.TestCase):
         self.assertEqual(context.exception.code, "invalid_state")
 
     def test_duplicate_key_and_nan_state_are_rejected(self):
-        for text in ('{"schema": 1, "schema": 2}', '{"generation": NaN}'):
-            with self.subTest(text=text):
+        # 有効な状態を基に、重複キー・NaNだけを注入する（他の検査では拒否されない形にする）。
+        self.decide()
+        valid = self.path.read_text(encoding="utf-8")
+        generation = re.search(r'"generation":\s*(\d+)', valid)
+        self.assertIsNotNone(generation)
+        injected = {
+            "duplicate": valid.replace(
+                generation.group(0), generation.group(0) + ", " + generation.group(0), 1
+            ),
+            "nan": valid.replace(generation.group(0), '"generation": NaN', 1),
+        }
+        for name, text in injected.items():
+            with self.subTest(name=name):
                 self.path.write_text(text, encoding="utf-8")
                 with self.assertRaises(PromotionError) as context:
                     self.registry.champion("decision", SCOPE)
                 self.assertEqual(context.exception.code, "invalid_state")
+        self.path.write_text(valid, encoding="utf-8")
+        self.assertIsNotNone(self.registry.champion("decision", SCOPE))
 
     def test_used_evaluation_cannot_repromote_after_rollback(self):
         self.assertTrue(self.decide().promoted)

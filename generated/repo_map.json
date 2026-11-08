@@ -129971,6 +129971,19 @@
           "level": 0,
           "line": 2,
           "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
           "module": "tempfile",
           "names": [
             {
@@ -129982,7 +129995,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 3,
+          "line": 4,
           "local_dependencies": [],
           "module": "unittest",
           "names": [
@@ -129995,7 +130008,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 4,
+          "line": 5,
           "local_dependencies": [],
           "module": "unittest.mock",
           "names": [
@@ -130008,7 +130021,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 5,
+          "line": 6,
           "local_dependencies": [],
           "module": "dataclasses",
           "names": [
@@ -130021,7 +130034,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 6,
+          "line": 7,
           "local_dependencies": [],
           "module": "pathlib",
           "names": [
@@ -130034,7 +130047,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 8,
+          "line": 9,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.challenger_promotion"
@@ -130054,7 +130067,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 9,
+          "line": 10,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.challenger_promotion_models"
@@ -130078,7 +130091,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 14,
+          "line": 15,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.challenger_update"
@@ -130094,7 +130107,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 15,
+          "line": 16,
           "local_dependencies": [
             "tests.test_challenger_update"
           ],
@@ -130134,7 +130147,7 @@
       "module": "tests.test_challenger_promotion",
       "path": "tests/test_challenger_promotion.py",
       "source_location": {
-        "end_line": 254,
+        "end_line": 268,
         "start_line": 1
       },
       "symbols": [
@@ -130163,8 +130176,8 @@
           "signature": "(artifact, **overrides)",
           "source_location": {
             "column": 0,
-            "end_line": 43,
-            "start_line": 29
+            "end_line": 44,
+            "start_line": 30
           }
         },
         {
@@ -130185,8 +130198,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 250,
-            "start_line": 46
+            "end_line": 264,
+            "start_line": 47
           }
         },
         {
@@ -130208,8 +130221,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 54,
-            "start_line": 47
+            "end_line": 55,
+            "start_line": 48
           }
         },
         {
@@ -130243,8 +130256,8 @@
           "signature": "(self, artifact = …, **overrides)",
           "source_location": {
             "column": 4,
-            "end_line": 60,
-            "start_line": 56
+            "end_line": 61,
+            "start_line": 57
           }
         },
         {
@@ -130266,8 +130279,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 62
+            "end_line": 68,
+            "start_line": 63
           }
         },
         {
@@ -130289,8 +130302,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 69
+            "end_line": 73,
+            "start_line": 70
           }
         },
         {
@@ -130312,8 +130325,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 77,
-            "start_line": 74
+            "end_line": 78,
+            "start_line": 75
           }
         },
         {
@@ -130335,8 +130348,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 82,
-            "start_line": 79
+            "end_line": 83,
+            "start_line": 80
           }
         },
         {
@@ -130358,8 +130371,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 89,
-            "start_line": 84
+            "end_line": 90,
+            "start_line": 85
           }
         },
         {
@@ -130381,8 +130394,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 91
+            "end_line": 97,
+            "start_line": 92
           }
         },
         {
@@ -130404,8 +130417,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 98
+            "end_line": 103,
+            "start_line": 99
           }
         },
         {
@@ -130427,8 +130440,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 107,
-            "start_line": 104
+            "end_line": 108,
+            "start_line": 105
           }
         },
         {
@@ -130450,8 +130463,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 109
+            "end_line": 119,
+            "start_line": 110
           }
         },
         {
@@ -130473,8 +130486,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 124,
-            "start_line": 120
+            "end_line": 125,
+            "start_line": 121
           }
         },
         {
@@ -130496,8 +130509,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 139,
-            "start_line": 126
+            "end_line": 140,
+            "start_line": 127
           }
         },
         {
@@ -130519,8 +130532,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 147,
-            "start_line": 141
+            "end_line": 148,
+            "start_line": 142
           }
         },
         {
@@ -130542,8 +130555,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 156,
-            "start_line": 149
+            "end_line": 157,
+            "start_line": 150
           }
         },
         {
@@ -130565,8 +130578,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 158
+            "end_line": 164,
+            "start_line": 159
           }
         },
         {
@@ -130588,8 +130601,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 165
+            "end_line": 173,
+            "start_line": 166
           }
         },
         {
@@ -130611,8 +130624,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 174
+            "end_line": 183,
+            "start_line": 175
           }
         },
         {
@@ -130634,8 +130647,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 190,
-            "start_line": 184
+            "end_line": 204,
+            "start_line": 185
           }
         },
         {
@@ -130657,8 +130670,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 197,
-            "start_line": 192
+            "end_line": 211,
+            "start_line": 206
           }
         },
         {
@@ -130680,8 +130693,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 207,
-            "start_line": 199
+            "end_line": 221,
+            "start_line": 213
           }
         },
         {
@@ -130703,8 +130716,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 221,
-            "start_line": 209
+            "end_line": 235,
+            "start_line": 223
           }
         },
         {
@@ -130726,8 +130739,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 226,
-            "start_line": 223
+            "end_line": 240,
+            "start_line": 237
           }
         },
         {
@@ -130749,8 +130762,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 233,
-            "start_line": 228
+            "end_line": 247,
+            "start_line": 242
           }
         },
         {
@@ -130772,8 +130785,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 243,
-            "start_line": 235
+            "end_line": 257,
+            "start_line": 249
           }
         },
         {
@@ -130795,8 +130808,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 250,
-            "start_line": 245
+            "end_line": 264,
+            "start_line": 259
           }
         }
       ]
