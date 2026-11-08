@@ -157180,12 +157180,38 @@
               "name": "Path"
             }
           ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 105,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 106,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
         }
       ],
       "module": "tests.test_issue_context_priority",
       "path": "tests/test_issue_context_priority.py",
       "source_location": {
-        "end_line": 106,
+        "end_line": 153,
         "start_line": 1
       },
       "symbols": [
@@ -157242,7 +157268,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 102,
+            "end_line": 149,
             "start_line": 22
           }
         },
@@ -157520,6 +157546,133 @@
             "column": 4,
             "end_line": 102,
             "start_line": 95
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rest_fallback_is_used_for_graphql_failures",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_rest_fallback_is_used_for_graphql_failures",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 104
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "graphql",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_positional",
+              "name": "_args"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "_kwargs"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_rest_fallback_is_used_for_graphql_failures.graphql",
+          "return_annotation": null,
+          "signature": "(*_args, **_kwargs)",
+          "source_location": {
+            "column": 16,
+            "end_line": 116,
+            "start_line": 115
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rest_listing_excludes_prs_and_handles_page_boundaries",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_rest_listing_excludes_prs_and_handles_page_boundaries",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 138,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "node",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "number"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "pull"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_rest_listing_excludes_prs_and_handles_page_boundaries.node",
+          "return_annotation": null,
+          "signature": "(number, pull = …)",
+          "source_location": {
+            "column": 8,
+            "end_line": 129,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_rest_listing_fails_closed_when_pagination_never_ends",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_rest_listing_fails_closed_when_pagination_never_ends",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 149,
+            "start_line": 140
           }
         }
       ]

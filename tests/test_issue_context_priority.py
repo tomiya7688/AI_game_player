@@ -101,6 +101,53 @@ class IssueContextPriorityTest(unittest.TestCase):
         finally:
             MODULE.gh_json = original
 
+    def test_rest_fallback_is_used_for_graphql_failures(self):
+        import json
+        import subprocess
+
+        failures = (
+            subprocess.CalledProcessError(1, "gh"),
+            subprocess.TimeoutExpired("gh", 120),
+            json.JSONDecodeError("bad", "", 0),
+        )
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__):
+                def graphql(*_args, **_kwargs):
+                    raise failure
+
+                original = (MODULE.fetch_issues_graphql, MODULE.fetch_issues_rest)
+                MODULE.fetch_issues_graphql = graphql
+                MODULE.fetch_issues_rest = lambda: ["rest"]
+                try:
+                    self.assertEqual(MODULE.fetch_issues(), ["rest"])
+                finally:
+                    MODULE.fetch_issues_graphql, MODULE.fetch_issues_rest = original
+
+    def test_rest_listing_excludes_prs_and_handles_page_boundaries(self):
+        def node(number, pull=False):
+            item = {"number": number, "title": "t", "html_url": "u", "labels": [{"name": "P1"}]}
+            return {**item, "pull_request": {}} if pull else item
+
+        pages = [[node(n) for n in range(100)], [node(100), node(101, pull=True)]]
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: pages.pop(0)
+        try:
+            numbers = [issue["number"] for issue in MODULE.fetch_issues_rest()]
+        finally:
+            MODULE.gh_json = original
+        self.assertEqual(numbers, list(range(101)))
+
+    def test_rest_listing_fails_closed_when_pagination_never_ends(self):
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: [
+            {"number": 1, "title": "t", "html_url": "u", "labels": []} for _ in range(100)
+        ]
+        try:
+            with self.assertRaises(ValueError):
+                MODULE.fetch_issues_rest()
+        finally:
+            MODULE.gh_json = original
+
 
 if __name__ == "__main__":
     unittest.main()

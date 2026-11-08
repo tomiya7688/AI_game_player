@@ -65,7 +65,7 @@ def fetch_issues():
     """Paginate metadata only, including older Issues beyond the first 100."""
     try:
         return fetch_issues_graphql()
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, json.JSONDecodeError):
         return fetch_issues_rest()
 
 
