@@ -17472,6 +17472,263 @@
           "level": 0,
           "line": 1,
           "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            },
+            {
+              "alias": null,
+              "name": "field"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "enum",
+          "names": [
+            {
+              "alias": null,
+              "name": "Enum"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.candidate_identity",
+      "path": "src/ai_game_player/candidate_identity.py",
+      "source_location": {
+        "end_line": 150,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "Enum"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": true,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "Grounding",
+          "parameters": [],
+          "qualified_name": "Grounding",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 20,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CandidateIdentity",
+          "parameters": [],
+          "qualified_name": "CandidateIdentity",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 37,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "MergeContext",
+          "parameters": [],
+          "qualified_name": "MergeContext",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 49,
+            "start_line": 46
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True)"
+          ],
+          "kind": "class",
+          "name": "CandidateMergeReport",
+          "parameters": [],
+          "qualified_name": "CandidateMergeReport",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 66,
+            "start_line": 57
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "valid_bbox",
+          "parameters": [
+            {
+              "annotation": "tuple[int, int, int, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "bbox"
+            }
+          ],
+          "qualified_name": "valid_bbox",
+          "return_annotation": "bool",
+          "signature": "(bbox: tuple[int, int, int, int]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 85,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "iou",
+          "parameters": [
+            {
+              "annotation": "tuple[int, int, int, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "left"
+            },
+            {
+              "annotation": "tuple[int, int, int, int]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "right"
+            }
+          ],
+          "qualified_name": "iou",
+          "return_annotation": "float",
+          "signature": "(left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 104,
+            "start_line": 94
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "ground_pair",
+          "parameters": [
+            {
+              "annotation": "CandidateIdentity",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "left"
+            },
+            {
+              "annotation": "CandidateIdentity",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "right"
+            },
+            {
+              "annotation": "int",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "proximity"
+            },
+            {
+              "annotation": "float",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "iou_threshold"
+            }
+          ],
+          "qualified_name": "ground_pair",
+          "return_annotation": "Grounding",
+          "signature": "(left: CandidateIdentity, right: CandidateIdentity, proximity: int = …, iou_threshold: float = …) -> Grounding",
+          "source_location": {
+            "column": 0,
+            "end_line": 150,
+            "start_line": 113
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.candidate_identity",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
           "module": "collections.abc",
           "names": [
             {
@@ -17483,7 +17740,80 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 3,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "isfinite"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_identity"
+          ],
+          "module": "ai_game_player.candidate_identity",
+          "names": [
+            {
+              "alias": null,
+              "name": "MAX_CANDIDATES"
+            },
+            {
+              "alias": null,
+              "name": "REASON_AMBIGUOUS"
+            },
+            {
+              "alias": null,
+              "name": "REASON_CAPACITY"
+            },
+            {
+              "alias": null,
+              "name": "REASON_COLLISION"
+            },
+            {
+              "alias": null,
+              "name": "REASON_INVALID"
+            },
+            {
+              "alias": null,
+              "name": "REASON_OK"
+            },
+            {
+              "alias": null,
+              "name": "CandidateIdentity"
+            },
+            {
+              "alias": null,
+              "name": "CandidateMergeReport"
+            },
+            {
+              "alias": null,
+              "name": "Grounding"
+            },
+            {
+              "alias": null,
+              "name": "MergeContext"
+            },
+            {
+              "alias": null,
+              "name": "ground_pair"
+            },
+            {
+              "alias": null,
+              "name": "valid_bbox"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -17504,7 +17834,7 @@
       "module": "ai_game_player.candidate_merger",
       "path": "src/ai_game_player/candidate_merger.py",
       "source_location": {
-        "end_line": 132,
+        "end_line": 232,
         "start_line": 1
       },
       "symbols": [
@@ -17524,8 +17854,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 132,
-            "start_line": 10
+            "end_line": 232,
+            "start_line": 26
           }
         },
         {
@@ -17559,8 +17889,8 @@
           "signature": "(self, proximity: int = …, iou_threshold: float = …) -> None",
           "source_location": {
             "column": 4,
-            "end_line": 15,
-            "start_line": 11
+            "end_line": 31,
+            "start_line": 27
           }
         },
         {
@@ -17600,8 +17930,8 @@
           "signature": "(self, automation: list[ActionCandidate], ocr: Sequence[CandidateInput], image: Sequence[CandidateInput] | None = …) -> list[ActionCandidate]",
           "source_location": {
             "column": 4,
-            "end_line": 32,
-            "start_line": 23
+            "end_line": 48,
+            "start_line": 39
           }
         },
         {
@@ -17641,8 +17971,150 @@
           "signature": "(self, automation: list[ActionCandidate], ocr: Sequence[CandidateInput], image: Sequence[CandidateInput] | None = …) -> list[tuple[ActionCandidate, tuple[str, ...]]]",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 40
+            "end_line": 63,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "merge_detailed",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "list[ActionCandidate]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "automation"
+            },
+            {
+              "annotation": "Sequence[CandidateInput]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "ocr"
+            },
+            {
+              "annotation": "Sequence[CandidateInput] | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "image"
+            },
+            {
+              "annotation": "MergeContext | None",
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "CandidateMerger.merge_detailed",
+          "return_annotation": "CandidateMergeReport",
+          "signature": "(self, automation: list[ActionCandidate], ocr: Sequence[CandidateInput], image: Sequence[CandidateInput] | None = …, context: MergeContext | None = …) -> CandidateMergeReport",
+          "source_location": {
+            "column": 4,
+            "end_line": 156,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "staticmethod"
+          ],
+          "kind": "method",
+          "name": "_report_reason",
+          "parameters": [
+            {
+              "annotation": "tuple[ActionCandidate, ...]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "collisions"
+            },
+            {
+              "annotation": "list[tuple[ActionCandidate, str]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "rejected"
+            }
+          ],
+          "qualified_name": "CandidateMerger._report_reason",
+          "return_annotation": "str",
+          "signature": "(collisions: tuple[ActionCandidate, ...], rejected: list[tuple[ActionCandidate, str]]) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 168,
+            "start_line": 160
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_geometry_is_valid",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "ActionCandidate",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "candidate"
+            }
+          ],
+          "qualified_name": "CandidateMerger._geometry_is_valid",
+          "return_annotation": "bool",
+          "signature": "(self, candidate: ActionCandidate) -> bool",
+          "source_location": {
+            "column": 4,
+            "end_line": 179,
+            "start_line": 170
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "_identity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "CandidateView",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "view"
+            },
+            {
+              "annotation": "MergeContext",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "context"
+            }
+          ],
+          "qualified_name": "CandidateMerger._identity",
+          "return_annotation": "CandidateIdentity",
+          "signature": "(self, view: CandidateView, context: MergeContext) -> CandidateIdentity",
+          "source_location": {
+            "column": 4,
+            "end_line": 200,
+            "start_line": 181
           }
         },
         {
@@ -17676,43 +18148,8 @@
           "signature": "(self, value: CandidateInput, group: str) -> CandidateView",
           "source_location": {
             "column": 4,
-            "end_line": 89,
-            "start_line": 74
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "_same",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            },
-            {
-              "annotation": "CandidateView",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "left"
-            },
-            {
-              "annotation": "CandidateView",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "right"
-            }
-          ],
-          "qualified_name": "CandidateMerger._same",
-          "return_annotation": "bool",
-          "signature": "(self, left: CandidateView, right: CandidateView) -> bool",
-          "source_location": {
-            "column": 4,
-            "end_line": 109,
-            "start_line": 91
+            "end_line": 217,
+            "start_line": 202
           }
         },
         {
@@ -17746,8 +18183,8 @@
           "signature": "(self, incoming: CandidateView, existing: CandidateView) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 111
+            "end_line": 226,
+            "start_line": 219
           }
         },
         {
@@ -17775,8 +18212,8 @@
           "signature": "(self, group: str) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 120
+            "end_line": 229,
+            "start_line": 228
           }
         },
         {
@@ -17804,43 +18241,8 @@
           "signature": "(self, text: str | None) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 124,
-            "start_line": 123
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "_iou",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            },
-            {
-              "annotation": "tuple[int, int, int, int]",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "left"
-            },
-            {
-              "annotation": "tuple[int, int, int, int]",
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "right"
-            }
-          ],
-          "qualified_name": "CandidateMerger._iou",
-          "return_annotation": "float",
-          "signature": "(self, left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> float",
-          "source_location": {
-            "column": 4,
-            "end_line": 132,
-            "start_line": 126
+            "end_line": 232,
+            "start_line": 231
           }
         }
       ]
@@ -127764,6 +128166,546 @@
             "column": 4,
             "end_line": 314,
             "start_line": 300
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.candidate_identity",
+        "ai_game_player.candidate_merger",
+        "ai_game_player.models"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_identity"
+          ],
+          "module": "ai_game_player.candidate_identity",
+          "names": [
+            {
+              "alias": null,
+              "name": "MAX_CANDIDATES"
+            },
+            {
+              "alias": null,
+              "name": "REASON_AMBIGUOUS"
+            },
+            {
+              "alias": null,
+              "name": "REASON_CAPACITY"
+            },
+            {
+              "alias": null,
+              "name": "REASON_COLLISION"
+            },
+            {
+              "alias": null,
+              "name": "REASON_INVALID"
+            },
+            {
+              "alias": null,
+              "name": "REASON_OK"
+            },
+            {
+              "alias": null,
+              "name": "MergeContext"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_merger"
+          ],
+          "module": "ai_game_player.candidate_merger",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateMerger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            },
+            {
+              "alias": null,
+              "name": "DetectedElement"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_candidate_identity",
+      "path": "tests/test_candidate_identity.py",
+      "source_location": {
+        "end_line": 140,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "button",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "action_id"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "x"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "y"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "kind"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "label"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "bbox"
+            }
+          ],
+          "qualified_name": "button",
+          "return_annotation": null,
+          "signature": "(action_id, x, y, kind = …, label = …, bbox = …)",
+          "source_location": {
+            "column": 0,
+            "end_line": 20,
+            "start_line": 17
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "CandidateIdentityTest",
+          "parameters": [],
+          "qualified_name": "CandidateIdentityTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 136,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_id_at_different_positions_is_collision_and_yields_no_executable_candidate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_same_id_at_different_positions_is_collision_and_yields_no_executable_candidate",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 32,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_id_with_different_kind_is_collision",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_same_id_with_different_kind_is_collision",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 39,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_different_ids_same_bbox_and_label_merge_and_keep_origin_ids",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_different_ids_same_bbox_and_label_merge_and_keep_origin_ids",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_text_at_different_positions_stays_independent",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_same_text_at_different_positions_stays_independent",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 54,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_id_and_same_target_still_merges",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_same_id_and_same_target_still_merges",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 61,
+            "start_line": 56
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_generation_mismatch_rejects_incoming_candidate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_generation_mismatch_rejects_incoming_candidate",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 70,
+            "start_line": 63
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_coordinate_space_mismatch_is_not_merged",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_coordinate_space_mismatch_is_not_merged",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 80,
+            "start_line": 72
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_label_conflict_with_overlapping_boxes_is_not_merged",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_label_conflict_with_overlapping_boxes_is_not_merged",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 87,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_candidates_without_coordinates_are_kept_separately",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_candidates_without_coordinates_are_kept_separately",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 91,
+            "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_nan_coordinates_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_nan_coordinates_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 100,
+            "start_line": 93
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_collision_uses_merged_origin_ids_and_keeps_them_in_report",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_collision_uses_merged_origin_ids_and_keeps_them_in_report",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 109,
+            "start_line": 102
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_huge_integer_coordinate_is_rejected_not_raised",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_huge_integer_coordinate_is_rejected_not_raised",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_over_capacity_is_held_as_unknown",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_over_capacity_is_held_as_unknown",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 121,
+            "start_line": 117
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_comparisons_stay_bounded_at_capacity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_comparisons_stay_bounded_at_capacity",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_merge_with_sources_hides_collisions_from_legacy_callers",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_merge_with_sources_hides_collisions_from_legacy_callers",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 136,
+            "start_line": 132
           }
         }
       ]

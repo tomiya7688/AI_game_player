@@ -24,6 +24,7 @@
 | Session内resource（Frame/GPU cache/capture等）のlease・解放順序・pressure eviction | [Runtime Resource Lifecycle](runtime_resource_lifecycle.md) |
 | 長時間Sessionで資源量が増え続けないことの判定（傾き・回収・反復baseline・unsupported扱い） | [Resource Stability Gate](resource_stability_gate.md) |
 | 画面・OCR・Trace等のdata classと保存・送信の1.0既定 | [Privacy Data Inventory](privacy_data_inventory.md) |
+| 候補統合で、同一IDでも別対象を統合せず理由付きで保留する条件 | [候補の同一性ガード](../design/issue-495-candidate-identity.md) |
 
 **統合確認：** 2026-11-01、feature `77a8995e92c59c2fe3610840dfbe7438297ba44e` とmainの資料7件を照合しました。初版の確認基準と現在の接続状態を区別し、実ゲームの効果は証拠がある範囲だけ記します。 初版は2026-10-31のmain `4d8ae6f`を基準にしました。モデル稼働・Windows操作・プレイ改善は資料作成や図の存在だけでは確認できません。
 
