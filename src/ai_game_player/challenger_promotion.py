@@ -350,8 +350,8 @@ def _validate_state(state: Any) -> None:
             raise ValueError("target record does not match the contract")
         if key != _key(champion) or any(_key(item) != key for item in history):
             raise ValueError("target key does not match its parameters")
-    if state["targets"] and not state["audit"]:
-        raise ValueError("registered targets require an audit trail")
+    if (state["targets"] or state["generation"] != 0) and not state["audit"]:
+        raise ValueError("registered targets and generations require an audit trail")
     _validate_pointer_binding(state)
     previous = state["audit_base_digest"]
     sequence = state["audit_first_sequence"]

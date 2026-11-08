@@ -257,6 +257,7 @@ class PromotionGateTest(unittest.TestCase):
         for mutate in (
             lambda state: state["targets"][next(iter(state["targets"]))].update(history={}),
             lambda state: state.update(audit=[]),
+            lambda state: state.update(audit=[], targets={}, generation=5),
         ):
             with self.subTest(mutate=mutate):
                 state = json.loads(self.path.read_text(encoding="utf-8"))
