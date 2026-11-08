@@ -70,6 +70,11 @@ class PromotionGateTest(unittest.TestCase):
         self.assertEqual(decision.reasons, ("no_target_improvement",))
         self.assertEqual(self.registry.champion("decision", SCOPE).sha256, DECISION.sha256)
 
+    def test_boundary_gain_is_not_lost_to_float_error(self):
+        # 0.55-0.53は浮動小数で0.01999...になるが、基準0.02ちょうどは昇格する。
+        decision = self.decide(target_baseline=0.53, target_candidate=0.55)
+        self.assertTrue(decision.promoted)
+
     def test_regression_is_rejected_even_with_big_gain(self):
         decision = self.decide(target_candidate=0.99, regression_candidate=0.89)
         self.assertFalse(decision.promoted)

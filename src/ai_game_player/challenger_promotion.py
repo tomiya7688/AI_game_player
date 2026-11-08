@@ -168,6 +168,9 @@ class ChampionRegistry:
             state["audit_base_digest"] = dropped[-1]["digest"]
             state["audit_first_sequence"] += len(dropped)
             state["audit"] = state["audit"][len(dropped):]
+        if len(to_json_bytes(state)) > MAX_STATE_BYTES:
+            # 読込上限を超える状態は書かない（書くと次回から読めなくなる）。
+            raise PromotionError("invalid_state", "registry state would exceed the size limit")
         staged = stage_json_write(self._path, state)
         try:
             staged.publish()
@@ -224,14 +227,19 @@ def _reject_reasons(
         reasons.append("insufficient_target_cases")
     if evaluation.regression_cases < criteria.min_regression_cases:
         reasons.append("insufficient_regression_cases")
-    if evaluation.target_candidate - evaluation.target_baseline < criteria.min_target_gain:
+    if _gap(evaluation.target_candidate, evaluation.target_baseline) < criteria.min_target_gain:
         reasons.append("no_target_improvement")
-    if evaluation.regression_baseline - evaluation.regression_candidate > criteria.max_regression_drop:
+    if _gap(evaluation.regression_baseline, evaluation.regression_candidate) > criteria.max_regression_drop:
         reasons.append("regression")
     cost = artifact.resource_cost
     if cost.parameter_bytes > criteria.max_parameter_bytes or cost.delta_bytes > criteria.max_delta_bytes:
         reasons.append("resource_exceeded")
     return tuple(sorted(reasons))
+
+
+def _gap(larger: float, smaller: float) -> float:
+    # 0.55-0.53のような境界値が浮動小数の誤差で基準を下回らないよう、9桁へ丸めて比べる。
+    return round(larger - smaller, 9)
 
 
 def _append_audit(
