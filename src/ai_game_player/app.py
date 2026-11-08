@@ -125,6 +125,7 @@ class Application:
     #     9: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
     #     10: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
 #     11: 再開ボタンへ共通ToolTipを接続し、停止解除と実行世代更新（re-arm）の役割を案内する
+#     12: 実行・連続実行ボタンへ共通ToolTipを接続し、1ステップ実行とループ実行の動作および安全停止手段を案内する
     #   ]
     #   引数: [
     #     root: UIを配置する、作成済みのTkルートウィンドウ
@@ -304,8 +305,18 @@ class Application:
         ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
         self.execute_button = ttk.Button(controls, command=self.run_and_execute)
         self.execute_button.pack(side=tk.LEFT, padx=6)
+        ToolTip(
+            self.execute_button,
+            "現在の画面観測と候補をもとに、1ステップの判断と実行を行います。"
+            "実入力が無効（dry-run）の場合は入力を送信せず安全に確認できます。",
+        )
         self.loop_button = ttk.Button(controls, command=self.start_loop)
         self.loop_button.pack(side=tk.LEFT)
+        ToolTip(
+            self.loop_button,
+            "観測・判断・実行のループを定期的に繰り返します。"
+            "停止ボタン、Escキー、または手動マウス移動でいつでも安全に停止できます。",
+        )
         self.resume_button = ttk.Button(controls, text="再開", command=self.start)
         self.resume_button.pack(side=tk.LEFT, padx=(6, 0))
         ToolTip(
