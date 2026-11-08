@@ -10,6 +10,7 @@
 | Player・友達（GUI発言）・ホストの権限分離とGoal発見 | [自律Playerと権限分離](autonomous_player_goal_authority.md)・[根本目標](../根本目標.md) |
 | 人間のゲームプレイ中の認知タスクと、タスク別のモデル・手法、評価関数の生成・改善 | [Issue #868 設計](../design/issue-868-human-cognition-tasks.md) |
 | 判断・操作の層構造とモデル運用・学習・知識増築・データ圧縮の統合設計（責務境界と所有者） | [Issue #866 統合設計](../design/issue-866-decision-architecture.md) |
+| コードと文書を全探索せずに探す（モジュール目次・責務表・依存図、文書目次、手書き図の下書き材料） | [Issue #895 設計](../design/issue-895-reading-indexes.md)・[モジュール目次](../../generated/module_index.md)・[文書目次](../../generated/doc_index.md) |
 | 重い判断機の非同期化、判断・操作の層分離と判断機の名簿、LLMを呼ぶ条件（MacroTrigger） | [Issue #864 設計](../design/issue-864-macro-trigger.md) |
 | 新しい画面から次の操作までの順番 | [一回の判断と実行の流れ](flow_for_readers.md) |
 | UI・Python・Windows・任意サービスの役割 | [部品と実行場所](runtime_map_for_readers.md) |

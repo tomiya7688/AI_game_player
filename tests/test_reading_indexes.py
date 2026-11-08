@@ -63,10 +63,10 @@ class ModuleIndexTest(unittest.TestCase):
                 ]
             }
             text = render_module_index(root, json.dumps(repo_map))
-        self.assertIn("[runtime](#group-runtime)", text)
+        self.assertIn("[runtime](#group-pkg-runtime)", text)
         self.assertIn("中心の判断を持つ", text)
         self.assertIn("Session wiring.", text)
-        self.assertIn("group_misc_top -->|1| group_runtime", text)
+        self.assertIn("group_misc_top -->|1| group_pkg_runtime", text)
         self.assertIn("責務コメントなし: 0件", text)
 
 
@@ -114,9 +114,23 @@ class ModuleIndexEdgeCaseTest(unittest.TestCase):
                 )
             )
             text = render_module_index(root, json.dumps({"modules": modules}))
-        self.assertIn("[belief_*](#group-belief-prefix) | 4", text)
-        self.assertIn("[other](#group-other) | 1", text)
+        self.assertIn("[belief_*](#group-pfx-belief) | 4", text)
+        self.assertIn("[other](#group-pkg-other) | 1", text)
         self.assertIn("[(その他の直下)](#group-misc-top) | 1", text)
+
+
+class ResponsibilityPriorityTest(unittest.TestCase):
+    def test_top_level_multiline_comment_beats_later_method_comment(self):
+        text = (
+            "# {\n#   責務: [\n#     Thing: 全体の責務\n#   ]\n# }\nclass Thing:\n"
+            "    # {\n    #   責務: [run: メソッドの責務]\n    # }\n    def run(self):\n        pass\n"
+        )
+        self.assertEqual(extract_responsibility(text), "全体の責務")
+
+    def test_multiline_module_docstring_uses_first_content_line(self):
+        self.assertEqual(
+            extract_responsibility('"""\nFirst line.\n\nMore.\n"""\n'), "First line."
+        )
 
 
 class DocIndexTest(unittest.TestCase):
@@ -131,6 +145,27 @@ class DocIndexTest(unittest.TestCase):
         text = "# 題名\n\n`ai_game_player`はrepo_map.jsonを使う。二文目は載せない。\n"
         _, summary, _ = summarize_document(text)
         self.assertEqual(summary, "ai_game_playerはrepo_map.jsonを使う。")
+
+    def test_skips_navigation_links_joins_wrapped_paragraph_and_handles_tilde_fences(
+        self,
+    ):
+        text = "# 題名\n\n[戻る](../README.md)\n\n~~~\n# 例\n~~~\n\n最初の段落は\n折り返されて、ここで終わる。次の文。\n"
+        _, summary, _ = summarize_document(text)
+        self.assertEqual(summary, "最初の段落は 折り返されて、ここで終わる。")
+
+    def test_encodes_spaces_in_links_and_skips_symlinked_documents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "repo"
+            (root / "doc").mkdir(parents=True)
+            (root / "doc" / "with space.md").write_text(
+                "# S\n\nbody.\n", encoding="utf-8"
+            )
+            outside = Path(directory) / "private.md"
+            outside.write_text("# Private\n\nsecret.\n", encoding="utf-8")
+            (root / "doc" / "link.md").symlink_to(outside)
+            text = render_doc_index(root)
+        self.assertIn("(../doc/with%20space.md)", text)
+        self.assertNotIn("Private", text)
 
     def test_excludes_by_relative_path_not_parent_directories(self):
         with tempfile.TemporaryDirectory() as directory:

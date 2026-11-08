@@ -6,6 +6,7 @@ source text, so it is deterministic and never hand-edited.
 
 from __future__ import annotations
 
+import ast
 import json
 import re
 from collections import Counter
@@ -18,7 +19,7 @@ TOP_LEVEL_GROUP = "(その他の直下)"
 MIN_PREFIX_GROUP_SIZE = 4
 NAMED_BODY_PATTERN = re.compile(r"^\s*[A-Za-z_][A-Za-z0-9_.]*\s*[:：]\s*(?P<text>.+)$")
 RESPONSIBILITY_PATTERN = re.compile(r"^\s*#\s*責務:\s*\[(?P<body>[^\]\n]+)\]\s*$")
-DOCSTRING_PATTERN = re.compile(r'^\s*(?:r|u)?"""(?P<body>.*?)(?:"""|$)')
+MULTILINE_START_PATTERN = re.compile(r"^\s*#\s*責務:\s*\[\s*$")
 MAX_RESPONSIBILITY_CHARS = 90
 HUB_LIMIT = 15
 NO_RESPONSIBILITY = "(責務コメントなし)"
@@ -31,20 +32,38 @@ def _truncate(text: str) -> str:
     return text[: MAX_RESPONSIBILITY_CHARS - 1] + "…"
 
 
-def extract_responsibility(source_text: str) -> str:
-    """Return the first one-line 責務 comment, else the module docstring's first line."""
-    lines = source_text.splitlines()
-    for line in lines:
+def _responsibility_candidates(lines: list[str]) -> list[tuple[bool, str]]:
+    """Return (is_top_level, text) for every 責務 comment, single-line or multi-line."""
+    candidates: list[tuple[bool, str]] = []
+    for index, line in enumerate(lines):
+        top_level = line.startswith("#")
         match = RESPONSIBILITY_PATTERN.match(line)
         if match:
-            body = match.group("body")
-            # "Class: 説明" の形式（名前が識別子のとき）だけ名前を落とし、名前の無い説明は先頭から残す。
-            named = NAMED_BODY_PATTERN.match(body)
-            return _truncate(named.group("text") if named else body)
-    for line in lines[:5]:
-        match = DOCSTRING_PATTERN.match(line)
-        if match and match.group("body").strip():
-            return _truncate(match.group("body"))
+            candidates.append((top_level, match.group("body")))
+        elif MULTILINE_START_PATTERN.match(line) and index + 1 < len(lines):
+            first_entry = lines[index + 1].strip().removeprefix("#").strip()
+            if first_entry and first_entry != "]":
+                candidates.append((top_level, first_entry))
+    return candidates
+
+
+def extract_responsibility(source_text: str) -> str:
+    """Return the top-level 責務 comment's first line, else the module docstring's first line."""
+    lines = source_text.splitlines()
+    candidates = _responsibility_candidates(lines)
+    # クラス・トップレベル関数の責務(桁0)をメソッドの責務より優先する。
+    for top_level in (True, False):
+        for is_top, body in candidates:
+            if is_top == top_level:
+                # "Class: 説明" の形式（名前が識別子のとき）だけ名前を落とし、名前の無い説明は先頭から残す。
+                named = NAMED_BODY_PATTERN.match(body)
+                return _truncate(named.group("text") if named else body)
+    try:
+        docstring = ast.get_docstring(ast.parse(source_text))
+    except SyntaxError:
+        docstring = None
+    if docstring and docstring.strip():
+        return _truncate(docstring.strip().splitlines()[0])
     return NO_RESPONSIBILITY
 
 
@@ -67,10 +86,12 @@ def _group_of(module_name: str, prefixes: set[str]) -> str:
 
 
 def _anchor(group: str) -> str:
+    """Return an identifier unique per group kind (package, file-name prefix, remainder)."""
     if group == TOP_LEVEL_GROUP:
         return "group-misc-top"
-    suffix = "-prefix" if group.endswith("_*") else ""
-    return "group-" + re.sub(r"[^0-9a-z]+", "-", group.lower()).strip("-") + suffix
+    if group.endswith("_*"):
+        return "group-pfx-" + group[:-2]
+    return "group-pkg-" + group
 
 
 def _group_label(group: str) -> str:

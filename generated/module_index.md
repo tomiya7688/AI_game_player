@@ -4,36 +4,36 @@
 ソースを探す前にここを読みます。責務は各クラス直前の構造化コメント「責務」（なければモジュールの説明）の1行目です。
 依存先・依存元は`src/ai_game_player`内のimportだけを数えます。
 
-責務コメントなし: 47件（読む前に、先に構造化コメントの追加を検討する）。
+責務コメントなし: 36件（読む前に、先に構造化コメントの追加を検討する）。
 
 ## 目次
 
 | グループ | モジュール数 | 内容 |
 |---|---|---|
-| [applications](#group-applications) | 10 | `applications/` |
-| [belief_*](#group-belief-prefix) | 7 | 直下の`belief_`で始まるモジュール |
-| [campaign_*](#group-campaign-prefix) | 5 | 直下の`campaign_`で始まるモジュール |
-| [decision_*](#group-decision-prefix) | 5 | 直下の`decision_`で始まるモジュール |
-| [evaluation_*](#group-evaluation-prefix) | 5 | 直下の`evaluation_`で始まるモジュール |
-| [frame_*](#group-frame-prefix) | 4 | 直下の`frame_`で始まるモジュール |
-| [game_*](#group-game-prefix) | 5 | 直下の`game_`で始まるモジュール |
-| [hook_*](#group-hook-prefix) | 4 | 直下の`hook_`で始まるモジュール |
-| [knowledge_*](#group-knowledge-prefix) | 14 | 直下の`knowledge_`で始まるモジュール |
-| [light_*](#group-light-prefix) | 6 | 直下の`light_`で始まるモジュール |
-| [outcome_*](#group-outcome-prefix) | 4 | 直下の`outcome_`で始まるモジュール |
-| [planner_*](#group-planner-prefix) | 4 | 直下の`planner_`で始まるモジュール |
-| [planning_*](#group-planning-prefix) | 20 | 直下の`planning_`で始まるモジュール |
-| [retention_*](#group-retention-prefix) | 5 | 直下の`retention_`で始まるモジュール |
-| [runtime](#group-runtime) | 10 | `runtime/` |
-| [runtime_*](#group-runtime-prefix) | 8 | 直下の`runtime_`で始まるモジュール |
-| [ui](#group-ui) | 5 | `ui/` |
+| [applications](#group-pkg-applications) | 10 | `applications/` |
+| [belief_*](#group-pfx-belief) | 7 | 直下の`belief_`で始まるモジュール |
+| [campaign_*](#group-pfx-campaign) | 5 | 直下の`campaign_`で始まるモジュール |
+| [decision_*](#group-pfx-decision) | 5 | 直下の`decision_`で始まるモジュール |
+| [evaluation_*](#group-pfx-evaluation) | 5 | 直下の`evaluation_`で始まるモジュール |
+| [frame_*](#group-pfx-frame) | 4 | 直下の`frame_`で始まるモジュール |
+| [game_*](#group-pfx-game) | 5 | 直下の`game_`で始まるモジュール |
+| [hook_*](#group-pfx-hook) | 4 | 直下の`hook_`で始まるモジュール |
+| [knowledge_*](#group-pfx-knowledge) | 14 | 直下の`knowledge_`で始まるモジュール |
+| [light_*](#group-pfx-light) | 6 | 直下の`light_`で始まるモジュール |
+| [outcome_*](#group-pfx-outcome) | 4 | 直下の`outcome_`で始まるモジュール |
+| [planner_*](#group-pfx-planner) | 4 | 直下の`planner_`で始まるモジュール |
+| [planning_*](#group-pfx-planning) | 20 | 直下の`planning_`で始まるモジュール |
+| [retention_*](#group-pfx-retention) | 5 | 直下の`retention_`で始まるモジュール |
+| [runtime](#group-pkg-runtime) | 10 | `runtime/` |
+| [runtime_*](#group-pfx-runtime) | 8 | 直下の`runtime_`で始まるモジュール |
+| [ui](#group-pkg-ui) | 5 | `ui/` |
 | [(その他の直下)](#group-misc-top) | 91 | 接頭辞で束ねられない直下のモジュール |
 
 ## 最初に読む場所（依存元が多いモジュール）
 
 | モジュール | 依存元の数 | 責務 |
 |---|---|---|
-| [`ai_game_player.models`](../src/ai_game_player/models.py) | 51 | (責務コメントなし) |
+| [`ai_game_player.models`](../src/ai_game_player/models.py) | 51 | 判断元が選んだ操作、その理由、回答が基づいた画面状態を実行前検証へ渡す |
 | [`ai_game_player.knowledge_scope`](../src/ai_game_player/knowledge_scope.py) | 21 | 自由文やパスを含まない有界の不透明識別子だけを受理する |
 | [`ai_game_player.belief_contract`](../src/ai_game_player/belief_contract.py) | 20 | 確率と比較score、確率が分からない状態を区別する |
 | [`ai_game_player.experience`](../src/ai_game_player/experience.py) | 18 | (責務コメントなし) |
@@ -53,91 +53,91 @@
 
 ```mermaid
 flowchart LR
-    group_applications["applications (10)"]
-    group_belief_prefix["belief_* (7)"]
-    group_campaign_prefix["campaign_* (5)"]
-    group_decision_prefix["decision_* (5)"]
-    group_evaluation_prefix["evaluation_* (5)"]
-    group_frame_prefix["frame_* (4)"]
-    group_game_prefix["game_* (5)"]
-    group_hook_prefix["hook_* (4)"]
-    group_knowledge_prefix["knowledge_* (14)"]
-    group_light_prefix["light_* (6)"]
-    group_outcome_prefix["outcome_* (4)"]
-    group_planner_prefix["planner_* (4)"]
-    group_planning_prefix["planning_* (20)"]
-    group_retention_prefix["retention_* (5)"]
-    group_runtime["runtime (10)"]
-    group_runtime_prefix["runtime_* (8)"]
-    group_ui["ui (5)"]
+    group_pkg_applications["applications (10)"]
+    group_pfx_belief["belief_* (7)"]
+    group_pfx_campaign["campaign_* (5)"]
+    group_pfx_decision["decision_* (5)"]
+    group_pfx_evaluation["evaluation_* (5)"]
+    group_pfx_frame["frame_* (4)"]
+    group_pfx_game["game_* (5)"]
+    group_pfx_hook["hook_* (4)"]
+    group_pfx_knowledge["knowledge_* (14)"]
+    group_pfx_light["light_* (6)"]
+    group_pfx_outcome["outcome_* (4)"]
+    group_pfx_planner["planner_* (4)"]
+    group_pfx_planning["planning_* (20)"]
+    group_pfx_retention["retention_* (5)"]
+    group_pkg_runtime["runtime (10)"]
+    group_pfx_runtime["runtime_* (8)"]
+    group_pkg_ui["ui (5)"]
     group_misc_top["(その他の直下) (91)"]
-    group_misc_top -->|7| group_belief_prefix
-    group_misc_top -->|13| group_decision_prefix
-    group_misc_top -->|1| group_evaluation_prefix
-    group_misc_top -->|5| group_frame_prefix
-    group_misc_top -->|2| group_game_prefix
-    group_misc_top -->|6| group_hook_prefix
-    group_misc_top -->|8| group_knowledge_prefix
-    group_misc_top -->|9| group_outcome_prefix
-    group_misc_top -->|12| group_planning_prefix
-    group_misc_top -->|11| group_retention_prefix
-    group_misc_top -->|4| group_runtime
-    group_misc_top -->|9| group_runtime_prefix
-    group_misc_top -->|4| group_ui
-    group_applications -->|8| group_misc_top
-    group_applications -->|1| group_decision_prefix
-    group_applications -->|1| group_frame_prefix
-    group_belief_prefix -->|6| group_misc_top
-    group_decision_prefix -->|11| group_misc_top
-    group_decision_prefix -->|2| group_knowledge_prefix
-    group_decision_prefix -->|1| group_outcome_prefix
-    group_decision_prefix -->|2| group_planning_prefix
-    group_decision_prefix -->|1| group_runtime_prefix
-    group_evaluation_prefix -->|1| group_misc_top
-    group_evaluation_prefix -->|2| group_knowledge_prefix
-    group_evaluation_prefix -->|3| group_outcome_prefix
-    group_frame_prefix -->|11| group_misc_top
-    group_game_prefix -->|9| group_misc_top
-    group_game_prefix -->|1| group_decision_prefix
-    group_game_prefix -->|1| group_outcome_prefix
-    group_hook_prefix -->|5| group_misc_top
-    group_knowledge_prefix -->|18| group_misc_top
-    group_knowledge_prefix -->|4| group_decision_prefix
-    group_light_prefix -->|15| group_misc_top
-    group_light_prefix -->|1| group_decision_prefix
-    group_light_prefix -->|16| group_knowledge_prefix
-    group_light_prefix -->|5| group_runtime_prefix
-    group_outcome_prefix -->|3| group_misc_top
-    group_planner_prefix -->|11| group_misc_top
-    group_planner_prefix -->|6| group_belief_prefix
-    group_planner_prefix -->|5| group_decision_prefix
-    group_planner_prefix -->|2| group_game_prefix
-    group_planner_prefix -->|14| group_planning_prefix
-    group_planning_prefix -->|5| group_misc_top
-    group_planning_prefix -->|24| group_belief_prefix
-    group_planning_prefix -->|1| group_decision_prefix
-    group_planning_prefix -->|2| group_evaluation_prefix
-    group_planning_prefix -->|2| group_game_prefix
-    group_planning_prefix -->|1| group_planner_prefix
-    group_retention_prefix -->|6| group_misc_top
-    group_runtime -->|22| group_misc_top
-    group_runtime -->|2| group_decision_prefix
-    group_runtime -->|2| group_evaluation_prefix
-    group_runtime -->|1| group_frame_prefix
-    group_runtime -->|1| group_knowledge_prefix
-    group_runtime -->|3| group_light_prefix
-    group_runtime -->|1| group_outcome_prefix
-    group_runtime -->|5| group_retention_prefix
-    group_runtime -->|8| group_runtime_prefix
-    group_runtime_prefix -->|8| group_misc_top
-    group_runtime_prefix -->|1| group_decision_prefix
-    group_runtime_prefix -->|7| group_evaluation_prefix
-    group_runtime_prefix -->|2| group_knowledge_prefix
-    group_runtime_prefix -->|5| group_runtime
-    group_ui -->|5| group_misc_top
+    group_misc_top -->|7| group_pfx_belief
+    group_misc_top -->|13| group_pfx_decision
+    group_misc_top -->|1| group_pfx_evaluation
+    group_misc_top -->|5| group_pfx_frame
+    group_misc_top -->|2| group_pfx_game
+    group_misc_top -->|6| group_pfx_hook
+    group_misc_top -->|8| group_pfx_knowledge
+    group_misc_top -->|9| group_pfx_outcome
+    group_misc_top -->|12| group_pfx_planning
+    group_misc_top -->|11| group_pfx_retention
+    group_misc_top -->|4| group_pkg_runtime
+    group_misc_top -->|9| group_pfx_runtime
+    group_misc_top -->|4| group_pkg_ui
+    group_pkg_applications -->|8| group_misc_top
+    group_pkg_applications -->|1| group_pfx_decision
+    group_pkg_applications -->|1| group_pfx_frame
+    group_pfx_belief -->|6| group_misc_top
+    group_pfx_decision -->|11| group_misc_top
+    group_pfx_decision -->|2| group_pfx_knowledge
+    group_pfx_decision -->|1| group_pfx_outcome
+    group_pfx_decision -->|2| group_pfx_planning
+    group_pfx_decision -->|1| group_pfx_runtime
+    group_pfx_evaluation -->|1| group_misc_top
+    group_pfx_evaluation -->|2| group_pfx_knowledge
+    group_pfx_evaluation -->|3| group_pfx_outcome
+    group_pfx_frame -->|11| group_misc_top
+    group_pfx_game -->|9| group_misc_top
+    group_pfx_game -->|1| group_pfx_decision
+    group_pfx_game -->|1| group_pfx_outcome
+    group_pfx_hook -->|5| group_misc_top
+    group_pfx_knowledge -->|18| group_misc_top
+    group_pfx_knowledge -->|4| group_pfx_decision
+    group_pfx_light -->|15| group_misc_top
+    group_pfx_light -->|1| group_pfx_decision
+    group_pfx_light -->|16| group_pfx_knowledge
+    group_pfx_light -->|5| group_pfx_runtime
+    group_pfx_outcome -->|3| group_misc_top
+    group_pfx_planner -->|11| group_misc_top
+    group_pfx_planner -->|6| group_pfx_belief
+    group_pfx_planner -->|5| group_pfx_decision
+    group_pfx_planner -->|2| group_pfx_game
+    group_pfx_planner -->|14| group_pfx_planning
+    group_pfx_planning -->|5| group_misc_top
+    group_pfx_planning -->|24| group_pfx_belief
+    group_pfx_planning -->|1| group_pfx_decision
+    group_pfx_planning -->|2| group_pfx_evaluation
+    group_pfx_planning -->|2| group_pfx_game
+    group_pfx_planning -->|1| group_pfx_planner
+    group_pfx_retention -->|6| group_misc_top
+    group_pkg_runtime -->|22| group_misc_top
+    group_pkg_runtime -->|2| group_pfx_decision
+    group_pkg_runtime -->|2| group_pfx_evaluation
+    group_pkg_runtime -->|1| group_pfx_frame
+    group_pkg_runtime -->|1| group_pfx_knowledge
+    group_pkg_runtime -->|3| group_pfx_light
+    group_pkg_runtime -->|1| group_pfx_outcome
+    group_pkg_runtime -->|5| group_pfx_retention
+    group_pkg_runtime -->|8| group_pfx_runtime
+    group_pfx_runtime -->|8| group_misc_top
+    group_pfx_runtime -->|1| group_pfx_decision
+    group_pfx_runtime -->|7| group_pfx_evaluation
+    group_pfx_runtime -->|2| group_pfx_knowledge
+    group_pfx_runtime -->|5| group_pkg_runtime
+    group_pkg_ui -->|5| group_misc_top
 ```
 
-<a id="group-applications"></a>
+<a id="group-pkg-applications"></a>
 ## applications
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -153,7 +153,7 @@ flowchart LR
 | [`applications.quality.process.quality_commander`](../src/ai_game_player/applications/quality/process/quality_commander.py) | - | (責務コメントなし) | 6 | 0 |
 | [`applications.quality.process.quality_messenger`](../src/ai_game_player/applications/quality/process/quality_messenger.py) | - | (責務コメントなし) | 4 | 1 |
 
-<a id="group-belief-prefix"></a>
+<a id="group-pfx-belief"></a>
 ## belief_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -166,7 +166,7 @@ flowchart LR
 | [`belief_snapshot`](../src/ai_game_player/belief_snapshot.py) | `BeliefDiagnostics`, `BeliefSnapshot` | 更新コストと切詰め・相関の件数を有界metadataへ固定する | 3 | 11 |
 | [`belief_validation`](../src/ai_game_player/belief_validation.py) | - | 自由文・パスを含まない有界の参照IDを検証する | 0 | 16 |
 
-<a id="group-campaign-prefix"></a>
+<a id="group-pfx-campaign"></a>
 ## campaign_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -177,18 +177,18 @@ flowchart LR
 | [`campaign_loop`](../src/ai_game_player/campaign_loop.py) | `CampaignProgress`, `CampaignLoop` | 1回のcampaignで変化するepisode、状態、action、停止、metricを集約する | 2 | 1 |
 | [`campaign_runner`](../src/ai_game_player/campaign_runner.py) | - | Public imports for the reusable campaign contract and deadline runner. | 3 | 0 |
 
-<a id="group-decision-prefix"></a>
+<a id="group-pfx-decision"></a>
 ## decision_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
 |---|---|---|---|---|
 | [`decision_context`](../src/ai_game_player/decision_context.py) | `EvaluatorEvidence`, `KnowledgeEvidence`, `CandidateDecisionContext` | 1つの評価器が1候補について出した点数・根拠・確信度をまとめる | 11 | 15 |
 | [`decision_orchestrator`](../src/ai_game_player/decision_orchestrator.py) | `DecisionOrchestrator` | 非操作結果を保ちながら、有限回だけ実Sourceへ再取得を依頼する | 5 | 1 |
-| [`decision_reliability`](../src/ai_game_player/decision_reliability.py) | `ReliabilityStatus`, `ReliabilityEvidence`, `ReliabilityResult` | (責務コメントなし) | 1 | 2 |
-| [`decision_verifier`](../src/ai_game_player/decision_verifier.py) | `DecisionVerifier` | 候補語の直前に助詞以外の日本語文字が続く部分一致を除外する | 3 | 3 |
+| [`decision_reliability`](../src/ai_game_player/decision_reliability.py) | `ReliabilityStatus`, `ReliabilityEvidence`, `ReliabilityResult` | 候補選択の検査結果を、後続処理が実行・確認・拒否のどれに扱うかを4段階で示す | 1 | 2 |
+| [`decision_verifier`](../src/ai_game_player/decision_verifier.py) | `DecisionVerifier` | 判断元の選択が現在の画面で許可された候補に基づくか、実行規則だけで照合する | 3 | 3 |
 | [`decision_withheld`](../src/ai_game_player/decision_withheld.py) | `DecisionDisposition`, `DecisionWithheld` | 入力を提案しなかった判断をSessionへ伝える | 1 | 12 |
 
-<a id="group-evaluation-prefix"></a>
+<a id="group-pfx-evaluation"></a>
 ## evaluation_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -199,28 +199,28 @@ flowchart LR
 | [`evaluation_quality`](../src/ai_game_player/evaluation_quality.py) | `NumericQuality` | 観測/候補の意味を外側に保ったまま有限の品質と不確かさを渡す | 0 | 5 |
 | [`evaluation_vector`](../src/ai_game_player/evaluation_vector.py) | - | typed数値根拠だけを既存6軸と不確かさ付き品質へ変換する | 5 | 2 |
 
-<a id="group-frame-prefix"></a>
+<a id="group-pfx-frame"></a>
 ## frame_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
 |---|---|---|---|---|
-| [`frame_analyzer`](../src/ai_game_player/frame_analyzer.py) | `FrameAnalyzer` | ROI pixelだけを画像/OCR解析し、操作候補とObservationをwindowまたはscreen座標へ戻す | 7 | 3 |
+| [`frame_analyzer`](../src/ai_game_player/frame_analyzer.py) | `FrameAnalyzer` | ROI-local検出矩形を選択windowまたはscreenの候補座標へ移す | 7 | 3 |
 | [`frame_preprocessor`](../src/ai_game_player/frame_preprocessor.py) | `FramePrimitiveBatch`, `FramePreprocessor`, `PythonFramePreprocessor` | Batch contracts and the dependency-free Python frame preprocessing path. | 4 | 2 |
 | [`frame_stream`](../src/ai_game_player/frame_stream.py) | `FrameCapture`, `FrameDeliveryMode`, `FramePacket` | 1枚の画面Frameを取得するcapture backend契約を定義する | 1 | 3 |
 | [`frame_subscriber`](../src/ai_game_player/frame_subscriber.py) | `FrameSubscriber` | 1 consumer分のbounded frame queueと破棄数を保持する | 1 | 1 |
 
-<a id="group-game-prefix"></a>
+<a id="group-pfx-game"></a>
 ## game_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
 |---|---|---|---|---|
 | [`game_2048_adapter`](../src/ai_game_player/game_2048_adapter.py) | `ReferenceGame2048Adapter` | Observationと対応するraw frameから2048 stateと確信度条件を通過したArrow key候補を生成する | 4 | 0 |
-| [`game_2048_board`](../src/ai_game_player/game_2048_board.py) | `BoardRegion`, `BoardRecognition`, `Game2048BoardRecognizer` | game-over overlayが半透明で重なる色をsRGBの8bit RGBへ合成する | 1 | 1 |
+| [`game_2048_board`](../src/ai_game_player/game_2048_board.py) | `BoardRegion`, `BoardRecognition`, `Game2048BoardRecognizer` | 縦方向に並ぶ盤面色の帯を、短い検出欠落だけを橋渡ししてgroupへ分ける | 1 | 1 |
 | [`game_2048_state`](../src/ai_game_player/game_2048_state.py) | `Game2048State` | 画面由来の盤面仮説または予測盤面を、外部から変更できない値として保持する | 0 | 3 |
 | [`game_2048_transition`](../src/ai_game_player/game_2048_transition.py) | `ReferenceGame2048TransitionModel` | 2048の盤面仮説を純粋な仮想操作と確率spawnで展開する | 2 | 2 |
 | [`game_session`](../src/ai_game_player/game_session.py) | `SessionRuntime`, `SessionScheduler`, `SessionStatus` | GameSessionControllerが操作するPipelineとsession-scoped Providerの公開契約 | 6 | 2 |
 
-<a id="group-hook-prefix"></a>
+<a id="group-pfx-hook"></a>
 ## hook_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -230,7 +230,7 @@ flowchart LR
 | [`hook_registration`](../src/ai_game_player/hook_registration.py) | `HookMode`, `HookFailurePolicy`, `HookRegistration` | Hookがstage境界のEnvelopeへ行える操作の種類を列挙する | 1 | 5 |
 | [`hook_runtime`](../src/ai_game_player/hook_runtime.py) | `HookAccessPolicy`, `_HookContractViolation`, `_HookCapabilityDenied` | Hookの登録・入力・出力を権限の宣言と照合する判定の形を定める（#152 PluginCapabilityPolicyが実装する） | 4 | 2 |
 
-<a id="group-knowledge-prefix"></a>
+<a id="group-pfx-knowledge"></a>
 ## knowledge_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -250,7 +250,7 @@ flowchart LR
 | [`knowledge_update_sample`](../src/ai_game_player/knowledge_update_sample.py) | `KnowledgeUpdateSample` | 操作との対応と証拠の出所を保持する、変更不能な集計用投影 | 3 | 7 |
 | [`knowledge_update_statistics`](../src/ai_game_player/knowledge_update_statistics.py) | - | 一つの独立した経験から分類件数・報酬・Beta推定・soft priorを更新する | 2 | 1 |
 
-<a id="group-light-prefix"></a>
+<a id="group-pfx-light"></a>
 ## light_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -262,17 +262,17 @@ flowchart LR
 | [`light_session`](../src/ai_game_player/light_session.py) | `SessionLightAdaptation` | production SessionのStep境界へModeとlight workerを接続する | 13 | 1 |
 | [`light_utility`](../src/ai_game_player/light_utility.py) | `UtilityMeasurement`, `UtilityEstimate` | 推論経路から数値だけを取り込むversioned sample | 1 | 2 |
 
-<a id="group-outcome-prefix"></a>
+<a id="group-pfx-outcome"></a>
 ## outcome_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
 |---|---|---|---|---|
 | [`outcome`](../src/ai_game_player/outcome.py) | `OutcomeAssessment`, `OutcomeEvaluator` | (責務コメントなし) | 1 | 12 |
 | [`outcome_detectors`](../src/ai_game_player/outcome_detectors.py) | `TerminalTextDetector`, `StateDeltaDetector`, `ScreenDiffDetector` | (責務コメントなし) | 2 | 1 |
-| [`outcome_fusion`](../src/ai_game_player/outcome_fusion.py) | `SemanticOutcomeProvider`, `DeterministicOutcomeFusion`, `OutcomeDetector` | (責務コメントなし) | 4 | 1 |
-| [`outcome_models`](../src/ai_game_player/outcome_models.py) | `OutcomeEvidence`, `OutcomeEvent` | (責務コメントなし) | 1 | 6 |
+| [`outcome_fusion`](../src/ai_game_player/outcome_fusion.py) | `SemanticOutcomeProvider`, `DeterministicOutcomeFusion`, `OutcomeDetector` | 画面解析器と任意の意味評価器が返した根拠を統合し、成功・失敗・状態変化を不確実性とともに判定する | 4 | 1 |
+| [`outcome_models`](../src/ai_game_player/outcome_models.py) | `OutcomeEvidence`, `OutcomeEvent` | 操作後に推定したゲーム結果と、画面状態が変化したかを別々に記録する | 1 | 6 |
 
-<a id="group-planner-prefix"></a>
+<a id="group-pfx-planner"></a>
 ## planner_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -282,7 +282,7 @@ flowchart LR
 | [`planner_observation`](../src/ai_game_player/planner_observation.py) | `PlannerObservationInput`, `PlannerObservationAdapter` | 観測由来Beliefと実行直前照合用semantic参照を束ねる | 5 | 3 |
 | [`planner_provider`](../src/ai_game_player/planner_provider.py) | `PlannerDecisionProvider` | 最初の一手または非SELECTを既存判断境界へ渡す | 16 | 1 |
 
-<a id="group-planning-prefix"></a>
+<a id="group-pfx-planning"></a>
 ## planning_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -308,7 +308,7 @@ flowchart LR
 | [`planning_worker_diagnostic`](../src/ai_game_player/planning_worker_diagnostic.py) | `WorkerPhase`, `WorkerDiagnostic` | trusted wrapperの段階を固定enumで限定する | 1 | 4 |
 | [`planning_worker_limits`](../src/ai_game_player/planning_worker_limits.py) | - | model/factory import前にworkerのOS資源上限を設定する | 0 | 1 |
 
-<a id="group-retention-prefix"></a>
+<a id="group-pfx-retention"></a>
 ## retention_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -319,7 +319,7 @@ flowchart LR
 | [`retention_policy`](../src/ai_game_player/retention_policy.py) | `RetentionPolicyError`, `RetentionPolicy` | retention policyが契約外で、GCや受入判断に使えないことを通知する | 1 | 3 |
 | [`retention_root_lock`](../src/ai_game_player/retention_root_lock.py) | `RetentionRootUnsafeError`, `RetentionLockTimeoutError`, `_RootLockState` | root・lock fileがsymlink/junction等で、lockも変更も始めずに止めたことを通知する | 1 | 6 |
 
-<a id="group-runtime"></a>
+<a id="group-pkg-runtime"></a>
 ## runtime
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -335,7 +335,7 @@ flowchart LR
 | [`runtime.retention_adapter`](../src/ai_game_player/runtime/retention_adapter.py) | `RetentionReferenceError`, `RetentionTrigger`, `RetentionTriggerPolicy` | 参照を書く条件（gate内・object存在）を満たさず、Journal/Experienceへ書かせなかったことを通知する | 8 | 1 |
 | [`runtime.session_composition`](../src/ai_game_player/runtime/session_composition.py) | `SessionRetentionConfig`, `SessionRuntimeConfiguration`, `_PipelineResourceTrace` | 複数プロセスによる同時legacy移行をOS file lockで直列化する | 31 | 2 |
 
-<a id="group-runtime-prefix"></a>
+<a id="group-pfx-runtime"></a>
 ## runtime_*
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -349,7 +349,7 @@ flowchart LR
 | [`runtime_mode_recorder`](../src/ai_game_player/runtime_mode_recorder.py) | `RuntimeModeRecorder` | Mode/Phase metadataの有界記録待ちとJournal/checkpoint IOを所有する | 3 | 1 |
 | [`runtime_mode_state`](../src/ai_game_player/runtime_mode_state.py) | `RuntimeModeSnapshot`, `RuntimeStepToken` | 利用者選択、実効Mode、Phaseと現在の操作世代を固定してSubsystemへ渡す | 1 | 3 |
 
-<a id="group-ui"></a>
+<a id="group-pkg-ui"></a>
 ## ui
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -366,8 +366,8 @@ flowchart LR
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
 |---|---|---|---|---|
 | [`__main__`](../src/ai_game_player/__main__.py) | - | 配布bundleの自己検査を実行し、指定pathへJSON reportを書く | 4 | 0 |
-| [`action_executor`](../src/ai_game_player/action_executor.py) | `ExecutionResult`, `LiveExecutor`, `ActionExecutor` | 動的な一手期限検査をWindows送信境界へ委譲する | 4 | 8 |
-| [`action_safety`](../src/ai_game_player/action_safety.py) | `SafetyStatus`, `SafetyEvidence`, `SafetyEvaluationContext` | 注意判定と高リスク判定を切り替える点数の境界を設定する | 2 | 1 |
+| [`action_executor`](../src/ai_game_player/action_executor.py) | `ExecutionResult`, `LiveExecutor`, `ActionExecutor` | 候補の安全評価とOS入力への到達を制御する | 4 | 8 |
+| [`action_safety`](../src/ai_game_player/action_safety.py) | `SafetyStatus`, `SafetyEvidence`, `SafetyEvaluationContext` | 操作が危険かを調べるため、ゲーム目標・操作後の予測・候補選択の検査結果を評価器へ渡す | 2 | 1 |
 | [`admission_pending_store`](../src/ai_game_player/admission_pending_store.py) | `AdmissionRecordError`, `PendingAdmission`, `PendingAdmissionStore` | pending recordが契約外で、回収を安全に判断できないことを通知する | 3 | 2 |
 | [`app`](../src/ai_game_player/app.py) | `TkAfterScheduler`, `Application` | Application scheduling constants: Tkイベントポーリングと連続実行間隔を明示する | 22 | 1 |
 | [`application_workflow`](../src/ai_game_player/application_workflow.py) | `MemorySource`, `ApplicationSettings`, `PreparedObservation` | 同じSession Runtimeへ最新の画面観測と操作候補を渡す | 11 | 1 |
@@ -376,7 +376,7 @@ flowchart LR
 | [`artifact_store`](../src/ai_game_player/artifact_store.py) | `ArtifactIntegrityError`, `ArtifactMetadata`, `IntegrityIssue` | 既存Store契約を壊さず容量上限・型照合の読込能力を追加する | 2 | 9 |
 | [`artifact_trash`](../src/ai_game_player/artifact_trash.py) | `TrashIntentError`, `TrashIntent`, `TrashSweepReport` | trash intent recordが契約外で、安全に判断できないことを通知する | 5 | 2 |
 | [`atomic_json`](../src/ai_game_player/atomic_json.py) | `StagedJsonWrite` | JSON内容を一時ファイルへ準備し、呼出側の確定時に置換する | 0 | 14 |
-| [`baseline_provider`](../src/ai_game_player/baseline_provider.py) | `BaselineProviderProfile`, `BaselineDecision`, `BaselineWithheld` | Profileがモデル・GPU・通信を要求せず、種別が既知であることを生成時に保証する | 4 | 4 |
+| [`baseline_provider`](../src/ai_game_player/baseline_provider.py) | `BaselineProviderProfile`, `BaselineDecision`, `BaselineWithheld` | 学習Model・GPU・通信なしで動く判断元が、満たす条件と対応する判断能力を機械可読に宣言する | 4 | 4 |
 | [`bounded_file`](../src/ai_game_player/bounded_file.py) | - | 非通常ファイルや途中の差し替えを検査し、上限付きbytesだけを読む | 0 | 9 |
 | [`bounded_planner`](../src/ai_game_player/bounded_planner.py) | `BoundedExpectimaxPlanner` | 純粋な探索callbackを親の停止/観測/メモリ境界から分離する | 11 | 1 |
 | [`bright_region_detector`](../src/ai_game_player/bright_region_detector.py) | `BrightRegionDetector` | 輝度が高い連結領域を検出し、UI要素かどうかは未確認の要素として返す | 2 | 3 |
@@ -396,7 +396,7 @@ flowchart LR
 | [`deferred_trace_append`](../src/ai_game_player/deferred_trace_append.py) | `DeferredTraceAppend` | 計画準備後に追記された実行auditを失わず判断traceを公開する | 0 | 2 |
 | [`e2e_runner`](../src/ai_game_player/e2e_runner.py) | - | 操作・観測・完了確認を繰り返し、停止理由と実入力の有無をJSONLへ記録する | 5 | 0 |
 | [`engine`](../src/ai_game_player/engine.py) | `GamePlayerEngine` | 許可候補の判断・信頼性検査・実操作Outcome追跡とJournal保存を管理する | 18 | 1 |
-| [`evaluator`](../src/ai_game_player/evaluator.py) | `ActionEvaluator` | (責務コメントなし) | 1 | 3 |
+| [`evaluator`](../src/ai_game_player/evaluator.py) | `ActionEvaluator` | 候補ごとの許可・拒否理由を監査可能な形式で返す | 1 | 3 |
 | [`event_journal`](../src/ai_game_player/event_journal.py) | `EventJournalError`, `EventJournalCorruptionError`, `EventJournalClosedError` | access・resource failureとして扱うSQLite primary result codeを列挙する | 1 | 8 |
 | [`execution_history`](../src/ai_game_player/execution_history.py) | `ExecutionHistory` | 実行結果を旧JSON互換readerまたはSession Event Journalで管理する | 3 | 1 |
 | [`execution_mode`](../src/ai_game_player/execution_mode.py) | - | (責務コメントなし) | 0 | 1 |
@@ -413,7 +413,7 @@ flowchart LR
 | [`learning_identity`](../src/ai_game_player/learning_identity.py) | `LearningIdentityKind`, `LearningIdentityPolicy` | 未実装の意味追跡を仮定せず、profileが保証する再対応だけを区別する | 2 | 5 |
 | [`loop_guard`](../src/ai_game_player/loop_guard.py) | `LoopGuard` | (責務コメントなし) | 2 | 2 |
 | [`metrics`](../src/ai_game_player/metrics.py) | `ExecutionMetrics`, `MetricsCalculator` | (責務コメントなし) | 1 | 1 |
-| [`models`](../src/ai_game_player/models.py) | `ScreenObservation`, `DetectedElement`, `ActionCandidate` | (責務コメントなし) | 0 | 51 |
+| [`models`](../src/ai_game_player/models.py) | `ScreenObservation`, `DetectedElement`, `ActionCandidate` | 判断元が選んだ操作、その理由、回答が基づいた画面状態を実行前検証へ渡す | 0 | 51 |
 | [`no_allowed_candidates_error`](../src/ai_game_player/no_allowed_candidates_error.py) | `NoAllowedCandidatesError` | 許可候補が空で、入力実行前の意思決定を中止した状態を表すValueErrorの派生型 | 0 | 2 |
 | [`noisy_provider`](../src/ai_game_player/noisy_provider.py) | `NoisyLanguageProvider` | 固定seedで許可候補を擬似ランダム選択し、意味を持たない理由と低確信Outcomeを返す | 3 | 0 |
 | [`observation_freshness`](../src/ai_game_player/observation_freshness.py) | `ObservationFreshness` | 実capture metadataの有界な順序参照を固定する | 1 | 5 |
@@ -424,22 +424,22 @@ flowchart LR
 | [`ocr_recognizer`](../src/ai_game_player/ocr_recognizer.py) | `TesseractOcrRecognizer` | 同じ画素からOCR文字と矩形・確信度を返す | 1 | 1 |
 | [`orphan_reconciler`](../src/ai_game_player/orphan_reconciler.py) | `LiveReferenceSnapshot`, `LiveReferenceSource`, `OrphanReconcilerConfig` | 1つの保持者が1時点で返す、生きているArtifact参照の集合 | 12 | 0 |
 | [`perception_hook_boundary`](../src/ai_game_player/perception_hook_boundary.py) | `PerceptionHookBoundary` | 統合済み操作候補を座標なしのStageEnvelopeにしてread/inject Hookへ渡し、失敗時方針に従って判断を止める | 7 | 1 |
-| [`perceptual_hasher`](../src/ai_game_player/perceptual_hasher.py) | `PerceptualHasher` | Produces a compact dHash and compares visual similarity without dependencies. | 1 | 3 |
+| [`perceptual_hasher`](../src/ai_game_player/perceptual_hasher.py) | `PerceptualHasher` | (責務コメントなし) | 1 | 3 |
 | [`pipeline`](../src/ai_game_player/pipeline.py) | `DecisionPipeline` | 画面観測から検証済み判断、安全評価、世代guard付き実行までを接続する | 23 | 3 |
 | [`player_character`](../src/ai_game_player/player_character.py) | `PlayerState`, `PlayerAssetPack` | Player Seatが表示するPlayer Characterの状態を、描画方法から独立した値として定義する | 0 | 3 |
 | [`plugin_capability_manifest`](../src/ai_game_player/plugin_capability_manifest.py) | `PluginManifestError`, `PayloadSchemaGrant`, `InjectTarget` | Manifestの復号・検証・登録が失敗した理由を機械判定できるcodeと一緒に伝える | 3 | 1 |
 | [`plugin_capability_policy`](../src/ai_game_player/plugin_capability_policy.py) | `PluginCapabilityDenied`, `PluginCapabilityDecision`, `_Grant` | Hookの登録・入力・出力が宣言された権限の外にあることを、機械判定できるcodeで伝える | 3 | 0 |
-| [`provider`](../src/ai_game_player/provider.py) | `RuleProvider`, `OllamaProvider` | (責務コメントなし) | 5 | 2 |
-| [`recovery_controller`](../src/ai_game_player/recovery_controller.py) | `_RecoveryEpisode`, `RecoveryController` | (責務コメントなし) | 2 | 1 |
-| [`recovery_models`](../src/ai_game_player/recovery_models.py) | `RecoveryAction`, `RecoveryState`, `RecoveryReason` | (責務コメントなし) | 0 | 2 |
-| [`recovery_session_adapter`](../src/ai_game_player/recovery_session_adapter.py) | `RecoveryJournal`, `RecoverySessionAdapter` | (責務コメントなし) | 3 | 0 |
+| [`provider`](../src/ai_game_player/provider.py) | `RuleProvider`, `OllamaProvider` | 外部通信なしで許可候補を規則に従って選び、必要なら画面参照を添えて返す | 5 | 2 |
+| [`recovery_controller`](../src/ai_game_player/recovery_controller.py) | `_RecoveryEpisode`, `RecoveryController` | 1つのSelf-Check異常に対するRecoveryの進行をController内部で保持する | 2 | 1 |
+| [`recovery_models`](../src/ai_game_player/recovery_models.py) | `RecoveryAction`, `RecoveryState`, `RecoveryReason` | Recovery Controllerが呼出側へ要求する次の行動を表す | 0 | 2 |
+| [`recovery_session_adapter`](../src/ai_game_player/recovery_session_adapter.py) | `RecoveryJournal`, `RecoverySessionAdapter` | Recovery記録に必要なEvent Journalのappend契約を表す | 3 | 0 |
 | [`region_detector`](../src/ai_game_player/region_detector.py) | `ConfiguredRegionDetector` | (責務コメントなし) | 1 | 0 |
 | [`run_control`](../src/ai_game_player/run_control.py) | `ExecutionCancelled`, `RunController` | 停止または再開で失効した実行を表す | 1 | 11 |
 | [`safety_guard`](../src/ai_game_player/safety_guard.py) | `SafetyState`, `SafetyGuardConfig`, `TargetState` | (責務コメントなし) | 1 | 5 |
 | [`screen_capture`](../src/ai_game_player/screen_capture.py) | `BitmapInfoHeader`, `BitmapInfo`, `ScreenFrame` | BGRA画素、取得時刻、screen/window mapping、適用済みROI変換を保持する | 5 | 15 |
 | [`screen_similarity`](../src/ai_game_player/screen_similarity.py) | `ScreenSimilarity` | (責務コメントなし) | 2 | 1 |
-| [`self_check`](../src/ai_game_player/self_check.py) | `SelfCheckMonitor` | (責務コメントなし) | 1 | 0 |
-| [`self_check_models`](../src/ai_game_player/self_check_models.py) | `SelfCheckCategory`, `SelfCheckSeverity`, `SelfCheckConfig` | (責務コメントなし) | 2 | 3 |
+| [`self_check`](../src/ai_game_player/self_check.py) | `SelfCheckMonitor` | ゲーム固有presetに依存せず、step履歴から異常兆候を検出する | 1 | 0 |
+| [`self_check_models`](../src/ai_game_player/self_check_models.py) | `SelfCheckCategory`, `SelfCheckSeverity`, `SelfCheckConfig` | deterministicなSelf-Check検出項目を識別する | 2 | 3 |
 | [`shared_frame_producer`](../src/ai_game_player/shared_frame_producer.py) | `SharedFrameProducer` | 1 capture backendを周期実行し、同じFramePacketをbounded subscriber queueへ配る | 3 | 1 |
 | [`simulation_provider`](../src/ai_game_player/simulation_provider.py) | `SimulationKey`, `SimulationProvider` | 異なる状態型を同じRegistryで混ぜずに参照する型付きキー | 1 | 0 |
 | [`stage_envelope`](../src/ai_game_player/stage_envelope.py) | `StageEnvelopeError`, `StageEnvelope` | session・trace・envelope等の外部生成IDとして受け付ける文字列を制限する | 1 | 8 |
@@ -452,7 +452,7 @@ flowchart LR
 | [`ui_embedding`](../src/ai_game_player/ui_embedding.py) | `EmbeddingVector`, `EmbeddingProvider`, `GridVisualEmbeddingProvider` | (責務コメントなし) | 3 | 0 |
 | [`ui_recognition`](../src/ai_game_player/ui_recognition.py) | `UiDetectorProvider`, `DetectorProviderAdapter`, `UiProviderConfig` | (責務コメントなし) | 2 | 1 |
 | [`unknownness`](../src/ai_game_player/unknownness.py) | `UnknownnessType`, `UnknownnessScope`, `UnknownnessEvidence` | 判断の不確かさを示す観測原因を、保存・集計で共通の名前にする | 0 | 0 |
-| [`window_selector`](../src/ai_game_player/window_selector.py) | `WindowInfo`, `WindowsWindowSelector` | (責務コメントなし) | 1 | 1 |
+| [`window_selector`](../src/ai_game_player/window_selector.py) | `WindowInfo`, `WindowsWindowSelector` | 対象ウィンドウをHWNDと所有PIDで識別する | 1 | 1 |
 | [`windows_abi`](../src/ai_game_player/windows_abi.py) | - | ctypesがC intと解釈しないようWin32関数の引数・戻り値を宣言する | 0 | 3 |
 | [`windows_input`](../src/ai_game_player/windows_input.py) | `WindowsInputExecutor` | 入力送信に使うuser32関数を取得し、Windows ABIの型を設定する | 4 | 2 |
 | [`world_state_hypothesis`](../src/ai_game_player/world_state_hypothesis.py) | `HypothesisOrigin`, `TypedStateRef`, `WorldStateHypothesis` | 観測から作る仮説、未観測の予測、後続のposteriorを区別する | 2 | 8 |
