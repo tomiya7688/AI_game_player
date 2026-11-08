@@ -11,12 +11,21 @@ FRONT_PATTERN = re.compile(r"^(?P<key>[A-Za-z-]+):\s*(?P<value>.+?)\s*$")
 SUMMARY_LIMIT = 100
 ROOT_DOCS = ("README.md", "AGENTS.md", "AI_CONTEXT.md", "key_info.md")
 SKIP_PARTS = {"generated", "__pycache__"}
+SENTENCE_END = re.compile(r"(?<=[。！？])\s*|(?<=[.!?])\s+")
+LIST_PREFIXES = ("#", "|", "-", "*", "+", "<", "!")
 
 
 def _plain(text: str) -> str:
     text = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", text)
-    text = re.sub(r"[`*_>#]", "", text)
+    text = re.sub(r"[`*>#]", "", text)
     return " ".join(text.split()).replace("|", "/")
+
+
+def _first_sentence(text: str) -> str:
+    sentence = SENTENCE_END.split(text, maxsplit=1)[0]
+    if len(sentence) <= SUMMARY_LIMIT:
+        return sentence
+    return sentence[: SUMMARY_LIMIT - 1] + "…"
 
 
 def summarize_document(text: str) -> tuple[str, str, dict[str, str]]:
@@ -39,8 +48,9 @@ def summarize_document(text: str) -> tuple[str, str, dict[str, str]]:
         if match and match.group("key") in FRONT_KEYS and not title:
             front[match.group("key")] = match.group("value")
             continue
-        if title and not summary and not line.startswith(("#", "|", "-", "<", "!")):
-            summary = _plain(line)[:SUMMARY_LIMIT]
+        is_list = line.startswith(LIST_PREFIXES) or re.match(r"^\d+[.)]\s", line)
+        if title and not summary and not is_list:
+            summary = _first_sentence(_plain(line))
     return title or "(題名なし)", summary or "-", front
 
 
@@ -48,7 +58,9 @@ def render_doc_index(root: Path) -> str:
     """Render the Markdown table of contents for all documents."""
     paths = [root / name for name in ROOT_DOCS if (root / name).is_file()]
     paths += sorted(
-        p for p in (root / "doc").rglob("*.md") if not SKIP_PARTS & set(p.parts)
+        p
+        for p in (root / "doc").rglob("*.md")
+        if not SKIP_PARTS & set(p.relative_to(root).parts)
     )
     lines = [
         "<!-- 自動生成: tools/generate_doc_index.py。手で編集しない。 -->",

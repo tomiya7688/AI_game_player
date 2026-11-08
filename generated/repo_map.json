@@ -197835,7 +197835,7 @@
       "module": "tests.test_reading_indexes",
       "path": "tests/test_reading_indexes.py",
       "source_location": {
-        "end_line": 108,
+        "end_line": 173,
         "start_line": 1
       },
       "symbols": [
@@ -197959,6 +197959,74 @@
           },
           "decorators": [],
           "kind": "class",
+          "name": "ModuleIndexEdgeCaseTest",
+          "parameters": [],
+          "qualified_name": "ModuleIndexEdgeCaseTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 119,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_nameless_responsibility_keeps_its_beginning",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ModuleIndexEdgeCaseTest.test_nameless_responsibility_keeps_its_beginning",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 82,
+            "start_line": 74
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_groups_by_shared_prefix_and_keeps_anchors_distinct",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ModuleIndexEdgeCaseTest.test_groups_by_shared_prefix_and_keeps_anchors_distinct",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 119,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
           "name": "DocIndexTest",
           "parameters": [],
           "qualified_name": "DocIndexTest",
@@ -197966,8 +198034,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 89,
-            "start_line": 73
+            "end_line": 151,
+            "start_line": 122
           }
         },
         {
@@ -197989,8 +198057,54 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 79,
-            "start_line": 74
+            "end_line": 128,
+            "start_line": 123
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_keeps_underscores_and_cuts_at_first_sentence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_keeps_underscores_and_cuts_at_first_sentence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 133,
+            "start_line": 130
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_excludes_by_relative_path_not_parent_directories",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_excludes_by_relative_path_not_parent_directories",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 141,
+            "start_line": 135
           }
         },
         {
@@ -198012,8 +198126,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 89,
-            "start_line": 81
+            "end_line": 151,
+            "start_line": 143
           }
         },
         {
@@ -198034,8 +198148,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 104,
-            "start_line": 92
+            "end_line": 169,
+            "start_line": 154
           }
         },
         {
@@ -198057,8 +198171,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 104,
-            "start_line": 93
+            "end_line": 169,
+            "start_line": 155
           }
         }
       ]
@@ -259767,7 +259881,7 @@
       "module": "tools.diagram_hints",
       "path": "tools/diagram_hints.py",
       "source_location": {
-        "end_line": 63,
+        "end_line": 66,
         "start_line": 1
       },
       "symbols": [
@@ -259790,7 +259904,7 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 51,
+            "end_line": 54,
             "start_line": 20
           }
         },
@@ -259806,8 +259920,8 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 59,
-            "start_line": 54
+            "end_line": 62,
+            "start_line": 57
           }
         }
       ]
@@ -261968,7 +262082,7 @@
       "module": "tools.generate_doc_index",
       "path": "tools/generate_doc_index.py",
       "source_location": {
-        "end_line": 69,
+        "end_line": 81,
         "start_line": 1
       },
       "symbols": [
@@ -261991,8 +262105,31 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 19,
-            "start_line": 16
+            "end_line": 21,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_first_sentence",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_first_sentence",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 28,
+            "start_line": 24
           }
         },
         {
@@ -262014,8 +262151,8 @@
           "signature": "(text: str) -> tuple[str, str, dict[str, str]]",
           "source_location": {
             "column": 0,
-            "end_line": 44,
-            "start_line": 22
+            "end_line": 54,
+            "start_line": 31
           }
         },
         {
@@ -262037,8 +262174,8 @@
           "signature": "(root: Path) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 69,
-            "start_line": 47
+            "end_line": 81,
+            "start_line": 57
           }
         }
       ]
@@ -262523,7 +262660,7 @@
       "module": "tools.generate_module_index",
       "path": "tools/generate_module_index.py",
       "source_location": {
-        "end_line": 191,
+        "end_line": 194,
         "start_line": 1
       },
       "symbols": [
@@ -262546,8 +262683,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 30,
-            "start_line": 26
+            "end_line": 31,
+            "start_line": 27
           }
         },
         {
@@ -262569,8 +262706,8 @@
           "signature": "(source_text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 46,
-            "start_line": 33
+            "end_line": 48,
+            "start_line": 34
           }
         },
         {
@@ -262592,8 +262729,8 @@
           "signature": "(module_names: list[str]) -> set[str]",
           "source_location": {
             "column": 0,
-            "end_line": 56,
-            "start_line": 49
+            "end_line": 58,
+            "start_line": 51
           }
         },
         {
@@ -262621,8 +262758,8 @@
           "signature": "(module_name: str, prefixes: set[str]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 64,
-            "start_line": 59
+            "end_line": 66,
+            "start_line": 61
           }
         },
         {
@@ -262644,8 +262781,8 @@
           "signature": "(group: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 71,
-            "start_line": 67
+            "end_line": 73,
+            "start_line": 69
           }
         },
         {
@@ -262667,8 +262804,8 @@
           "signature": "(group: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 79,
-            "start_line": 74
+            "end_line": 81,
+            "start_line": 76
           }
         },
         {
@@ -262690,8 +262827,8 @@
           "signature": "(module: dict[str, Any]) -> list[str]",
           "source_location": {
             "column": 0,
-            "end_line": 87,
-            "start_line": 82
+            "end_line": 89,
+            "start_line": 84
           }
         },
         {
@@ -262719,8 +262856,8 @@
           "signature": "(root: Path, repo_map_text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 191,
-            "start_line": 90
+            "end_line": 194,
+            "start_line": 92
           }
         }
       ]

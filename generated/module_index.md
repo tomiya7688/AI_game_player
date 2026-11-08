@@ -27,7 +27,7 @@
 | [runtime](#group-runtime) | 10 | `runtime/` |
 | [runtime_*](#group-runtime-prefix) | 8 | 直下の`runtime_`で始まるモジュール |
 | [ui](#group-ui) | 5 | `ui/` |
-| [(その他の直下)](#group-other) | 91 | 接頭辞で束ねられない直下のモジュール |
+| [(その他の直下)](#group-misc-top) | 91 | 接頭辞で束ねられない直下のモジュール |
 
 ## 最初に読む場所（依存元が多いモジュール）
 
@@ -70,57 +70,57 @@ flowchart LR
     group_runtime["runtime (10)"]
     group_runtime_prefix["runtime_* (8)"]
     group_ui["ui (5)"]
-    group_other["(その他の直下) (91)"]
-    group_other -->|7| group_belief_prefix
-    group_other -->|13| group_decision_prefix
-    group_other -->|1| group_evaluation_prefix
-    group_other -->|5| group_frame_prefix
-    group_other -->|2| group_game_prefix
-    group_other -->|6| group_hook_prefix
-    group_other -->|8| group_knowledge_prefix
-    group_other -->|9| group_outcome_prefix
-    group_other -->|12| group_planning_prefix
-    group_other -->|11| group_retention_prefix
-    group_other -->|4| group_runtime
-    group_other -->|9| group_runtime_prefix
-    group_other -->|4| group_ui
-    group_applications -->|8| group_other
+    group_misc_top["(その他の直下) (91)"]
+    group_misc_top -->|7| group_belief_prefix
+    group_misc_top -->|13| group_decision_prefix
+    group_misc_top -->|1| group_evaluation_prefix
+    group_misc_top -->|5| group_frame_prefix
+    group_misc_top -->|2| group_game_prefix
+    group_misc_top -->|6| group_hook_prefix
+    group_misc_top -->|8| group_knowledge_prefix
+    group_misc_top -->|9| group_outcome_prefix
+    group_misc_top -->|12| group_planning_prefix
+    group_misc_top -->|11| group_retention_prefix
+    group_misc_top -->|4| group_runtime
+    group_misc_top -->|9| group_runtime_prefix
+    group_misc_top -->|4| group_ui
+    group_applications -->|8| group_misc_top
     group_applications -->|1| group_decision_prefix
     group_applications -->|1| group_frame_prefix
-    group_belief_prefix -->|6| group_other
-    group_decision_prefix -->|11| group_other
+    group_belief_prefix -->|6| group_misc_top
+    group_decision_prefix -->|11| group_misc_top
     group_decision_prefix -->|2| group_knowledge_prefix
     group_decision_prefix -->|1| group_outcome_prefix
     group_decision_prefix -->|2| group_planning_prefix
     group_decision_prefix -->|1| group_runtime_prefix
-    group_evaluation_prefix -->|1| group_other
+    group_evaluation_prefix -->|1| group_misc_top
     group_evaluation_prefix -->|2| group_knowledge_prefix
     group_evaluation_prefix -->|3| group_outcome_prefix
-    group_frame_prefix -->|11| group_other
-    group_game_prefix -->|9| group_other
+    group_frame_prefix -->|11| group_misc_top
+    group_game_prefix -->|9| group_misc_top
     group_game_prefix -->|1| group_decision_prefix
     group_game_prefix -->|1| group_outcome_prefix
-    group_hook_prefix -->|5| group_other
-    group_knowledge_prefix -->|18| group_other
+    group_hook_prefix -->|5| group_misc_top
+    group_knowledge_prefix -->|18| group_misc_top
     group_knowledge_prefix -->|4| group_decision_prefix
-    group_light_prefix -->|15| group_other
+    group_light_prefix -->|15| group_misc_top
     group_light_prefix -->|1| group_decision_prefix
     group_light_prefix -->|16| group_knowledge_prefix
     group_light_prefix -->|5| group_runtime_prefix
-    group_outcome_prefix -->|3| group_other
-    group_planner_prefix -->|11| group_other
+    group_outcome_prefix -->|3| group_misc_top
+    group_planner_prefix -->|11| group_misc_top
     group_planner_prefix -->|6| group_belief_prefix
     group_planner_prefix -->|5| group_decision_prefix
     group_planner_prefix -->|2| group_game_prefix
     group_planner_prefix -->|14| group_planning_prefix
-    group_planning_prefix -->|5| group_other
+    group_planning_prefix -->|5| group_misc_top
     group_planning_prefix -->|24| group_belief_prefix
     group_planning_prefix -->|1| group_decision_prefix
     group_planning_prefix -->|2| group_evaluation_prefix
     group_planning_prefix -->|2| group_game_prefix
     group_planning_prefix -->|1| group_planner_prefix
-    group_retention_prefix -->|6| group_other
-    group_runtime -->|22| group_other
+    group_retention_prefix -->|6| group_misc_top
+    group_runtime -->|22| group_misc_top
     group_runtime -->|2| group_decision_prefix
     group_runtime -->|2| group_evaluation_prefix
     group_runtime -->|1| group_frame_prefix
@@ -129,12 +129,12 @@ flowchart LR
     group_runtime -->|1| group_outcome_prefix
     group_runtime -->|5| group_retention_prefix
     group_runtime -->|8| group_runtime_prefix
-    group_runtime_prefix -->|8| group_other
+    group_runtime_prefix -->|8| group_misc_top
     group_runtime_prefix -->|1| group_decision_prefix
     group_runtime_prefix -->|7| group_evaluation_prefix
     group_runtime_prefix -->|2| group_knowledge_prefix
     group_runtime_prefix -->|5| group_runtime
-    group_ui -->|5| group_other
+    group_ui -->|5| group_misc_top
 ```
 
 <a id="group-applications"></a>
@@ -360,7 +360,7 @@ flowchart LR
 | [`ui.theme`](../src/ai_game_player/ui/theme.py) | - | 既定UIフォントのfamilyを保ったまま、大きさと太さだけを変えたフォント指定を返す | 0 | 3 |
 | [`ui.tooltip`](../src/ai_game_player/ui/tooltip.py) | `ToolTip` | 一つのTkウィジェットに、ホバーまたはキーボードフォーカスで補足説明を表示する | 2 | 2 |
 
-<a id="group-other"></a>
+<a id="group-misc-top"></a>
 ## (その他の直下)
 
 | モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
@@ -369,7 +369,7 @@ flowchart LR
 | [`action_executor`](../src/ai_game_player/action_executor.py) | `ExecutionResult`, `LiveExecutor`, `ActionExecutor` | 動的な一手期限検査をWindows送信境界へ委譲する | 4 | 8 |
 | [`action_safety`](../src/ai_game_player/action_safety.py) | `SafetyStatus`, `SafetyEvidence`, `SafetyEvaluationContext` | 注意判定と高リスク判定を切り替える点数の境界を設定する | 2 | 1 |
 | [`admission_pending_store`](../src/ai_game_player/admission_pending_store.py) | `AdmissionRecordError`, `PendingAdmission`, `PendingAdmissionStore` | pending recordが契約外で、回収を安全に判断できないことを通知する | 3 | 2 |
-| [`app`](../src/ai_game_player/app.py) | `TkAfterScheduler`, `Application` | Tkイベントポーリングと連続実行間隔を明示する | 22 | 1 |
+| [`app`](../src/ai_game_player/app.py) | `TkAfterScheduler`, `Application` | Application scheduling constants: Tkイベントポーリングと連続実行間隔を明示する | 22 | 1 |
 | [`application_workflow`](../src/ai_game_player/application_workflow.py) | `MemorySource`, `ApplicationSettings`, `PreparedObservation` | 同じSession Runtimeへ最新の画面観測と操作候補を渡す | 11 | 1 |
 | [`applications`](../src/ai_game_player/applications/__init__.py) | - | (責務コメントなし) | 0 | 4 |
 | [`artifact_admission`](../src/ai_game_player/artifact_admission.py) | `ArtifactAdmissionError`, `ArtifactAdmissionRequest`, `AdmissionTraceEvent` | put以降の失敗を、補償結果付きで呼出側へ通知する（silent successにしない） | 6 | 3 |

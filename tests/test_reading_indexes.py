@@ -66,8 +66,57 @@ class ModuleIndexTest(unittest.TestCase):
         self.assertIn("[runtime](#group-runtime)", text)
         self.assertIn("中心の判断を持つ", text)
         self.assertIn("Session wiring.", text)
-        self.assertIn("group_other -->|1| group_runtime", text)
+        self.assertIn("group_misc_top -->|1| group_runtime", text)
         self.assertIn("責務コメントなし: 0件", text)
+
+
+class ModuleIndexEdgeCaseTest(unittest.TestCase):
+    def test_nameless_responsibility_keeps_its_beginning(self):
+        self.assertEqual(
+            extract_responsibility("# 責務: [名前のない説明: 先頭を落とさない]\n"),
+            "名前のない説明: 先頭を落とさない",
+        )
+        self.assertEqual(
+            extract_responsibility("# 責務: [Name：全角コロンの説明]\n"),
+            "全角コロンの説明",
+        )
+
+    def test_groups_by_shared_prefix_and_keeps_anchors_distinct(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            package = root / "src" / "ai_game_player"
+            (package / "other").mkdir(parents=True)
+            modules = [
+                module_entry("ai_game_player", "src/ai_game_player/__init__.py", [], [])
+            ]
+            for index in range(4):
+                (package / f"belief_{index}.py").write_text(
+                    '"""Belief."""\n', encoding="utf-8"
+                )
+                modules.append(
+                    module_entry(
+                        f"ai_game_player.belief_{index}",
+                        f"src/ai_game_player/belief_{index}.py",
+                        [],
+                        [],
+                    )
+                )
+            (package / "solo.py").write_text('"""Solo."""\n', encoding="utf-8")
+            (package / "other" / "x.py").write_text('"""Other."""\n', encoding="utf-8")
+            modules.append(
+                module_entry(
+                    "ai_game_player.solo", "src/ai_game_player/solo.py", [], []
+                )
+            )
+            modules.append(
+                module_entry(
+                    "ai_game_player.other.x", "src/ai_game_player/other/x.py", [], []
+                )
+            )
+            text = render_module_index(root, json.dumps({"modules": modules}))
+        self.assertIn("[belief_*](#group-belief-prefix) | 4", text)
+        self.assertIn("[other](#group-other) | 1", text)
+        self.assertIn("[(その他の直下)](#group-misc-top) | 1", text)
 
 
 class DocIndexTest(unittest.TestCase):
@@ -77,6 +126,19 @@ class DocIndexTest(unittest.TestCase):
         self.assertEqual(title, "題名 リンク")
         self.assertEqual(summary, "本文の最初の文です。")
         self.assertEqual(front, {"Parent": "#19", "Last-Checked": "2026-11-08"})
+
+    def test_keeps_underscores_and_cuts_at_first_sentence(self):
+        text = "# 題名\n\n`ai_game_player`はrepo_map.jsonを使う。二文目は載せない。\n"
+        _, summary, _ = summarize_document(text)
+        self.assertEqual(summary, "ai_game_playerはrepo_map.jsonを使う。")
+
+    def test_excludes_by_relative_path_not_parent_directories(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "generated" / "project"
+            (root / "doc").mkdir(parents=True)
+            (root / "doc" / "a.md").write_text("# A\n\nfirst.\n", encoding="utf-8")
+            text = render_doc_index(root)
+        self.assertIn("doc/a.md", text)
 
     def test_renders_one_row_per_document_and_skips_generated(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -93,7 +155,7 @@ class DiagramHintsTest(unittest.TestCase):
     def test_extracts_headings_table_rows_links_issues_and_names(self):
         text = (
             "# 設計\n## 流れ\n| 責務 | 担当 |\n|---|---|\n| 呼ぶ | `MacroTrigger` |\n"
-            "```\n# コード内の見出し\n```\n[他](other.md) と #864。\n"
+            "```\n# コード内の見出し\n[隠れ](hidden.md) `HiddenName`\n```\n[他](other.md) と #864。\n#865 の行\n"
         )
         hints = extract_hints(text)
         self.assertIn("## 流れ", hints)
@@ -102,6 +164,9 @@ class DiagramHintsTest(unittest.TestCase):
         self.assertIn("- #864", hints)
         self.assertIn("- MacroTrigger", hints)
         self.assertNotIn("コード内の見出し", hints)
+        self.assertNotIn("hidden.md", hints)
+        self.assertNotIn("HiddenName", hints)
+        self.assertNotIn("#865 の行", hints.split("## 表の行")[0])
 
 
 if __name__ == "__main__":

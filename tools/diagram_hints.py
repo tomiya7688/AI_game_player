@@ -21,20 +21,23 @@ def extract_hints(text: str) -> str:
     """Return a Markdown summary of structure facts for diagram drafting."""
     headings: list[str] = []
     table_rows: list[str] = []
+    prose_lines: list[str] = []
     in_fence = False
     for line in text.splitlines():
-        if line.lstrip().startswith("```"):
+        if line.lstrip().startswith(("```", "~~~")):
             in_fence = not in_fence
             continue
         if in_fence:
             continue
-        if line.startswith("#"):
+        prose_lines.append(line)
+        if re.match(r"^#{1,6}\s", line):
             headings.append(line.rstrip())
         elif line.startswith("|") and not re.match(r"^\|[-| :]+\|$", line):
             table_rows.append(line.rstrip())
-    links = sorted({m.group("target") for m in LINK_PATTERN.finditer(text)})
-    issues = sorted({int(m.group("number")) for m in ISSUE_PATTERN.finditer(text)})
-    names = sorted({m.group("name") for m in IDENTIFIER_PATTERN.finditer(text)})
+    prose = "\n".join(prose_lines)
+    links = sorted({m.group("target") for m in LINK_PATTERN.finditer(prose)})
+    issues = sorted({int(m.group("number")) for m in ISSUE_PATTERN.finditer(prose)})
+    names = sorted({m.group("name") for m in IDENTIFIER_PATTERN.finditer(prose)})
     # (題名, 項目, 素のまま出すか)。見出しと表の行は元の書式のまま、他は箇条書きにする。
     sections = [
         ("見出し（図の節の候補）", headings, True),

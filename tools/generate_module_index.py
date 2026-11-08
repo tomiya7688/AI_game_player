@@ -16,6 +16,7 @@ SOURCE_PREFIX = "src/ai_game_player/"
 ROOT_PACKAGE = "ai_game_player"
 TOP_LEVEL_GROUP = "(その他の直下)"
 MIN_PREFIX_GROUP_SIZE = 4
+NAMED_BODY_PATTERN = re.compile(r"^\s*[A-Za-z_][A-Za-z0-9_.]*\s*[:：]\s*(?P<text>.+)$")
 RESPONSIBILITY_PATTERN = re.compile(r"^\s*#\s*責務:\s*\[(?P<body>[^\]\n]+)\]\s*$")
 DOCSTRING_PATTERN = re.compile(r'^\s*(?:r|u)?"""(?P<body>.*?)(?:"""|$)')
 MAX_RESPONSIBILITY_CHARS = 90
@@ -37,8 +38,9 @@ def extract_responsibility(source_text: str) -> str:
         match = RESPONSIBILITY_PATTERN.match(line)
         if match:
             body = match.group("body")
-            # "Class: 説明" の形式なら名前を落として説明だけを残す。
-            return _truncate(body.split(":", 1)[1] if ":" in body else body)
+            # "Class: 説明" の形式（名前が識別子のとき）だけ名前を落とし、名前の無い説明は先頭から残す。
+            named = NAMED_BODY_PATTERN.match(body)
+            return _truncate(named.group("text") if named else body)
     for line in lines[:5]:
         match = DOCSTRING_PATTERN.match(line)
         if match and match.group("body").strip():
@@ -66,7 +68,7 @@ def _group_of(module_name: str, prefixes: set[str]) -> str:
 
 def _anchor(group: str) -> str:
     if group == TOP_LEVEL_GROUP:
-        return "group-other"
+        return "group-misc-top"
     suffix = "-prefix" if group.endswith("_*") else ""
     return "group-" + re.sub(r"[^0-9a-z]+", "-", group.lower()).strip("-") + suffix
 
@@ -113,11 +115,13 @@ def render_module_index(root: Path, repo_map_text: str) -> str:
         groups.setdefault(_group_of(module["module"], prefixes), []).append(module)
     ordered_groups = sorted(groups, key=lambda g: (g == TOP_LEVEL_GROUP, g))
 
-    missing = sum(
-        extract_responsibility((root / m["path"]).read_text(encoding="utf-8"))
-        == NO_RESPONSIBILITY
+    responsibilities = {
+        m["module"]: extract_responsibility(
+            (root / m["path"]).read_text(encoding="utf-8")
+        )
         for m in modules
-    )
+    }
+    missing = sum(text == NO_RESPONSIBILITY for text in responsibilities.values())
     lines = [
         "<!-- 自動生成: tools/generate_module_index.py。手で編集しない。 -->",
         "# モジュール目次・責務表・依存図",
@@ -174,7 +178,6 @@ def render_module_index(root: Path, repo_map_text: str) -> str:
             "|---|---|---|---|---|",
         ]
         for module in groups[group]:
-            text = (root / module["path"]).read_text(encoding="utf-8")
             classes = ", ".join(f"`{c}`" for c in _top_level_classes(module)[:3]) or "-"
             outgoing = len(
                 [
@@ -185,7 +188,7 @@ def render_module_index(root: Path, repo_map_text: str) -> str:
             )
             short = module["module"].removeprefix(ROOT_PACKAGE + ".")
             lines.append(
-                f"| [`{short}`](../{module['path']}) | {classes} | {extract_responsibility(text)} | {outgoing} | {dependents[module['module']]} |"
+                f"| [`{short}`](../{module['path']}) | {classes} | {responsibilities[module['module']]} | {outgoing} | {dependents[module['module']]} |"
             )
         lines.append("")
     return "\n".join(lines)
