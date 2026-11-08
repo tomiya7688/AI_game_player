@@ -19,16 +19,17 @@ Parent: #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner�
 
 ## 採否の規則（`decide`）
 
-外部の`passed`フラグは受け付けず、`CandidateEvaluation`の数値からGateが計算する。却下理由は固定コードで、満たさない条件はすべて列挙する。
+外部の`passed`フラグは受け付けず、`CandidateEvaluation`の数値からGateが計算する。却下理由は固定コードで、1〜3の前提（stale・評価不一致・評価の再利用）は他の条件を調べずに単独の理由で返し、4〜7の数値条件は満たさないものをすべて列挙する。
 
 1. 現在のChampionが`artifact.parent`と一致しない → `stale_champion`（同じartifactの二重昇格もここで拒否）
 2. 評価の`artifact_id`・champion/challenger hashがartifactと一致しない → `evaluation_mismatch`
-3. 件数が`min_target_cases`/`min_regression_cases`未満 → `insufficient_*_cases`（失敗・Timeoutを母数に含めて渡す前提）
-4. 対象指標の改善が`min_target_gain`未満 → `no_target_improvement`
-5. 回帰指標の低下が`max_regression_drop`（既定0）を超える → `regression`（対象指標が大きく改善しても昇格しない）
-6. `resource_cost`が`max_parameter_bytes`/`max_delta_bytes`を超える → `resource_exceeded`
+3. 同じ`evaluation_ref`が保持中の監査で既に昇格に使われている → `evaluation_reused`（rollback後に同じ評価で再昇格させない。再評価は新しい`evaluation_ref`で行う）
+4. 件数が`min_target_cases`/`min_regression_cases`未満 → `insufficient_*_cases`（失敗・Timeoutを母数に含めて渡す前提）
+5. 対象指標の改善が`min_target_gain`未満 → `no_target_improvement`
+6. 回帰指標の低下が`max_regression_drop`（既定0）を超える → `regression`（対象指標が大きく改善しても昇格しない）
+7. `resource_cost`が`max_parameter_bytes`/`max_delta_bytes`を超える → `resource_exceeded`
 
-全て満たした時だけ昇格し、旧Championを履歴（最大32）へ積んでpointerを切り替える。却下もaudit eventに残る。
+指標の差は9桁へ丸めて基準と比べる（浮動小数の誤差で境界値の昇格を落とさないため。基準との差が4e-10未満の改善は基準を満たすとみなす許容誤差）。全て満たした時だけ昇格し、旧Championを履歴（最大32）へ積んでpointerを切り替える。却下もaudit eventに残る。
 
 ## 状態と監査
 

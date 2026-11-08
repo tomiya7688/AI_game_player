@@ -4,6 +4,13 @@ set -euo pipefail
 cd "$(dirname "$0")"
 export PYTHONPATH="src:."
 
+# GUI系テストはtkinterを読み込むため、無い環境ではテストが途中で失敗する。先に分かりやすく止める。
+python3 -c "import tkinter" 2>/dev/null || {
+  echo "[ERROR] python3 に tkinter がありません。GUI系テストを実行できません。" >&2
+  echo "        例: apt-get install -y python3-tk （導入できない環境では、その旨をPRにUnverifiedとして記録）" >&2
+  exit 1
+}
+
 python3 tools/generate_docs.py
 ./format_code.sh --check tests/test_fail_safe_initial_observation_grace.py
 python3 -m ruff check src tools tests

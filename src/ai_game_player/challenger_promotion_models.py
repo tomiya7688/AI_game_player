@@ -133,7 +133,8 @@ class PromotionDecision:
 
 
 def _ratio(value: object) -> bool:
-    return type(value) in (int, float) and math.isfinite(value) and 0 <= value <= 1
+    # 範囲を先に確認する（10**1000のような巨大な整数でmath.isfiniteがOverflowErrorにならないように）。
+    return type(value) in (int, float) and 0 <= value <= 1 and math.isfinite(value)
 
 
 def to_json_bytes(value: Any) -> bytes:

@@ -92,6 +92,15 @@ class IssueContextPriorityTest(unittest.TestCase):
         finally:
             MODULE.gh_json = original
 
+    def test_claim_comment_on_later_page_is_found(self):
+        pages = [[{"body": "雑談"}] * 100, [{"body": "着手: Codex"}]]
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: pages.pop(0)
+        try:
+            self.assertTrue(MODULE.has_claim_comment(1))
+        finally:
+            MODULE.gh_json = original
+
 
 if __name__ == "__main__":
     unittest.main()

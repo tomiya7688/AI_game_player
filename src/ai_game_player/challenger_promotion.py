@@ -95,7 +95,9 @@ class ChampionRegistry:
             if target is None:
                 raise PromotionError("not_initialized", "no champion registered for this target")
             current = ComponentParameters.from_dict(target["champion"])
-            reasons = _reject_reasons(artifact, evaluation, criteria, current)
+            reasons = _reject_reasons(
+                artifact, evaluation, criteria, current, _promoted_evaluation_refs(state)
+            )
             if reasons:
                 _append_audit(
                     state, "reject", current, artifact, current.sha256, evaluation, criteria, reasons, at
@@ -168,11 +170,11 @@ class ChampionRegistry:
             state["audit_base_digest"] = dropped[-1]["digest"]
             state["audit_first_sequence"] += len(dropped)
             state["audit"] = state["audit"][len(dropped):]
-        if len(to_json_bytes(state)) > MAX_STATE_BYTES:
-            # 読込上限を超える状態は書かない（書くと次回から読めなくなる）。
-            raise PromotionError("invalid_state", "registry state would exceed the size limit")
         staged = stage_json_write(self._path, state)
         try:
+            # 実際に書いたファイル（インデント込み）が読込上限を超える状態は公開しない（公開すると以後読めなくなる）。
+            if staged.temporary_path.stat().st_size > MAX_STATE_BYTES:
+                raise PromotionError("invalid_state", "registry state would exceed the size limit")
             staged.publish()
         finally:
             staged.discard()
@@ -213,6 +215,7 @@ def _reject_reasons(
     evaluation: CandidateEvaluation,
     criteria: PromotionCriteria,
     current: ComponentParameters,
+    used_evaluation_refs: frozenset[str],
 ) -> tuple[str, ...]:
     if artifact.parent.sha256 != current.sha256:
         return ("stale_champion",)
@@ -222,6 +225,8 @@ def _reject_reasons(
         or evaluation.challenger_sha256 != artifact.challenger.sha256
     ):
         return ("evaluation_mismatch",)
+    if evaluation.evaluation_ref in used_evaluation_refs:
+        return ("evaluation_reused",)
     reasons = []
     if evaluation.target_cases < criteria.min_target_cases:
         reasons.append("insufficient_target_cases")
@@ -235,6 +240,15 @@ def _reject_reasons(
     if cost.parameter_bytes > criteria.max_parameter_bytes or cost.delta_bytes > criteria.max_delta_bytes:
         reasons.append("resource_exceeded")
     return tuple(sorted(reasons))
+
+
+def _promoted_evaluation_refs(state: dict[str, Any]) -> frozenset[str]:
+    """保持している監査で昇格に使われた評価の識別子。rollback後の同一評価による再昇格を防ぐ。"""
+    return frozenset(
+        event["evaluation_ref"]
+        for event in state["audit"]
+        if event["action"] == "promote" and event["evaluation_ref"] is not None
+    )
 
 
 def _gap(larger: float, smaller: float) -> float:
@@ -327,12 +341,16 @@ def _validate_state(state: Any) -> None:
     ):
         raise ValueError("registry fields do not match the contract")
     for key, target in state["targets"].items():
+        if not isinstance(target, dict) or not isinstance(target.get("history"), list):
+            raise ValueError("target history must be a list")
         champion = ComponentParameters.from_dict(target["champion"])
         history = [ComponentParameters.from_dict(item) for item in target["history"]]
         if set(target) != {"champion", "history"} or len(history) > MAX_ROLLBACK_VERSIONS:
             raise ValueError("target record does not match the contract")
         if key != _key(champion) or any(_key(item) != key for item in history):
             raise ValueError("target key does not match its parameters")
+    if state["targets"] and not state["audit"]:
+        raise ValueError("registered targets require an audit trail")
     _validate_pointer_binding(state)
     previous = state["audit_base_digest"]
     sequence = state["audit_first_sequence"]
@@ -356,6 +374,12 @@ def _validate_pointer_binding(state: dict[str, Any]) -> None:
         target = state["targets"].get(key)
         if target is None or ComponentParameters.from_dict(target["champion"]).sha256 != event["to_sha256"]:
             raise ValueError("champion pointer does not match the audit trail")
+        # 直前のeventが昇格なら、rollback先（履歴の末尾）はその昇格前のChampionと一致しなければならない。
+        if event["action"] == "promote" and (
+            not target["history"]
+            or ComponentParameters.from_dict(target["history"][-1]).sha256 != event["from_sha256"]
+        ):
+            raise ValueError("rollback history does not match the audit trail")
     if state["audit"] and state["audit"][-1]["generation"] != state["generation"]:
         raise ValueError("generation does not match the audit trail")
 

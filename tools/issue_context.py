@@ -65,7 +65,7 @@ def fetch_issues():
     """Paginate metadata only, including older Issues beyond the first 100."""
     try:
         return fetch_issues_graphql()
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
         return fetch_issues_rest()
 
 
@@ -480,11 +480,16 @@ def fetch_claimed_issue_numbers():
 
 def has_claim_comment(number):
     """Issueに「着手:」で始まるコメントがあるか（branch削除後も占有の記録が残るため）。"""
-    comments = gh_json(["api", f"repos/{REPO}/issues/{number}/comments?per_page=100"])
-    return any(re.match(r"\s*着手[:：]", c.get("body") or "") for c in comments)
+    for page_number in range(1, 21):
+        comments = gh_json(["api", f"repos/{REPO}/issues/{number}/comments?per_page=100&page={page_number}"])
+        if any(re.match(r"\s*着手[:：]", c.get("body") or "") for c in comments):
+            return True
+        if len(comments) < 100:
+            return False
+    raise ValueError("GitHub comment pagination is incomplete; refusing to guess the claim state.")
 
 
-def select_unclaimed_issue(issues, claimed, limit=30):
+def select_unclaimed_issue(issues, claimed, limit=200):
     """優先順に、branchにもコメントにも占有記録がない最初の作業Issueを返す。"""
     ordered = sorted(
         (i for i in issues if select_issue([i], claimed) is not None), key=key

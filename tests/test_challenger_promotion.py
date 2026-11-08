@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+import unittest.mock
 from dataclasses import replace
 from pathlib import Path
 
@@ -187,6 +188,49 @@ class PromotionGateTest(unittest.TestCase):
                 with self.assertRaises(PromotionError) as context:
                     self.registry.champion("decision", SCOPE)
                 self.assertEqual(context.exception.code, "invalid_state")
+
+    def test_used_evaluation_cannot_repromote_after_rollback(self):
+        self.assertTrue(self.decide().promoted)
+        self.registry.rollback("decision", SCOPE, reason="regression_detected", at=LATER)
+        self.assertEqual(self.decide().reasons, ("evaluation_reused",))
+        fresh = self.decide(evaluation_ref="eval.two")
+        self.assertTrue(fresh.promoted)
+
+    def test_swapped_rollback_history_is_rejected(self):
+        self.decide()
+        state = json.loads(self.path.read_text(encoding="utf-8"))
+        key = next(iter(state["targets"]))
+        state["targets"][key]["history"][-1] = replace(DECISION, version="decision.v9").to_dict()
+        self.path.write_text(json.dumps(state), encoding="utf-8")
+        with self.assertRaises(PromotionError) as context:
+            self.registry.rollback("decision", SCOPE, reason="safety_stop", at=LATER)
+        self.assertEqual(context.exception.code, "invalid_state")
+
+    def test_non_list_history_and_empty_audit_are_rejected(self):
+        for mutate in (
+            lambda state: state["targets"][next(iter(state["targets"]))].update(history={}),
+            lambda state: state.update(audit=[]),
+        ):
+            with self.subTest(mutate=mutate):
+                state = json.loads(self.path.read_text(encoding="utf-8"))
+                mutate(state)
+                self.path.write_text(json.dumps(state), encoding="utf-8")
+                with self.assertRaises(PromotionError) as context:
+                    self.registry.champion("decision", SCOPE)
+                self.assertEqual(context.exception.code, "invalid_state")
+                self.setUp()
+
+    def test_huge_integer_ratio_is_rejected_as_invalid_input(self):
+        with self.assertRaises(PromotionError) as context:
+            evaluation_for(self.artifact, target_candidate=10**1000)
+        self.assertEqual(context.exception.code, "invalid_input")
+
+    def test_oversized_state_is_not_published(self):
+        with unittest.mock.patch("ai_game_player.challenger_promotion.MAX_STATE_BYTES", 10):
+            with self.assertRaises(PromotionError) as context:
+                self.decide()
+        self.assertEqual(context.exception.code, "invalid_state")
+        self.assertEqual(self.registry.champion("decision", SCOPE).sha256, DECISION.sha256)
 
     def test_bad_inputs_are_rejected(self):
         with self.assertRaises(PromotionError):
