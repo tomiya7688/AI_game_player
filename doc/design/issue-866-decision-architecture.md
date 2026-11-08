@@ -75,6 +75,8 @@ Last-Checked: 2026-11-08
 
 loadを待つ呼出しはQueueで待たせ、deadlineを超えれば失敗として降格する（#864の降格表に従う）。
 
+**取消しと停止の確認（QueueとAdmissionの契約）。** `request_id`による応答の拒否は、結果の安全のための手段で、処理を止める手段ではない。timeout・世代変更・LEARN移行で呼出しを破棄する時は、(1) Provider API v1のcancel要求を送り、停止の確認を得る。(2) 停止が確認できるまで、そのworkerが使っている資源はAdmissionの承認から**解放しない**（実際には占有されているため）。(3) 一定時間内に停止が確認できなければ、接続・processを強制的に終了する。(4) それでも解放できない資源は「回収不能」として記録し、以後の承認から差し引く。次の要求や学習は、この差し引き後の資源で承認する。
+
 ### D4 学習は非同期のhot-path workerではない
 #864の段階表で段階10（改善）・11（知識の蓄積）を「非同期」と書いたが、正確には次のとおり。重い学習は`runtime_modes`のLEARN段階で、ゲームプレイを止めて行う。EVALUATEを経由しないとPROMOTEに入れない。推論中に並行して動くのは軽量適応（#422）だけである。したがって、
 
@@ -106,8 +108,9 @@ frame・録画（rolling、#256/#257）
 
 「蒸留したら原本を忘れる」を安全に行う契約:
 1. Knowledgeは、構築に使った原本の範囲を**source-range manifest**（range、hash、watermark、件数）として保持する。原本を圧縮・削除しても、manifestは残る。
-2. 原本の圧縮・削除は、(a) Builderがその範囲を消費済み（watermarkを超えている）、(b) 昇格済みKnowledgeが参照している範囲はProtected、(c) 再構成が不要と宣言されたもの、の全てを満たす場合だけ許す。再構成が不可能になった範囲は、manifestに明示する。
-3. 参照中・Protectedは削除しない（`retention_core`の既存規則）。fail-closedを維持する。
+2. **出所の記録（manifest）と、保持の参照（retention hold）を区別する。** manifestは出所の記録であり、それだけでは原本を保護しない。原本を保護するのは、(i) 昇格済みKnowledgeが再構成のために必要と宣言した範囲（retention hold）と、(ii) `retention_core`の既存のProtected・外部参照だけ。
+3. 原本の圧縮・削除は、(a) Builderがその範囲を消費済み（watermarkを超えている）、(b) 上記(i)(ii)に該当しない、(c) 再構成が不要と宣言されている、の全てを満たす場合だけ許す。削除後もmanifestは残り、再構成が不可能になった範囲はmanifestに明示する。
+4. 参照中・Protectedは削除しない（`retention_core`の既存規則）。fail-closedを維持する。
 
 Champion・Challenger・Knowledgeの履歴:
 - Champion世代は直近N世代と、rollback履歴（#171は32）を上限とする。
@@ -146,6 +149,19 @@ Champion・Challenger・Knowledgeの履歴:
 | J | タスクとworkerの登録（タスクごとのスキーマ、worker一覧、Routerへの割当て規則）（D9） | #161/#447/#441 |
 | K | 辞典などのKnowledge成果物の検証・保存（D9） | #419/#800 |
 
+### 子Issueの依存順
+```text
+H（#19の順序更新）、F（privacy区分）、E（履歴の保持） … 先行なしで並行可能
+J（タスクとworkerの登録） → B（モデルlifecycle）、A（Admission統合）
+A（Admission統合） → B、#864の実装Issue 3（呼出し制御とMacroProvider）
+C（PriorとAdapter統合、macro_decision） → F（privacy区分）、D（蒸留後の忘却）  ※macro_decisionの型が先
+D（忘却の契約） → E（履歴の保持）と並行、#165より後に実装
+I（Gate共通契約の評価） … 独立。結果次第でE・Cに影響
+G（recall・World Model） … #800の設計書の後
+K（辞典の検証・保存） → C、J
+```
+先行条件のない子Issueから順に起票し、依存先が決まるまで実装には入らない。
+
 ## 未決・設計者への確認
 1. **#800との境界。** 自己成長ループの設計書(`self_improvement_loop.md`)が設計者の採否待ち。本資料のD4・D5は境界だけを決めているが、重なる箇所があれば#800を優先する。
 2. **#440（同期Cascade）と#162（非同期Queue）の統合方法。** D1は責務で分けたが、実装を1つのRouter/Queueにまとめるかは設計者の判断。
@@ -155,7 +171,7 @@ Champion・Challenger・Knowledgeの履歴:
 - 非同期の重い判断機が全てAdmissionを通ること、予算超過でミクロ層だけで継続すること。
 - LEARN中にマクロ呼出しが提出されず、飛行中の呼出しが破棄されること。
 - priorが、Knowledgeと同じ投影経路でstep固定されること、priorが直接Knowledgeにならないこと。
-- 原本の圧縮・削除で、source-range manifestが残り、Protectedの範囲が削除されないこと。
+- 原本の圧縮・削除で、source-range manifestが残り、Protectedの範囲が削除されないこと。**正例**: Builderが消費済みで、retention holdもProtectedもない原本の範囲は、実際に削除され、manifestだけが残る。一律に削除を拒否する実装は、この正例で落ちる。**負例**: retention holdのある範囲、Builderが未消費の範囲は削除されない。
 - `macro_decision`が、privacy区分に従って保存・redactされること。
 
 ## 完了条件
