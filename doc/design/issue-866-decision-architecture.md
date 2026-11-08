@@ -36,8 +36,35 @@ Last-Checked: 2026-11-08
 ### D2 資源予算はAdmission（#425）に一本化する
 バックグラウンドの重い判断機（Macro LLM、VLM/OCR、Plannerのworker、軽量適応、LEARN）は、現在それぞれ別の予算（軽量適応のCPU 5%、Planner workerの予算、LEARNの資源方針）を持ち、1つに束ねられていない。全てを#425のAdmissionで承認する。#864の「回数・遅延・失敗」は、予算の実体ではなく、Admissionへ渡す要求と、結果を記録する計測とする。#864が参照した「Resource Budget設定」の実体は#425とする（文書の定義は#425の子で補う）。
 
+### D9 判断は「タスク」、実行は「worker」。LLMは最も高価で汎用的なworkerの一つ
+上位（マクロ）の判断機はLLMである必要がありません。言語入力からクラス分類に特化したモデルの方が向く判断なら、それを採用します。LLMの資源は、目的に応じて割り振ります。
+
+| タスク（何をさせるか） | 例 |
+|---|---|
+| 行動の言語化 | 実行した操作と結果を、言葉で記述する |
+| 辞典の作成 | ゲームの語彙・操作名・用語の対応を作る |
+| 操作可能性の判断 | 画面から「ここで何ができるか」を導く（#864の段階3） |
+| 状況の分類 | 画面や状態を、意味のある種類（state class）へ分類する |
+| 何をするかの判断 | マクロ判断（方針の選択） |
+| 結果の解釈 | 操作の結果の意味づけ |
+
+| worker（実行主体） | 特徴 |
+|---|---|
+| 規則・ルール | 最も安く速い。決定的 |
+| 分類モデル（言語入力→クラス） | 安い。種類の判定に特化 |
+| 小型の言語モデル | 中程度のコスト |
+| LLM | 最も高価で最も汎用的 |
+| VLM | 画面を直接扱う。高価 |
+| 探索（Planner） | 盤面など構造のあるゲーム向け |
+
+- **割当てはRouter（#161）が、タスクごとに決める。** 能力・コスト・遅延・確信度・Admission（#425）の承認で選ぶ。LLMへの割当ては、他のworkerでは足りない場合か、汎用性が必要な場合に限る。
+- **安いworkerから試し、足りなければ上位へ昇格する**（#440のCascadeの考え方）。同じタスクを複数のworkerが担えるように、**タスクごとに入出力のスキーマを固定する**（worker非依存）。
+- **資源の割振りも目的単位。** LLMの資源を辞典作成に回すか、操作可能性の判断に回すか、何をするかの判断に回すかは、Admissionの予算クラスで表し、状況に応じて動的に決める。
+- **辞典などの成果物。** 作成した辞典は、Knowledge側の成果物として検証・保存する。扱いは子Issueで決める。
+- #864のMacroProviderは、マクロ判断タスクのスキーマを満たす任意のworkerが実装する契約で、LLM専用ではない。
+
 ### D3 ローカルモデルのlifecycleの所有者
-常駐・退避・warmの決定は現在どの文書も持たず、Ollama任せになっている（`provider.py`に記述なし）。所有者を次のとおり分ける。
+（対象はLLMに限らない。ローカルで載せる全てのモデルが対象。）常駐・退避・warmの決定は現在どの文書も持たず、Ollama任せになっている（`provider.py`に記述なし）。所有者を次のとおり分ける。
 
 | 内容 | 所有者 |
 |---|---|
@@ -90,7 +117,7 @@ Champion・Challenger・Knowledgeの履歴:
 マクロの記録（D5の`macro_decision`、request・理由・prior・結果）は、Experience eventと同じretention classに乗せる。呼出し回数・遅延・失敗の計測は、小さい集計だけを永続する。
 
 ### D7 Provider APIへの載せ方
-MacroProviderは、Provider API v2（#447）のTask種別として`STRATEGIC_PRIOR`を追加する。v1では`text_generation`と固定スキーマ、`PriorCompiler`による検証で橋渡しする。cancelはv1で「データとして扱う」timeout/cancelで足りる（安全性は`request_id`による拒否で担保する）。遠隔のProviderへ送る場合は、privacy宣言を必須とする。
+マクロ判断タスクを、Provider API v2（#447）のTask種別として`STRATEGIC_PRIOR`を追加する。D9のタスク（行動の言語化、辞典作成、操作可能性の判断、状況の分類）も同様にTask種別の候補とする。worker（LLMに限らない）はこの契約を実装する。v1では、LLMを使うworkerに限り、`text_generation`と固定スキーマ、`PriorCompiler`による検証で橋渡しする。cancelはv1で「データとして扱う」timeout/cancelで足りる（安全性は`request_id`による拒否で担保する）。遠隔のProviderへ送る場合は、privacy宣言を必須とする。
 
 ### D8 privacy区分
 マクロの要求・応答・priorは、画面の文字を含み得るため、`privacy_data_inventory`に`macro_decision`を追加する（`local_bounded`、画面由来の文字はredactする）。所有者は#225/#123。
@@ -116,6 +143,8 @@ MacroProviderは、Provider API v2（#447）のTask種別として`STRATEGIC_PRI
 | G | Knowledge recallと汎用World Model | #800の後 |
 | H | #19の実装順表の更新 | #19 |
 | I | Gate共通契約の評価（D4） | #171/#532 |
+| J | タスクとworkerの登録（タスクごとのスキーマ、worker一覧、Routerへの割当て規則）（D9） | #161/#447/#441 |
+| K | 辞典などのKnowledge成果物の検証・保存（D9） | #419/#800 |
 
 ## 未決・設計者への確認
 1. **#800との境界。** 自己成長ループの設計書(`self_improvement_loop.md`)が設計者の採否待ち。本資料のD4・D5は境界だけを決めているが、重なる箇所があれば#800を優先する。
