@@ -9,8 +9,12 @@ GraphQLは使えない環境（クラウドセッション）があるため、R
 失敗ジョブを1回再実行する。実行中のrunがある間、既に再実行したrun、失敗が無い場合は何もしない(再実行は最大1回の規則)。
 
 再実行の対象は conclusion が failure または timed_out の run(action_required は人の承認待ちで再実行できないので表示だけ)。
-限界: 再実行の直後にGitHubがrunの状態を更新するまでの短い遅れの間は「1回だけ」を保証しきれない。ただし再実行すると
-runは待機状態になるため、実行中のrunがある間は何もしない条件で実害は小さい。
+再実行の対象は、このPRのhead SHAかつhead_branchが一致するrunだけ(別ブランチ・別PRの同一SHAのrunは触らない)。POSTの直前に
+PRのheadが変わっていないことと計画が再取得でも同じであることを確かめる。
+
+限界: 2つの呼出しが同時に走る場合や、再実行の直後にGitHubがrunの状態を更新するまでの短い遅れの間は「1回だけ」を
+保証しきれない(GitHubに原子的な再実行APIは無い)。再実行したrunは待機状態になるため、実行中のrunがある間は何もしない条件と
+POST直前の再確認で窓を狭めている。コミットステータスAPIで報告されるCI(チェックランでないもの)は数えない。
 
 限界: レビュースレッドの解決状態(is_resolved)はGraphQLでしか取れないため、この要約には出さない。
 スレッドの確認と解決は、GitHub MCPのpull_request_read(get_review_comments)とresolve_review_thread、またはWebで行う。
@@ -23,10 +27,22 @@ import subprocess
 import sys
 
 DEFAULT_REPO = "tomiya7688/AI_game_player"
-MAX_PAGES = 10
+MAX_PAGES = 30
+CONTROL_CHARACTERS = re.compile(r"[\x00-\x1f\x7f-\x9f]")
+GHOST_LOGIN = "ghost"  # 削除されたアカウントのuserはnullで返る
 BOT_SUFFIX = "[bot]"
 SEVERITY = re.compile(r"\b(Critical|Major|Minor|Trivial|Nitpick)\b")
 HEADLINE_LIMIT = 90
+
+
+def safe_text(value):
+    """PR由来の文字列から端末制御文字(ESCなど)を除く。出力が端末や読み手の表示を操作しないようにする。"""
+    return CONTROL_CHARACTERS.sub(" ", str(value))
+
+
+def login_of(item):
+    """review/commentの投稿者のlogin。アカウントが削除されていてuserがnullなら"ghost"。"""
+    return ((item or {}).get("user") or {}).get("login") or GHOST_LOGIN
 
 
 def gh_json(args):
@@ -96,29 +112,35 @@ def inline_findings(comments):
     answered = {
         c["in_reply_to_id"]
         for c in comments
-        if c.get("in_reply_to_id") and not c["user"]["login"].endswith(BOT_SUFFIX)
+        if c.get("in_reply_to_id") and not login_of(c).endswith(BOT_SUFFIX)
     }
     findings = []
     for comment in comments:
-        if comment.get("in_reply_to_id") or not comment["user"]["login"].endswith(
-            BOT_SUFFIX
-        ):
+        if comment.get("in_reply_to_id") or not login_of(comment).endswith(BOT_SUFFIX):
             continue
         findings.append(
             {
                 "id": comment["id"],
-                "where": f"{comment.get('path')}:{comment.get('line') or comment.get('original_line')}",
+                "where": safe_text(
+                    f"{comment.get('path')}:{comment.get('line') or comment.get('original_line')}"
+                ),
                 "severity": severity(comment["body"]),
-                "headline": headline(comment["body"]),
+                "headline": safe_text(headline(comment["body"])),
                 "answered": comment["id"] in answered,
             }
         )
     return findings
 
 
-def workflow_runs(repo, sha):
-    """head SHAのworkflow runを全ページ取得する。"""
-    return fetch_pages(repo, f"actions/runs?head_sha={sha}", key="workflow_runs")
+def workflow_runs(repo, sha, branch):
+    """このPRのhead SHAとブランチに対応するworkflow runを全ページ取得する(idで重複を除く)。
+
+    同じSHAを別ブランチ・別PRが持つ場合に、無関係なrunを再実行したり、その実行中に止められたりしないよう、
+    head_branchが一致するrunだけを対象にする。
+    """
+    runs = fetch_pages(repo, f"actions/runs?head_sha={sha}", key="workflow_runs")
+    unique = {run["id"]: run for run in runs if run.get("head_branch") == branch}
+    return list(unique.values())
 
 
 RERUNNABLE_CONCLUSIONS = ("failure", "timed_out")
@@ -134,7 +156,7 @@ def plan_rerun(runs):
         return targets, ""
     if failed:
         return [], "skipped (already re-run once: " + ", ".join(
-            r["name"] for r in failed
+            safe_text(r["name"]) for r in failed
         ) + ")"
     return [], "nothing to re-run"
 
@@ -155,20 +177,38 @@ def post_rerun(repo, run_id):
     )
 
 
-def rerun_failed(repo, sha):
-    """計画に従って失敗ジョブを再実行する。(説明行のlist, 全て成功したか)を返し、途中の失敗でも実行済みの結果を残す。"""
-    targets, reason = plan_rerun(workflow_runs(repo, sha))
+def rerun_failed(repo, number, sha, branch):
+    """計画に従って失敗ジョブを再実行する。(説明行のlist, 全て成功したか)を返し、途中の失敗でも実行済みの結果を残す。
+
+    POSTの直前に、PRのheadが読み取り時から変わっていないことと、計画が再取得でも同じであることを確かめる
+    (読み取りと書込みの間にrunが増減しても、古い情報で再実行しない)。
+    """
+    targets, reason = plan_rerun(workflow_runs(repo, sha, branch))
     if not targets:
         return [f"  rerun: {reason}"], True
+    current_head = gh_json(["api", f"repos/{repo}/pulls/{number}"])["head"]["sha"]
+    if current_head != sha:
+        return [f"  rerun: skipped (PR head moved to {current_head[:7]})"], True
+    confirmed, reason = plan_rerun(workflow_runs(repo, sha, branch))
+    confirmed_ids = {run["id"] for run in confirmed}
+    targets = [run for run in targets if run["id"] in confirmed_ids]
+    if not targets:
+        return [
+            f"  rerun: skipped (plan changed on re-check: {reason or 'no target'})"
+        ], True
     lines = []
     ok = True
     for run in targets:
         try:
             post_rerun(repo, run["id"])
-            lines.append(f"  rerun: requested {run['name']} (run {run['id']})")
-        except subprocess.SubprocessError as error:
+            lines.append(
+                f"  rerun: requested {safe_text(run['name'])} (run {run['id']})"
+            )
+        except (subprocess.SubprocessError, OSError) as error:
             ok = False
-            lines.append(f"  rerun: ERROR {run['name']} (run {run['id']}): {error}")
+            lines.append(
+                f"  rerun: ERROR {safe_text(run['name'])} (run {run['id']}): {error}"
+            )
     return lines, ok
 
 
@@ -176,26 +216,29 @@ def digest(repo, number):
     """1件のPRの要約行のリストを返す。"""
     pull = gh_json(["api", f"repos/{repo}/pulls/{number}"])
     sha = pull["head"]["sha"]
-    runs = fetch_pages(repo, f"commits/{sha}/check-runs", key="check_runs")
+    # filter=latest: 再実行で置き換わった古いattemptのチェックを数えない(既定と同じだが明示する)。
+    runs = fetch_pages(
+        repo, f"commits/{sha}/check-runs?filter=latest", key="check_runs"
+    )
     counts, failed = count_checks(runs)
     reviews = fetch_pages(repo, f"pulls/{number}/reviews")
-    humans = sorted(
-        {
-            f"{r['user']['login']}:{r['state']}"
-            for r in reviews
-            if not r["user"]["login"].endswith(BOT_SUFFIX)
-        }
-    )
+    # reviewは時系列順で返る。人ごとに最新の状態だけを残す。
+    latest = {}
+    for review in reviews:
+        if not login_of(review).endswith(BOT_SUFFIX):
+            latest[login_of(review)] = review["state"]
+    humans = sorted(f"{login}:{state}" for login, state in latest.items())
     lines = [
-        f"#{number} {pull['title'][:70]}",
+        f"#{number} {safe_text(pull['title'][:70])}",
         f"  state={pull['state']} draft={pull['draft']} mergeable={pull.get('mergeable_state')} head={sha[:7]}",
         "  ci=" + ", ".join(f"{k}:{v}" for k, v in sorted(counts.items())),
     ]
     if failed:
-        lines.append("  failed=" + ", ".join(failed[:10]))
+        lines.append("  failed=" + ", ".join(safe_text(n) for n in failed[:10]))
     if humans:
-        lines.append("  human_reviews=" + ", ".join(humans))
-    return lines, inline_findings(fetch_pages(repo, f"pulls/{number}/comments")), sha
+        lines.append("  human_reviews=" + ", ".join(safe_text(h) for h in humans))
+    findings = inline_findings(fetch_pages(repo, f"pulls/{number}/comments"))
+    return lines, findings, sha, pull["head"]["ref"]
 
 
 def main(argv=None):
@@ -216,16 +259,16 @@ def main(argv=None):
     exit_code = 0
     for number in args.numbers:
         try:
-            lines, findings, sha = digest(args.repo, number)
-        except (subprocess.SubprocessError, ValueError, KeyError) as error:
+            lines, findings, sha, branch = digest(args.repo, number)
+        except (subprocess.SubprocessError, OSError, ValueError, KeyError) as error:
             print(f"#{number} ERROR: {error}")
             exit_code = 1
             continue
         print("\n".join(lines))
         if args.rerun_failed:
             try:
-                rerun_lines, rerun_ok = rerun_failed(args.repo, sha)
-            except (subprocess.SubprocessError, ValueError, KeyError) as error:
+                rerun_lines, rerun_ok = rerun_failed(args.repo, number, sha, branch)
+            except (subprocess.SubprocessError, OSError, ValueError, KeyError) as error:
                 rerun_lines, rerun_ok = [f"  rerun: ERROR {error}"], False
             print("\n".join(rerun_lines))
             exit_code = exit_code or (0 if rerun_ok else 1)

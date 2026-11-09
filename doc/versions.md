@@ -174,7 +174,7 @@ plugin_manifest_schema          1
 
 ## Unreleased
 
-- Issue #895（第2段）: PR作業の繰り返し確認を`tools/pr_digest.py`にまとめました。PRの状態・CI件数・失敗チェック・botの指摘の見出し・未返信を1回で出し、`--rerun-failed`で全runが完了し失敗かつ未再実行の時だけ失敗ジョブを1回再実行します。レビュースレッドの解決状態はGraphQLでしか取れないため対象外（MCPで確認）です。[設計](design/issue-895-reading-indexes.md)
+- Issue #895（第2段）: PR作業の繰り返し確認を`tools/pr_digest.py`にまとめました。PRの状態・CI件数・失敗チェック・botの指摘の見出し・未返信を1回で出し、`--rerun-failed`で全runが完了し失敗かつ未再実行の時だけ失敗ジョブを1回再実行します。レビュースレッドの解決状態はGraphQLでしか取れないため対象外（MCPで確認）です。再実行の要求がGitHubの状態に反映されるまでの短い遅れの間は、「1回だけ」を保証しきれません（実行中のrunがある間は何もしない条件とPOST直前の再確認で窓を狭めています）。[設計](design/issue-895-reading-indexes.md)
 - Issue #895: 読む時のトークンを減らす自動生成の目次を追加。`tools/generate_module_index.py`（モジュール目次・責務表・グループ間の依存図、`generated/module_index.md`）と`tools/generate_doc_index.py`（全文書の題名と先頭の1文、`generated/doc_index.md`）を`generate_docs.py`へ接続し、陳腐化を`--check`とfinish_taskで検出。手書き図の下書き用に`tools/diagram_hints.py`（見出し・表・参照・Issue番号の抽出）を追加。繰り返し手順のスクリプト化は別Issue。[設計](design/issue-895-reading-indexes.md)、[AI_CONTEXT](../AI_CONTEXT.md)
 - Issue #495: `CandidateMerger`の「同一IDなら同一対象」の無条件統合を廃止。`CandidateIdentity`/`ground_pair`で対象の同一性を証拠から判定し、同ID異対象は衝突として許可候補から除外、異ID同対象は出所と元IDを保持して統合する（`merge_detailed`追加、既存APIは互換）。128候補・16,384比較の上限付き。[仕様](design/issue-495-candidate-identity.md)
 - Issue #845（設計のみ）: 賢者ミスク本人がPlayer、GUI発言は友達の提案、ホスト制御は別という権限分離の正本（[根本目標](根本目標.md)・[権限分離](architecture/autonomous_player_goal_authority.md)）を追加。現行の`目的`欄を旧来の直接Goal経路と明記し、脅威モデルと旧契約が残るIssueを整合。実装はなし。
