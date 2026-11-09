@@ -7,7 +7,10 @@ from pathlib import Path
 
 HEADING_PATTERN = re.compile(r"^#\s+(?P<title>.+?)\s*$")
 FRONT_KEYS = ("Parent", "Spec-Status", "Last-Checked")
-FRONT_PATTERN = re.compile(r"^(?P<key>[A-Za-z-]+):\s*(?P<value>.+?)\s*$")
+# 冒頭のメタデータ行: Parent、または Depends-On・Decision-Gaps のようなハイフン入りの項目名。
+FRONT_PATTERN = re.compile(
+    r"^(?P<key>Parent|[A-Z][A-Za-z]*(?:-[A-Za-z]+)+):\s*(?P<value>.+?)\s*$"
+)
 SUMMARY_LIMIT = 100
 ROOT_DOCS = ("README.md", "AGENTS.md", "AI_CONTEXT.md", "key_info.md")
 SKIP_PARTS = {"generated", "__pycache__"}
@@ -37,9 +40,10 @@ def _first_sentence(text: str) -> str:
 
 def _is_prose(line: str) -> bool:
     """Return True for a paragraph line (not a list, table, heading, HTML or navigation-only links)."""
-    if line.startswith(LIST_PREFIXES) or re.match(r"^\d+[.)]\s", line):
+    stripped = line.lstrip()  # インデントされた入れ子の箇条書きも本文にしない。
+    if stripped.startswith(LIST_PREFIXES) or re.match(r"^\d+[.)]\s", stripped):
         return False
-    return not LINK_ONLY_PATTERN.match(line)
+    return not LINK_ONLY_PATTERN.match(stripped)
 
 
 def summarize_document(text: str) -> tuple[str, str, dict[str, str]]:
@@ -64,8 +68,10 @@ def summarize_document(text: str) -> tuple[str, str, dict[str, str]]:
             title = _plain(heading.group("title"))
             continue
         match = FRONT_PATTERN.match(line)
-        if match and match.group("key") in FRONT_KEYS and not title:
-            front[match.group("key")] = match.group("value")
+        # 見出しの前後どちらでも、本文の最初の段落より前にあるメタデータ行は要約に使わない。
+        if match and not paragraph:
+            if match.group("key") in FRONT_KEYS:
+                front[match.group("key")] = match.group("value")
             continue
         if title and _is_prose(line):
             paragraph.append(line.strip())

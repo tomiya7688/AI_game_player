@@ -197835,7 +197835,7 @@
       "module": "tests.test_reading_indexes",
       "path": "tests/test_reading_indexes.py",
       "source_location": {
-        "end_line": 210,
+        "end_line": 248,
         "start_line": 1
       },
       "symbols": [
@@ -198102,7 +198102,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 188,
+            "end_line": 226,
             "start_line": 138
           }
         },
@@ -198134,6 +198134,98 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_metadata_after_the_title_is_read_and_excluded_from_the_summary",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_metadata_after_the_title_is_read_and_excluded_from_the_summary",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 146
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_indented_nested_list_items_are_not_the_summary",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_indented_nested_list_items_are_not_the_summary",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_prose_that_looks_like_metadata_after_the_first_paragraph_is_kept",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_prose_that_looks_like_metadata_after_the_first_paragraph_is_kept",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 161,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_real_documents_never_use_a_metadata_line_as_the_summary",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_real_documents_never_use_a_metadata_line_as_the_summary",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_keeps_underscores_and_cuts_at_first_sentence",
           "parameters": [
             {
@@ -198148,8 +198240,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 146
+            "end_line": 187,
+            "start_line": 184
           }
         },
         {
@@ -198171,8 +198263,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 156,
-            "start_line": 151
+            "end_line": 194,
+            "start_line": 189
           }
         },
         {
@@ -198194,8 +198286,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 170,
-            "start_line": 158
+            "end_line": 208,
+            "start_line": 196
           }
         },
         {
@@ -198217,8 +198309,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 178,
-            "start_line": 172
+            "end_line": 216,
+            "start_line": 210
           }
         },
         {
@@ -198240,8 +198332,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 188,
-            "start_line": 180
+            "end_line": 226,
+            "start_line": 218
           }
         },
         {
@@ -198262,8 +198354,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 206,
-            "start_line": 191
+            "end_line": 244,
+            "start_line": 229
           }
         },
         {
@@ -198285,8 +198377,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 206,
-            "start_line": 192
+            "end_line": 244,
+            "start_line": 230
           }
         }
       ]
@@ -262196,7 +262288,7 @@
       "module": "tools.generate_doc_index",
       "path": "tools/generate_doc_index.py",
       "source_location": {
-        "end_line": 114,
+        "end_line": 120,
         "start_line": 1
       },
       "symbols": [
@@ -262219,8 +262311,8 @@
           "signature": "(relative: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 22,
-            "start_line": 20
+            "end_line": 25,
+            "start_line": 23
           }
         },
         {
@@ -262242,8 +262334,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 28,
-            "start_line": 25
+            "end_line": 31,
+            "start_line": 28
           }
         },
         {
@@ -262265,8 +262357,8 @@
           "signature": "(text: str) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 35,
-            "start_line": 31
+            "end_line": 38,
+            "start_line": 34
           }
         },
         {
@@ -262288,8 +262380,8 @@
           "signature": "(line: str) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 42,
-            "start_line": 38
+            "end_line": 46,
+            "start_line": 41
           }
         },
         {
@@ -262311,8 +262403,8 @@
           "signature": "(text: str) -> tuple[str, str, dict[str, str]]",
           "source_location": {
             "column": 0,
-            "end_line": 75,
-            "start_line": 45
+            "end_line": 81,
+            "start_line": 49
           }
         },
         {
@@ -262334,8 +262426,8 @@
           "signature": "(root: Path) -> list[Path]",
           "source_location": {
             "column": 0,
-            "end_line": 93,
-            "start_line": 78
+            "end_line": 99,
+            "start_line": 84
           }
         },
         {
@@ -262357,8 +262449,8 @@
           "signature": "(root: Path) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 114,
-            "start_line": 96
+            "end_line": 120,
+            "start_line": 102
           }
         }
       ]

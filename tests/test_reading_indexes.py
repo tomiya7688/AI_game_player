@@ -143,6 +143,44 @@ class DocIndexTest(unittest.TestCase):
         self.assertEqual(summary, "本文の最初の文です。")
         self.assertEqual(front, {"Parent": "#19", "Last-Checked": "2026-11-08"})
 
+    def test_metadata_after_the_title_is_read_and_excluded_from_the_summary(self):
+        text = "# Sample\n\nParent: #37\nLast-Checked: 2026-11-08\n\nこの文書は評価器の説明です。\n"
+        _, summary, front = summarize_document(text)
+        self.assertEqual(front, {"Parent": "#37", "Last-Checked": "2026-11-08"})
+        self.assertEqual(summary, "この文書は評価器の説明です。")
+
+    def test_indented_nested_list_items_are_not_the_summary(self):
+        text = "# Sample\n\n## 節\n\n  - 入: なし。\n  - 出: なし。\n\n本文の最初の段落。\n"
+        _, summary, _ = summarize_document(text)
+        self.assertEqual(summary, "本文の最初の段落。")
+
+    def test_prose_that_looks_like_metadata_after_the_first_paragraph_is_kept(self):
+        text = "# Sample\n\n本文の最初の文。\nParent: #99 という文字列を含む行。\n"
+        _, summary, front = summarize_document(text)
+        self.assertEqual(front, {})
+        self.assertTrue(summary.startswith("本文の最初の文"))
+
+    def test_real_documents_never_use_a_metadata_line_as_the_summary(self):
+        root = Path(__file__).resolve().parents[1]
+        checked = 0
+        for path in sorted((root / "doc" / "design").glob("issue-*.md")):
+            title, summary, front = summarize_document(path.read_text(encoding="utf-8"))
+            with self.subTest(path=path.name):
+                self.assertNotRegex(
+                    summary,
+                    r"^(Parent|Spec-Status|Last-Checked|Depends-On|Decision-Gaps):",
+                )
+                self.assertNotEqual(title, "(題名なし)")
+            checked += 1
+        self.assertGreater(checked, 10)
+        _, _, front = summarize_document(
+            (root / "doc" / "design" / "issue-866-decision-architecture.md").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(front.get("Parent"), "#19")
+        self.assertEqual(front.get("Last-Checked"), "2026-11-08")
+
     def test_keeps_underscores_and_cuts_at_first_sentence(self):
         text = "# 題名\n\n`ai_game_player`はrepo_map.jsonを使う。二文目は載せない。\n"
         _, summary, _ = summarize_document(text)
