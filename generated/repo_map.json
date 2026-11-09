@@ -197718,6 +197718,674 @@
     {
       "dependencies": [
         "tools",
+        "tools.diagram_hints",
+        "tools.generate_doc_index",
+        "tools.generate_module_index"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [
+            "tools",
+            "tools.diagram_hints"
+          ],
+          "module": "tools.diagram_hints",
+          "names": [
+            {
+              "alias": null,
+              "name": "extract_hints"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "tools",
+            "tools.generate_doc_index"
+          ],
+          "module": "tools.generate_doc_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "render_doc_index"
+            },
+            {
+              "alias": null,
+              "name": "summarize_document"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "tools",
+            "tools.generate_module_index"
+          ],
+          "module": "tools.generate_module_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "extract_responsibility"
+            },
+            {
+              "alias": null,
+              "name": "render_module_index"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_reading_indexes",
+      "path": "tests/test_reading_indexes.py",
+      "source_location": {
+        "end_line": 248,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "module_entry",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "name"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "path"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "dependencies"
+            },
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "classes"
+            }
+          ],
+          "qualified_name": "module_entry",
+          "return_annotation": "dict",
+          "signature": "(name: str, path: str, dependencies: list[str], classes: list[str]) -> dict",
+          "source_location": {
+            "column": 0,
+            "end_line": 20,
+            "start_line": 11
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ModuleIndexTest",
+          "parameters": [],
+          "qualified_name": "ModuleIndexTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 72,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_extracts_responsibility_from_structured_comment_then_docstring",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ModuleIndexTest.test_extracts_responsibility_from_structured_comment_then_docstring",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 32,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_renders_toc_responsibility_table_and_dependency_edges",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ModuleIndexTest.test_renders_toc_responsibility_table_and_dependency_edges",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 72,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ModuleIndexEdgeCaseTest",
+          "parameters": [],
+          "qualified_name": "ModuleIndexEdgeCaseTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 121,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_nameless_responsibility_keeps_its_beginning",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ModuleIndexEdgeCaseTest.test_nameless_responsibility_keeps_its_beginning",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 84,
+            "start_line": 76
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_groups_by_shared_prefix_and_keeps_anchors_distinct",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ModuleIndexEdgeCaseTest.test_groups_by_shared_prefix_and_keeps_anchors_distinct",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 121,
+            "start_line": 86
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "ResponsibilityPriorityTest",
+          "parameters": [],
+          "qualified_name": "ResponsibilityPriorityTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 135,
+            "start_line": 124
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_top_level_multiline_comment_beats_later_method_comment",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ResponsibilityPriorityTest.test_top_level_multiline_comment_beats_later_method_comment",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 130,
+            "start_line": 125
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_multiline_module_docstring_uses_first_content_line",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ResponsibilityPriorityTest.test_multiline_module_docstring_uses_first_content_line",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 135,
+            "start_line": 132
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DocIndexTest",
+          "parameters": [],
+          "qualified_name": "DocIndexTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 226,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_summarizes_title_first_sentence_and_front_matter",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_summarizes_title_first_sentence_and_front_matter",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 144,
+            "start_line": 139
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_metadata_after_the_title_is_read_and_excluded_from_the_summary",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_metadata_after_the_title_is_read_and_excluded_from_the_summary",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 150,
+            "start_line": 146
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_indented_nested_list_items_are_not_the_summary",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_indented_nested_list_items_are_not_the_summary",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 155,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_prose_that_looks_like_metadata_after_the_first_paragraph_is_kept",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_prose_that_looks_like_metadata_after_the_first_paragraph_is_kept",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 161,
+            "start_line": 157
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_real_documents_never_use_a_metadata_line_as_the_summary",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_real_documents_never_use_a_metadata_line_as_the_summary",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 182,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_keeps_underscores_and_cuts_at_first_sentence",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_keeps_underscores_and_cuts_at_first_sentence",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 187,
+            "start_line": 184
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_skips_navigation_links_joins_wrapped_paragraph_and_handles_tilde_fences",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_skips_navigation_links_joins_wrapped_paragraph_and_handles_tilde_fences",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 194,
+            "start_line": 189
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_encodes_spaces_in_links_and_skips_symlinked_documents",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_encodes_spaces_in_links_and_skips_symlinked_documents",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 208,
+            "start_line": 196
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_excludes_by_relative_path_not_parent_directories",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_excludes_by_relative_path_not_parent_directories",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 216,
+            "start_line": 210
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_renders_one_row_per_document_and_skips_generated",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DocIndexTest.test_renders_one_row_per_document_and_skips_generated",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 226,
+            "start_line": 218
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "DiagramHintsTest",
+          "parameters": [],
+          "qualified_name": "DiagramHintsTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 244,
+            "start_line": 229
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_extracts_headings_table_rows_links_issues_and_names",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "DiagramHintsTest.test_extracts_headings_table_rows_links_issues_and_names",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 244,
+            "start_line": 230
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "tools",
         "tools.recognition_evidence_validation"
       ],
       "imports": [
@@ -259366,6 +260034,110 @@
         {
           "kind": "from",
           "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "argparse",
+          "names": [
+            {
+              "alias": null,
+              "name": "argparse"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tools.diagram_hints",
+      "path": "tools/diagram_hints.py",
+      "source_location": {
+        "end_line": 66,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "extract_hints",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "extract_hints",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 54,
+            "start_line": 20
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "main",
+          "parameters": [],
+          "qualified_name": "main",
+          "return_annotation": "int",
+          "signature": "() -> int",
+          "source_location": {
+            "column": 0,
+            "end_line": 62,
+            "start_line": 57
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
           "line": 7,
           "local_dependencies": [],
           "module": "collections",
@@ -261471,10 +262243,225 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tools.generate_doc_index",
+      "path": "tools/generate_doc_index.py",
+      "source_location": {
+        "end_line": 120,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_link_destination",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "relative"
+            }
+          ],
+          "qualified_name": "_link_destination",
+          "return_annotation": "str",
+          "signature": "(relative: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 25,
+            "start_line": 23
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_plain",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_plain",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 31,
+            "start_line": 28
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_first_sentence",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_first_sentence",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 38,
+            "start_line": 34
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_is_prose",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "line"
+            }
+          ],
+          "qualified_name": "_is_prose",
+          "return_annotation": "bool",
+          "signature": "(line: str) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 41
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "summarize_document",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "summarize_document",
+          "return_annotation": "tuple[str, str, dict[str, str]]",
+          "signature": "(text: str) -> tuple[str, str, dict[str, str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 81,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_document_paths",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "_document_paths",
+          "return_annotation": "list[Path]",
+          "signature": "(root: Path) -> list[Path]",
+          "source_location": {
+            "column": 0,
+            "end_line": 99,
+            "start_line": 84
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "render_doc_index",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            }
+          ],
+          "qualified_name": "render_doc_index",
+          "return_annotation": "str",
+          "signature": "(root: Path) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 120,
+            "start_line": 102
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "tools",
         "tools.analyze_repo",
         "tools.generate_class_diagram",
+        "tools.generate_doc_index",
+        "tools.generate_module_index",
         "tools.generate_sequence_diagram"
       ],
       "imports": [
@@ -261594,6 +262581,38 @@
           "line": 14,
           "local_dependencies": [
             "tools",
+            "tools.generate_doc_index"
+          ],
+          "module": "generate_doc_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "render_doc_index"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 1,
+          "line": 15,
+          "local_dependencies": [
+            "tools",
+            "tools.generate_module_index"
+          ],
+          "module": "generate_module_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "render_module_index"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 1,
+          "line": 16,
+          "local_dependencies": [
+            "tools",
             "tools.generate_sequence_diagram"
           ],
           "module": "generate_sequence_diagram",
@@ -261607,7 +262626,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 16,
+          "line": 18,
           "local_dependencies": [],
           "module": "analyze_repo",
           "names": [
@@ -261620,7 +262639,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 17,
+          "line": 19,
           "local_dependencies": [],
           "module": "generate_class_diagram",
           "names": [
@@ -261633,7 +262652,33 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 18,
+          "line": 20,
+          "local_dependencies": [],
+          "module": "generate_doc_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "render_doc_index"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [],
+          "module": "generate_module_index",
+          "names": [
+            {
+              "alias": null,
+              "name": "render_module_index"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
           "local_dependencies": [],
           "module": "generate_sequence_diagram",
           "names": [
@@ -261647,7 +262692,7 @@
       "module": "tools.generate_docs",
       "path": "tools/generate_docs.py",
       "source_location": {
-        "end_line": 115,
+        "end_line": 129,
         "start_line": 1
       },
       "symbols": [
@@ -261669,8 +262714,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 25,
-            "start_line": 22
+            "end_line": 29,
+            "start_line": 26
           }
         },
         {
@@ -261685,8 +262730,8 @@
           "signature": "() -> Path",
           "source_location": {
             "column": 0,
-            "end_line": 29,
-            "start_line": 28
+            "end_line": 33,
+            "start_line": 32
           }
         },
         {
@@ -261708,8 +262753,8 @@
           "signature": "(config_path: Path) -> dict",
           "source_location": {
             "column": 0,
-            "end_line": 34,
-            "start_line": 32
+            "end_line": 38,
+            "start_line": 36
           }
         },
         {
@@ -261737,8 +262782,8 @@
           "signature": "(root: Path, config: dict) -> list[GeneratedDocument]",
           "source_location": {
             "column": 0,
-            "end_line": 69,
-            "start_line": 37
+            "end_line": 83,
+            "start_line": 41
           }
         },
         {
@@ -261760,8 +262805,8 @@
           "signature": "(documents: list[GeneratedDocument]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 78,
-            "start_line": 72
+            "end_line": 92,
+            "start_line": 86
           }
         },
         {
@@ -261783,8 +262828,8 @@
           "signature": "(documents: list[GeneratedDocument]) -> list[Path]",
           "source_location": {
             "column": 0,
-            "end_line": 86,
-            "start_line": 81
+            "end_line": 100,
+            "start_line": 95
           }
         },
         {
@@ -261799,8 +262844,354 @@
           "signature": "() -> int",
           "source_location": {
             "column": 0,
-            "end_line": 111,
+            "end_line": 125,
+            "start_line": 103
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "__future__",
+          "names": [
+            {
+              "alias": null,
+              "name": "annotations"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "ast",
+          "names": [
+            {
+              "alias": null,
+              "name": "ast"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 12,
+          "local_dependencies": [],
+          "module": "collections",
+          "names": [
+            {
+              "alias": null,
+              "name": "Counter"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        }
+      ],
+      "module": "tools.generate_module_index",
+      "path": "tools/generate_module_index.py",
+      "source_location": {
+        "end_line": 229,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_truncate",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "text"
+            }
+          ],
+          "qualified_name": "_truncate",
+          "return_annotation": "str",
+          "signature": "(text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 33,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_responsibility_candidates",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "lines"
+            }
+          ],
+          "qualified_name": "_responsibility_candidates",
+          "return_annotation": "list[tuple[bool, str]]",
+          "signature": "(lines: list[str]) -> list[tuple[bool, str]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 48,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "extract_responsibility",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "source_text"
+            }
+          ],
+          "qualified_name": "extract_responsibility",
+          "return_annotation": "str",
+          "signature": "(source_text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 68,
+            "start_line": 51
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_prefix_groups",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module_names"
+            }
+          ],
+          "qualified_name": "_prefix_groups",
+          "return_annotation": "set[str]",
+          "signature": "(module_names: list[str]) -> set[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 78,
+            "start_line": 71
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_group_of",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module_name"
+            },
+            {
+              "annotation": "set[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "prefixes"
+            }
+          ],
+          "qualified_name": "_group_of",
+          "return_annotation": "str",
+          "signature": "(module_name: str, prefixes: set[str]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 86,
+            "start_line": 81
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_anchor",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "group"
+            }
+          ],
+          "qualified_name": "_anchor",
+          "return_annotation": "str",
+          "signature": "(group: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 95,
             "start_line": 89
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_group_label",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "group"
+            }
+          ],
+          "qualified_name": "_group_label",
+          "return_annotation": "str",
+          "signature": "(group: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 103,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_name_list",
+          "parameters": [
+            {
+              "annotation": "list[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module_names"
+            }
+          ],
+          "qualified_name": "_name_list",
+          "return_annotation": "str",
+          "signature": "(module_names: list[str]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 115,
+            "start_line": 106
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_top_level_classes",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "module"
+            }
+          ],
+          "qualified_name": "_top_level_classes",
+          "return_annotation": "list[str]",
+          "signature": "(module: dict[str, Any]) -> list[str]",
+          "source_location": {
+            "column": 0,
+            "end_line": 123,
+            "start_line": 118
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "render_module_index",
+          "parameters": [
+            {
+              "annotation": "Path",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "root"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "repo_map_text"
+            }
+          ],
+          "qualified_name": "render_module_index",
+          "return_annotation": "str",
+          "signature": "(root: Path, repo_map_text: str) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 229,
+            "start_line": 126
           }
         }
       ]

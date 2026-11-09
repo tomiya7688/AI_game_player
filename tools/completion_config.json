@@ -1,7 +1,9 @@
 {
   "docs": {
     "class_diagram": true,
-    "sequence_diagram": true
+    "sequence_diagram": true,
+    "module_index": true,
+    "doc_index": true
   },
   "repository_map": {
     "config": "config/repo_map.json"
@@ -9,7 +11,9 @@
   "paths": {
     "source": "src/ai_game_player",
     "class_diagram": "doc/class_diagram.mmd",
-    "sequence_diagram": "doc/sequence_diagram.mmd"
+    "sequence_diagram": "doc/sequence_diagram.mmd",
+    "module_index": "generated/module_index.md",
+    "doc_index": "generated/doc_index.md"
   },
   "sequence": {
     "source_file": "src/ai_game_player/pipeline.py",
