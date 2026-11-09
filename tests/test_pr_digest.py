@@ -72,6 +72,14 @@ class PlanRerunTest(unittest.TestCase):
         self.assertEqual(targets, [])
         self.assertIn("already re-run once: win", reason)
 
+    def test_only_first_attempt_runs_are_selected_in_mixed_failures(self):
+        runs = [
+            run(1, conclusion="failure", attempt=2),
+            run(2, conclusion="failure", attempt=1),
+        ]
+        targets, _ = pr_digest.plan_rerun(runs)
+        self.assertEqual([t["id"] for t in targets], [2])
+
     def test_failure_and_timed_out_are_rerun_but_action_required_is_not(self):
         runs = [
             run(1, conclusion="failure"),

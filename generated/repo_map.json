@@ -194201,7 +194201,7 @@
       "module": "tests.test_pr_digest",
       "path": "tests/test_pr_digest.py",
       "source_location": {
-        "end_line": 253,
+        "end_line": 261,
         "start_line": 1
       },
       "symbols": [
@@ -194428,7 +194428,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 83,
+            "end_line": 91,
             "start_line": 56
           }
         },
@@ -194506,6 +194506,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_only_first_attempt_runs_are_selected_in_mixed_failures",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PlanRerunTest.test_only_first_attempt_runs_are_selected_in_mixed_failures",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 81,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_failure_and_timed_out_are_rerun_but_action_required_is_not",
           "parameters": [
             {
@@ -194520,8 +194543,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 83,
-            "start_line": 75
+            "end_line": 91,
+            "start_line": 83
           }
         },
         {
@@ -194542,8 +194565,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 143,
-            "start_line": 86
+            "end_line": 151,
+            "start_line": 94
           }
         },
         {
@@ -194589,8 +194612,8 @@
           "signature": "(self, runs, post_effect = …, head = …, reruns = …)",
           "source_location": {
             "column": 4,
-            "end_line": 96,
-            "start_line": 87
+            "end_line": 104,
+            "start_line": 95
           }
         },
         {
@@ -194612,8 +194635,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 109,
-            "start_line": 98
+            "end_line": 117,
+            "start_line": 106
           }
         },
         {
@@ -194635,8 +194658,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 115,
-            "start_line": 111
+            "end_line": 123,
+            "start_line": 119
           }
         },
         {
@@ -194658,8 +194681,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 121,
-            "start_line": 117
+            "end_line": 129,
+            "start_line": 125
           }
         },
         {
@@ -194681,8 +194704,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 128,
-            "start_line": 123
+            "end_line": 136,
+            "start_line": 131
           }
         },
         {
@@ -194704,8 +194727,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 130
+            "end_line": 151,
+            "start_line": 138
           }
         },
         {
@@ -194733,8 +194756,8 @@
           "signature": "(_repo, run_id)",
           "source_location": {
             "column": 8,
-            "end_line": 138,
-            "start_line": 136
+            "end_line": 146,
+            "start_line": 144
           }
         },
         {
@@ -194755,8 +194778,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 155,
-            "start_line": 146
+            "end_line": 163,
+            "start_line": 154
           }
         },
         {
@@ -194778,8 +194801,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 155,
-            "start_line": 147
+            "end_line": 163,
+            "start_line": 155
           }
         },
         {
@@ -194800,8 +194823,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 165,
-            "start_line": 158
+            "end_line": 173,
+            "start_line": 166
           }
         },
         {
@@ -194823,8 +194846,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 160,
-            "start_line": 159
+            "end_line": 168,
+            "start_line": 167
           }
         },
         {
@@ -194846,8 +194869,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 165,
-            "start_line": 162
+            "end_line": 173,
+            "start_line": 170
           }
         },
         {
@@ -194868,8 +194891,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 208,
-            "start_line": 168
+            "end_line": 216,
+            "start_line": 176
           }
         },
         {
@@ -194897,8 +194920,8 @@
           "signature": "(self, reviews)",
           "source_location": {
             "column": 4,
-            "end_line": 193,
-            "start_line": 169
+            "end_line": 201,
+            "start_line": 177
           }
         },
         {
@@ -194932,8 +194955,8 @@
           "signature": "(_repo, path, key = …)",
           "source_location": {
             "column": 8,
-            "end_line": 187,
-            "start_line": 183
+            "end_line": 195,
+            "start_line": 191
           }
         },
         {
@@ -194955,8 +194978,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 208,
-            "start_line": 195
+            "end_line": 216,
+            "start_line": 203
           }
         },
         {
@@ -194977,8 +195000,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 220,
-            "start_line": 211
+            "end_line": 228,
+            "start_line": 219
           }
         },
         {
@@ -195000,8 +195023,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 212
+            "end_line": 223,
+            "start_line": 220
           }
         },
         {
@@ -195023,8 +195046,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 220,
-            "start_line": 217
+            "end_line": 228,
+            "start_line": 225
           }
         },
         {
@@ -195045,8 +195068,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 249,
-            "start_line": 223
+            "end_line": 257,
+            "start_line": 231
           }
         },
         {
@@ -195068,8 +195091,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 230,
-            "start_line": 224
+            "end_line": 238,
+            "start_line": 232
           }
         },
         {
@@ -195091,8 +195114,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 249,
-            "start_line": 232
+            "end_line": 257,
+            "start_line": 240
           }
         }
       ]
