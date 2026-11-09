@@ -96,7 +96,7 @@
 | [`doc/design/issue-864-macro-trigger.md`](../doc/design/issue-864-macro-trigger.md) | Issue 864 重い判断機の非同期化と、判断・操作の層分離（MacroTrigger） | 設計資料のみ。 | #19 | 2026-11-08 |
 | [`doc/design/issue-866-decision-architecture.md`](../doc/design/issue-866-decision-architecture.md) | Issue 866 判断・操作の層構造と、モデル運用・学習・知識増築・データ圧縮の統合設計 | 設計資料のみ。 | #19 | 2026-11-08 |
 | [`doc/design/issue-868-human-cognition-tasks.md`](../doc/design/issue-868-human-cognition-tasks.md) | Issue 868 人間のゲームプレイ中の認知をタスクとして洗い出し、タスク別のモデル・手法を割り当てる | 設計資料のみ。 | #866 | 2026-11-08 |
-| [`doc/design/issue-895-reading-indexes.md`](../doc/design/issue-895-reading-indexes.md) | Issue 895 読む時のトークンを減らす目次・責務表・依存図の自動生成 | 設計書やソースを読む時に、探すためだけに読む量を減らす。 | #19 | 2026-11-08 |
+| [`doc/design/issue-895-reading-indexes.md`](../doc/design/issue-895-reading-indexes.md) | Issue 895 読む時のトークンを減らす目次・責務表・依存図の自動生成 | 設計書やソースを読む時に、探すためだけに読む量を減らす。 | #19 | 2026-11-09 |
 | [`doc/guide/README.md`](../doc/guide/README.md) | AI Game Player：まず全体を知る | READMEへ戻る ｜ 目指す完成図と現在の実装図 ｜ 場所ごとの実装状況と根拠 ｜ 用語集 | - | - |
 | [`doc/guide/implementation_status.md`](../doc/guide/implementation_status.md) | 場所ごとの実装状況と、完成までの残作業 | 「部品あり」はコードが存在すること、「接続あり」は標準の操作から呼ばれることです。 | - | - |
 | [`doc/guide/judgment.md`](../doc/guide/judgment.md) | 次の操作をどう決める？ 前回の結果をどう確かめる？ | このページは、候補を評価すること、前回の操作結果を調べること、今回の操作を選ぶこと、回答を検証することを別々の仕事として説明します。 | - | - |
