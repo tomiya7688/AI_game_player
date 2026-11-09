@@ -1,3 +1,4 @@
+import subprocess
 import unittest
 from unittest.mock import patch
 
@@ -52,51 +53,115 @@ class InlineFindingsTest(unittest.TestCase):
         )
 
 
-class RerunFailedTest(unittest.TestCase):
-    def rerun(self, runs):
-        with (
-            patch.object(pr_digest, "workflow_runs", return_value=runs),
-            patch.object(
-                pr_digest.subprocess, "check_output", return_value="{}"
-            ) as post,
-        ):
-            lines = pr_digest.rerun_failed("o/r", "sha")
-        return lines, post
-
-    def test_does_nothing_while_any_run_is_in_progress(self):
-        lines, post = self.rerun(
+class PlanRerunTest(unittest.TestCase):
+    def test_waits_while_any_run_is_in_progress(self):
+        targets, reason = pr_digest.plan_rerun(
             [run(1, "in_progress", None), run(2, conclusion="failure")]
         )
-        self.assertIn("in progress", lines[0])
-        post.assert_not_called()
+        self.assertEqual((targets, "in progress" in reason), ([], True))
 
-    def test_does_nothing_when_nothing_failed(self):
-        lines, post = self.rerun([run(1), run(2)])
-        self.assertIn("nothing to re-run", lines[0])
-        post.assert_not_called()
-
-    def test_never_reruns_a_run_that_was_already_rerun_once(self):
-        lines, post = self.rerun([run(1, conclusion="failure", attempt=2, name="win")])
-        self.assertIn("already re-run once", lines[0])
-        post.assert_not_called()
-
-    def test_reruns_each_failed_run_once_when_all_runs_completed(self):
-        lines, post = self.rerun(
-            [
-                run(1),
-                run(2, conclusion="failure", name="win"),
-                run(3, conclusion="failure", name="cpp"),
-            ]
-        )
-        self.assertEqual(post.call_count, 2)
+    def test_nothing_failed(self):
         self.assertEqual(
-            [call.args[0][-1] for call in post.call_args_list],
-            [
-                "repos/o/r/actions/runs/2/rerun-failed-jobs",
-                "repos/o/r/actions/runs/3/rerun-failed-jobs",
-            ],
+            pr_digest.plan_rerun([run(1), run(2)]), ([], "nothing to re-run")
+        )
+
+    def test_already_rerun_once_is_not_rerun_again(self):
+        targets, reason = pr_digest.plan_rerun(
+            [run(1, conclusion="failure", attempt=2, name="win")]
+        )
+        self.assertEqual(targets, [])
+        self.assertIn("already re-run once: win", reason)
+
+    def test_failure_and_timed_out_are_rerun_but_action_required_is_not(self):
+        runs = [
+            run(1, conclusion="failure"),
+            run(2, conclusion="timed_out"),
+            run(3, conclusion="action_required"),
+            run(4),
+        ]
+        targets, _ = pr_digest.plan_rerun(runs)
+        self.assertEqual([t["id"] for t in targets], [1, 2])
+
+
+class RerunFailedTest(unittest.TestCase):
+    def rerun(self, runs, post_effect=None):
+        with (
+            patch.object(pr_digest, "workflow_runs", return_value=runs),
+            patch.object(pr_digest, "post_rerun", side_effect=post_effect) as post,
+        ):
+            result = pr_digest.rerun_failed("o/r", "sha")
+        return result, post
+
+    def test_reruns_each_failed_run_once(self):
+        runs = [
+            run(1),
+            run(2, conclusion="failure", name="win"),
+            run(3, conclusion="failure", name="cpp"),
+        ]
+        (lines, ok), post = self.rerun(runs)
+        self.assertTrue(ok)
+        self.assertEqual(
+            [c.args for c in post.call_args_list], [("o/r", 2), ("o/r", 3)]
         )
         self.assertTrue(all("requested" in line for line in lines))
+
+    def test_does_not_post_when_the_plan_is_empty(self):
+        (lines, ok), post = self.rerun([run(1, "in_progress", None)])
+        self.assertTrue(ok)
+        post.assert_not_called()
+        self.assertIn("in progress", lines[0])
+
+    def test_a_failed_post_keeps_the_results_already_requested(self):
+        runs = [
+            run(2, conclusion="failure", name="win"),
+            run(3, conclusion="failure", name="cpp"),
+        ]
+
+        def effect(_repo, run_id):
+            if run_id == 3:
+                raise subprocess.CalledProcessError(1, "gh")
+
+        (lines, ok), _ = self.rerun(runs, effect)
+        self.assertFalse(ok)
+        self.assertIn("requested win", lines[0])
+        self.assertIn("ERROR cpp", lines[1])
+
+
+class FetchPagesTest(unittest.TestCase):
+    def test_collects_pages_until_a_short_page(self):
+        pages = [[{"n": i} for i in range(100)], [{"n": 1}]]
+        with patch.object(pr_digest, "gh_json", side_effect=pages):
+            self.assertEqual(len(pr_digest.fetch_pages("o/r", "x")), 101)
+
+    def test_raises_when_pagination_never_ends(self):
+        with patch.object(pr_digest, "gh_json", return_value=[{"n": 0}] * 100):
+            with self.assertRaises(ValueError):
+                pr_digest.fetch_pages("o/r", "x")
+
+
+class MainExitCodeTest(unittest.TestCase):
+    def test_returns_nonzero_when_a_pr_cannot_be_read(self):
+        error = subprocess.CalledProcessError(1, "gh")
+        with (
+            patch.object(pr_digest, "digest", side_effect=error),
+            patch("builtins.print"),
+        ):
+            self.assertEqual(pr_digest.main(["1"]), 1)
+
+    def test_returns_nonzero_when_a_rerun_fails_and_zero_otherwise(self):
+        with (
+            patch.object(pr_digest, "digest", return_value=(["#1"], [], "sha")),
+            patch.object(
+                pr_digest, "rerun_failed", return_value=(["  rerun: ERROR"], False)
+            ),
+            patch("builtins.print"),
+        ):
+            self.assertEqual(pr_digest.main(["1", "--rerun-failed"]), 1)
+        with (
+            patch.object(pr_digest, "digest", return_value=(["#1"], [], "sha")),
+            patch("builtins.print"),
+        ):
+            self.assertEqual(pr_digest.main(["1"]), 0)
 
 
 if __name__ == "__main__":

@@ -51,6 +51,8 @@ PR作業のたびに繰り返していた確認（状態、CI件数、失敗チ�
 
 - GraphQLが使えない環境(クラウド)があるため、RESTだけを使い、ページ番号を明示して全件取得する(`--paginate`は使わない)。
 - `--rerun-failed`は、head SHAの全workflow runが完了していて、失敗したrunがあり、まだ再実行していない(`run_attempt=1`)時だけ、失敗ジョブを1回再実行する。実行中のrunがある間、再実行済み、失敗なしの場合は何もしない(再実行は最大1回の規則)。
+- 再実行の対象は`failure`と`timed_out`のrun(`action_required`は人の承認待ちで再実行できず、表示だけ)。計画(`plan_rerun`、純粋関数)とPOST(`post_rerun`)を分けた。POSTが途中で失敗しても、実行済みの結果を残し、終了コードは1になる。PRを読めない場合も1。
+- **限界**: 再実行の直後にGitHubがrunの状態を更新するまでの短い遅れの間は「1回だけ」を保証しきれない。再実行したrunは待機状態になるため、実行中のrunがある間は何もしない条件で実害は小さい。
 - **限界**: レビュースレッドの解決状態(`is_resolved`)はGraphQLでしか取れないため出さない。スレッドの確認と解決はGitHub MCPの`pull_request_read`(`get_review_comments`)と`resolve_review_thread`で行う。マージ可否の最終判定は`tools/finish_pr_merge.py`が持ち、このツールは判定しない。
 
 ## テスト

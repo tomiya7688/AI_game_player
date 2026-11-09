@@ -1,12 +1,16 @@
 """PRの状態を短い一覧にする（CI件数・失敗チェック名・bot指摘の見出し・未返信）。
 
-botの概要コメントや長いCIログを丸ごと読まずに、次に何をすべきかを判断するための読み取り専用ツール。
+botの概要コメントや長いCIログを丸ごと読まずに、次に何をすべきかを判断するためのツール。既定は読み取りだけで、`--rerun-failed`を付けた時だけ失敗ジョブの再実行(書込み)を行う。
 GraphQLは使えない環境（クラウドセッション）があるため、REST（ページ番号を明示）だけを使う。
 
 使い方: python3 tools/pr_digest.py 857 858 [--repo owner/name] [--bots] [--rerun-failed]
 
 --rerun-failed: head SHAの全workflow runが完了していて、失敗したrunがあり、まだ再実行していない(run_attempt=1)場合だけ、
 失敗ジョブを1回再実行する。実行中のrunがある間、既に再実行したrun、失敗が無い場合は何もしない(再実行は最大1回の規則)。
+
+再実行の対象は conclusion が failure または timed_out の run(action_required は人の承認待ちで再実行できないので表示だけ)。
+限界: 再実行の直後にGitHubがrunの状態を更新するまでの短い遅れの間は「1回だけ」を保証しきれない。ただし再実行すると
+runは待機状態になるため、実行中のrunがある間は何もしない条件で実害は小さい。
 
 限界: レビュースレッドの解決状態(is_resolved)はGraphQLでしか取れないため、この要約には出さない。
 スレッドの確認と解決は、GitHub MCPのpull_request_read(get_review_comments)とresolve_review_thread、またはWebで行う。
@@ -117,37 +121,55 @@ def workflow_runs(repo, sha):
     return fetch_pages(repo, f"actions/runs?head_sha={sha}", key="workflow_runs")
 
 
-def rerun_failed(repo, sha):
-    """全runが完了し、失敗かつ未再実行のrunがある時だけ失敗ジョブを1回再実行する。結果の説明行を返す。"""
-    runs = workflow_runs(repo, sha)
+RERUNNABLE_CONCLUSIONS = ("failure", "timed_out")
+
+
+def plan_rerun(runs):
+    """runの一覧から再実行の計画を決める純粋関数。(再実行するrunのlist, 何もしない理由の説明行)を返す。"""
     if any(run["status"] != "completed" for run in runs):
-        return ["  rerun: skipped (workflow runs still in progress)"]
-    targets = [
-        r for r in runs if r["conclusion"] == "failure" and r.get("run_attempt", 1) == 1
-    ]
+        return [], "skipped (workflow runs still in progress)"
+    failed = [r for r in runs if r["conclusion"] in RERUNNABLE_CONCLUSIONS]
+    targets = [r for r in failed if r.get("run_attempt", 1) == 1]
+    if targets:
+        return targets, ""
+    if failed:
+        return [], "skipped (already re-run once: " + ", ".join(
+            r["name"] for r in failed
+        ) + ")"
+    return [], "nothing to re-run"
+
+
+def post_rerun(repo, run_id):
+    """1つのworkflow runの失敗ジョブを再実行する(書込み)。"""
+    subprocess.check_output(
+        [
+            "gh",
+            "api",
+            "-X",
+            "POST",
+            f"repos/{repo}/actions/runs/{run_id}/rerun-failed-jobs",
+        ],
+        text=True,
+        encoding="utf-8",
+        timeout=120,
+    )
+
+
+def rerun_failed(repo, sha):
+    """計画に従って失敗ジョブを再実行する。(説明行のlist, 全て成功したか)を返し、途中の失敗でも実行済みの結果を残す。"""
+    targets, reason = plan_rerun(workflow_runs(repo, sha))
     if not targets:
-        already = [r["name"] for r in runs if r["conclusion"] == "failure"]
-        return (
-            ["  rerun: skipped (already re-run once: " + ", ".join(already) + ")"]
-            if already
-            else ["  rerun: nothing to re-run"]
-        )
+        return [f"  rerun: {reason}"], True
     lines = []
+    ok = True
     for run in targets:
-        subprocess.check_output(
-            [
-                "gh",
-                "api",
-                "-X",
-                "POST",
-                f"repos/{repo}/actions/runs/{run['id']}/rerun-failed-jobs",
-            ],
-            text=True,
-            encoding="utf-8",
-            timeout=120,
-        )
-        lines.append(f"  rerun: requested {run['name']} (run {run['id']})")
-    return lines
+        try:
+            post_rerun(repo, run["id"])
+            lines.append(f"  rerun: requested {run['name']} (run {run['id']})")
+        except subprocess.SubprocessError as error:
+            ok = False
+            lines.append(f"  rerun: ERROR {run['name']} (run {run['id']}): {error}")
+    return lines, ok
 
 
 def digest(repo, number):
@@ -191,28 +213,33 @@ def main(argv=None):
         help="botのインライン指摘も一覧する（既定は未返信の件数だけ）",
     )
     args = parser.parse_args(argv)
+    exit_code = 0
     for number in args.numbers:
         try:
             lines, findings, sha = digest(args.repo, number)
         except (subprocess.SubprocessError, ValueError, KeyError) as error:
             print(f"#{number} ERROR: {error}")
+            exit_code = 1
             continue
         print("\n".join(lines))
         if args.rerun_failed:
             try:
-                print("\n".join(rerun_failed(args.repo, sha)))
-            except subprocess.SubprocessError as error:
-                print(f"  rerun: ERROR {error}")
-        open_findings = [
+                rerun_lines, rerun_ok = rerun_failed(args.repo, sha)
+            except (subprocess.SubprocessError, ValueError, KeyError) as error:
+                rerun_lines, rerun_ok = [f"  rerun: ERROR {error}"], False
+            print("\n".join(rerun_lines))
+            exit_code = exit_code or (0 if rerun_ok else 1)
+        no_reply = [
             f for f in findings if not f["answered"]
         ]  # 返信が無いもの（修正済みかは別）
-        print(f"  bot_findings={len(findings)} no_reply={len(open_findings)}")
-        for finding in findings if args.bots else []:
+        print(f"  bot_findings={len(findings)} no_reply={len(no_reply)}")
+        shown = findings if args.bots else []
+        for finding in shown:
             mark = " " if finding["answered"] else "!"
             print(
                 f"   {mark} {finding['severity']:8} {finding['where']} (id {finding['id']}) {finding['headline']}"
             )
-    return 0
+    return exit_code
 
 
 if __name__ == "__main__":

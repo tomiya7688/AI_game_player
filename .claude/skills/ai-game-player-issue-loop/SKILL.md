@@ -7,7 +7,7 @@ description: AI_GAME_Player（tomiya7688/AI_game_player）でGitHub Issueを順�
 
 # AI_GAME_Player Issue反復ループ
 
-> **探す前に読む**: コードは `generated/module_index.md`（目次・責務表・依存図）、文書は `generated/doc_index.md`（題名と先頭の1文）。全探索をしない。手書き図の前は `python3 tools/diagram_hints.py <doc.md>`。 PRの状況は `python3 tools/pr_digest.py <番号>`（CI件数・失敗チェック・botの指摘・未返信。`--rerun-failed`で失敗ジョブを全run完了後に1回だけ再実行）。
+> **探す前に読む**: コードは `generated/module_index.md`（目次・責務表・依存図）、文書は `generated/doc_index.md`（題名と先頭の1文）。全探索をしない。手書き図の前は `python3 tools/diagram_hints.py <doc.md>`。PRの状況は `python3 tools/pr_digest.py <番号>`（CI件数・失敗チェック・botの指摘・未返信。`--rerun-failed`で失敗ジョブを全run完了後に1回だけ再実行）。
 
 正本は各worktreeの `AGENTS.md` / `AI_CONTEXT.md` / `doc/コーディングルール.md` と `E:/projects/REVIEW_OPERATIONS.md`。本手順は順序と落とし穴の要約で、矛盾したら正本が優先。
 
