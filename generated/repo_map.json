@@ -19618,7 +19618,7 @@
       "module": "ai_game_player.challenger_evaluation",
       "path": "src/ai_game_player/challenger_evaluation.py",
       "source_location": {
-        "end_line": 226,
+        "end_line": 285,
         "start_line": 1
       },
       "symbols": [
@@ -19647,8 +19647,8 @@
           "signature": "(parameters: ComponentParameters, case: Any) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 40,
-            "start_line": 36
+            "end_line": 50,
+            "start_line": 43
           }
         },
         {
@@ -19706,8 +19706,8 @@
           "signature": "(artifact: ChallengerArtifact, cases: Sequence[EvaluationCase], policy: EvaluationPolicy, *, evaluation_ref: str, evaluated_at: str, predictor: Callable[[ComponentParameters, Any], bool] = …, clock: Callable[[], float] = …) -> tuple[CandidateEvaluation, EvaluationEvent]",
           "source_location": {
             "column": 0,
-            "end_line": 103,
-            "start_line": 52
+            "end_line": 125,
+            "start_line": 62
           }
         },
         {
@@ -19735,8 +19735,8 @@
           "signature": "(store: FileSystemArtifactStore, event: EvaluationEvent) -> ArtifactReference",
           "source_location": {
             "column": 0,
-            "end_line": 117,
-            "start_line": 111
+            "end_line": 146,
+            "start_line": 133
           }
         },
         {
@@ -19764,8 +19764,8 @@
           "signature": "(store: FileSystemArtifactStore, reference: ArtifactReference) -> EvaluationEvent",
           "source_location": {
             "column": 0,
-            "end_line": 132,
-            "start_line": 126
+            "end_line": 171,
+            "start_line": 155
           }
         },
         {
@@ -19793,8 +19793,8 @@
           "signature": "(artifact: ChallengerArtifact, cases: Sequence[EvaluationCase]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 145,
-            "start_line": 135
+            "end_line": 189,
+            "start_line": 174
           }
         },
         {
@@ -19840,8 +19840,8 @@
           "signature": "(parameters: ComponentParameters, cases: list[Any], policy: EvaluationPolicy, predictor: Callable[[ComponentParameters, Any], bool], clock: Callable[[], float]) -> ArmSummary",
           "source_location": {
             "column": 0,
-            "end_line": 176,
-            "start_line": 148
+            "end_line": 227,
+            "start_line": 192
           }
         },
         {
@@ -19863,8 +19863,8 @@
           "signature": "(case: Any) -> bool | None",
           "source_location": {
             "column": 0,
-            "end_line": 187,
-            "start_line": 179
+            "end_line": 242,
+            "start_line": 230
           }
         },
         {
@@ -19886,8 +19886,8 @@
           "signature": "(values: list[float]) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 194,
-            "start_line": 190
+            "end_line": 249,
+            "start_line": 245
           }
         },
         {
@@ -19915,8 +19915,8 @@
           "signature": "(summaries: dict[str, dict[str, ArmSummary]], policy: EvaluationPolicy) -> tuple[str, tuple[str, ...]]",
           "source_location": {
             "column": 0,
-            "end_line": 213,
-            "start_line": 197
+            "end_line": 272,
+            "start_line": 252
           }
         },
         {
@@ -19938,8 +19938,8 @@
           "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 222,
-            "start_line": 216
+            "end_line": 281,
+            "start_line": 275
           }
         },
         {
@@ -19961,8 +19961,8 @@
           "signature": "(value: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 226,
-            "start_line": 225
+            "end_line": 285,
+            "start_line": 284
           }
         }
       ]
@@ -131177,7 +131177,7 @@
       "module": "tests.test_challenger_evaluation",
       "path": "tests/test_challenger_evaluation.py",
       "source_location": {
-        "end_line": 190,
+        "end_line": 263,
         "start_line": 1
       },
       "symbols": [
@@ -131302,7 +131302,7 @@
           "signature": "(prefix, count, group_name, signal, outcome, **overrides)",
           "source_location": {
             "column": 0,
-            "end_line": 55,
+            "end_line": 60,
             "start_line": 48
           }
         },
@@ -131324,8 +131324,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 157,
-            "start_line": 58
+            "end_line": 224,
+            "start_line": 63
           }
         },
         {
@@ -131347,8 +131347,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 62,
-            "start_line": 59
+            "end_line": 67,
+            "start_line": 64
           }
         },
         {
@@ -131382,8 +131382,8 @@
           "signature": "(self, cases, **kwargs)",
           "source_location": {
             "column": 4,
-            "end_line": 67,
-            "start_line": 64
+            "end_line": 72,
+            "start_line": 69
           }
         },
         {
@@ -131405,8 +131405,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 72,
-            "start_line": 69
+            "end_line": 79,
+            "start_line": 74
           }
         },
         {
@@ -131428,8 +131428,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 81,
-            "start_line": 74
+            "end_line": 95,
+            "start_line": 81
           }
         },
         {
@@ -131451,8 +131451,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 87,
-            "start_line": 83
+            "end_line": 105,
+            "start_line": 97
           }
         },
         {
@@ -131474,8 +131474,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 92,
-            "start_line": 89
+            "end_line": 114,
+            "start_line": 107
           }
         },
         {
@@ -131497,8 +131497,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 99,
-            "start_line": 94
+            "end_line": 123,
+            "start_line": 116
           }
         },
         {
@@ -131520,8 +131520,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 113,
-            "start_line": 101
+            "end_line": 141,
+            "start_line": 125
           }
         },
         {
@@ -131549,8 +131549,95 @@
           "signature": "(parameters, _case)",
           "source_location": {
             "column": 8,
-            "end_line": 105,
-            "start_line": 102
+            "end_line": 129,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 158,
+            "start_line": 143
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_case"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate.predictor",
+          "return_annotation": null,
+          "signature": "(_parameters, _case, error = …)",
+          "source_location": {
+            "column": 16,
+            "end_line": 148,
+            "start_line": 147
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "interrupted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_case"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate.interrupted",
+          "return_annotation": null,
+          "signature": "(_parameters, _case)",
+          "source_location": {
+            "column": 8,
+            "end_line": 155,
+            "start_line": 154
           }
         },
         {
@@ -131572,8 +131659,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 118,
-            "start_line": 115
+            "end_line": 165,
+            "start_line": 160
           }
         },
         {
@@ -131595,8 +131682,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 131,
-            "start_line": 120
+            "end_line": 178,
+            "start_line": 167
           }
         },
         {
@@ -131624,8 +131711,8 @@
           "signature": "(parameters, scored_case)",
           "source_location": {
             "column": 8,
-            "end_line": 125,
-            "start_line": 123
+            "end_line": 172,
+            "start_line": 170
           }
         },
         {
@@ -131647,8 +131734,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 143,
-            "start_line": 133
+            "end_line": 204,
+            "start_line": 180
           }
         },
         {
@@ -131670,8 +131757,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 157,
-            "start_line": 145
+            "end_line": 224,
+            "start_line": 206
           }
         },
         {
@@ -131692,8 +131779,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 186,
-            "start_line": 160
+            "end_line": 259,
+            "start_line": 227
           }
         },
         {
@@ -131715,8 +131802,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 168,
-            "start_line": 161
+            "end_line": 239,
+            "start_line": 228
           }
         },
         {
@@ -131738,8 +131825,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 172,
-            "start_line": 170
+            "end_line": 243,
+            "start_line": 241
           }
         },
         {
@@ -131761,8 +131848,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 182,
-            "start_line": 174
+            "end_line": 253,
+            "start_line": 245
           }
         },
         {
@@ -131784,8 +131871,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 186,
-            "start_line": 184
+            "end_line": 259,
+            "start_line": 255
           }
         }
       ]
