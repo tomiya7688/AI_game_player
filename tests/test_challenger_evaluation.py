@@ -48,7 +48,12 @@ class FakeClock:
 def group(prefix, count, group_name, signal, outcome, **overrides):
     return [
         EvaluationCase(
-            case(f"{prefix}{n}", decision_expected_success=signal, outcome=outcome, **overrides),
+            case(
+                f"{prefix}{n}",
+                decision_expected_success=signal,
+                outcome=outcome,
+                **overrides,
+            ),
             group_name,
         )
         for n in range(count)
@@ -69,31 +74,50 @@ class EvaluationRunnerTest(unittest.TestCase):
     def improving_cases(self):
         # signal=0.5: Championは採用(0.5>=0.5)して誤り、Challengerは較正で不採用にして正解。
         # 回帰群はsignal=0.9で両者とも採用して正解のまま。
-        return group("t", 12, "target", 0.5, "failure") + group("r", 12, "regression", 0.9, "success")
+        return group("t", 12, "target", 0.5, "failure") + group(
+            "r", 12, "regression", 0.9, "success"
+        )
 
     def test_improvement_and_regression_are_aggregated_separately(self):
         evaluation, event = self.run_eval(self.improving_cases())
-        self.assertEqual((evaluation.target_baseline, evaluation.target_candidate), (0.0, 1.0))
-        self.assertEqual((evaluation.regression_baseline, evaluation.regression_candidate), (1.0, 1.0))
-        self.assertEqual((evaluation.target_cases, evaluation.regression_cases), (12, 12))
+        self.assertEqual(
+            (evaluation.target_baseline, evaluation.target_candidate), (0.0, 1.0)
+        )
+        self.assertEqual(
+            (evaluation.regression_baseline, evaluation.regression_candidate),
+            (1.0, 1.0),
+        )
+        self.assertEqual(
+            (evaluation.target_cases, evaluation.regression_cases), (12, 12)
+        )
         self.assertEqual(event.signal, "escalate")
         self.assertEqual(event.validation_state, "offline")
         self.assertEqual(event.groups["target"]["challenger"].correct, 12)
 
     def test_regression_lowers_the_level_signal(self):
-        cases = group("t", 12, "target", 0.5, "failure") + group("r", 12, "regression", 0.5, "success")
+        cases = group("t", 12, "target", 0.5, "failure") + group(
+            "r", 12, "regression", 0.5, "success"
+        )
         evaluation, event = self.run_eval(cases)
         self.assertEqual(evaluation.regression_candidate, 0.0)
-        self.assertEqual((event.signal, event.reasons), ("de_escalate", ("regression",)))
+        self.assertEqual(
+            (event.signal, event.reasons), ("de_escalate", ("regression",))
+        )
 
     def test_insufficient_evidence_holds(self):
-        cases = group("t", 3, "target", 0.5, "failure") + group("r", 3, "regression", 0.9, "success")
+        cases = group("t", 3, "target", 0.5, "failure") + group(
+            "r", 3, "regression", 0.9, "success"
+        )
         _, event = self.run_eval(cases)
-        self.assertEqual((event.signal, event.reasons), ("hold", ("insufficient_evidence",)))
+        self.assertEqual(
+            (event.signal, event.reasons), ("hold", ("insufficient_evidence",))
+        )
 
     def test_cases_without_verified_labels_are_not_scored(self):
         cases = self.improving_cases() + group("u", 4, "target", 0.5, "unknown")
-        cases += group("h", 2, "target", 0.5, "failure", label_status="supported_effect")
+        cases += group(
+            "h", 2, "target", 0.5, "failure", label_status="supported_effect"
+        )
         evaluation, event = self.run_eval(cases)
         self.assertEqual(evaluation.target_cases, 12)
         self.assertEqual(event.groups["target"]["champion"].unscorable, 6)
@@ -106,15 +130,38 @@ class EvaluationRunnerTest(unittest.TestCase):
 
         evaluation, event = self.run_eval(self.improving_cases(), predictor=predictor)
         challenger = event.groups["target"]["challenger"]
-        self.assertEqual((challenger.scored, challenger.failed, challenger.correct), (12, 12, 0))
+        self.assertEqual(
+            (challenger.scored, challenger.failed, challenger.correct), (12, 12, 0)
+        )
         self.assertEqual(evaluation.target_cases, 12)
-        _, slow = self.run_eval(self.improving_cases(), clock=FakeClock(1.0))  # 1症例=1000ms > 50ms
+        _, slow = self.run_eval(
+            self.improving_cases(), clock=FakeClock(1.0)
+        )  # 1症例=1000ms > 50ms
         self.assertEqual(slow.groups["target"]["champion"].failed, 12)
         self.assertEqual(slow.groups["target"]["champion"].accuracy, 0.0)
 
+    def test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate(self):
+        for error in (TimeoutError("late"), RuntimeError("provider"), OSError("io")):
+            with self.subTest(error=type(error).__name__):
+
+                def predictor(_parameters, _case, error=error):
+                    raise error
+
+                _, event = self.run_eval(self.improving_cases(), predictor=predictor)
+                self.assertEqual(event.groups["target"]["champion"].failed, 12)
+                self.assertEqual(event.groups["target"]["champion"].scored, 12)
+
+        def interrupted(_parameters, _case):
+            raise KeyboardInterrupt
+
+        with self.assertRaises(KeyboardInterrupt):
+            self.run_eval(self.improving_cases(), predictor=interrupted)
+
     def test_latency_is_measured_per_arm(self):
         _, event = self.run_eval(self.improving_cases(), clock=FakeClock(0.001))
-        self.assertAlmostEqual(event.groups["target"]["challenger"].latency_p95_ms, 1.0, places=3)
+        self.assertAlmostEqual(
+            event.groups["target"]["challenger"].latency_p95_ms, 1.0, places=3
+        )
         self.assertEqual(event.resource_cost["compute_class"], "constant")
 
     def test_same_case_is_scored_by_both_arms(self):
@@ -131,9 +178,23 @@ class EvaluationRunnerTest(unittest.TestCase):
         self.assertEqual({len(shas) for shas in by_case.values()}, {2})
 
     def test_invalid_inputs_are_rejected(self):
-        wrong_scope = [EvaluationCase(replace(case(1, decision_expected_success=0.5), scope=OTHER_SCOPE), "target")]
+        wrong_scope = [
+            EvaluationCase(
+                replace(case(1, decision_expected_success=0.5), scope=OTHER_SCOPE),
+                "target",
+            )
+        ]
         duplicate = group("t", 1, "target", 0.5, "failure") * 2
-        for cases, code in ((wrong_scope, "scope_mismatch"), (duplicate, "duplicate_case"), (["x"], "invalid_case")):
+        shared = group("s", 1, "target", 0.5, "failure") + [
+            EvaluationCase(item.case, "regression")
+            for item in group("s", 1, "target", 0.5, "failure")
+        ]
+        for cases, code in (
+            (wrong_scope, "scope_mismatch"),
+            (duplicate, "duplicate_case"),
+            (shared, "duplicate_case"),
+            (["x"], "invalid_case"),
+        ):
             with self.subTest(code=code), self.assertRaises(EvaluationError) as context:
                 self.run_eval(cases)
             self.assertEqual(context.exception.code, code)
@@ -147,13 +208,19 @@ class EvaluationRunnerTest(unittest.TestCase):
             registry = ChampionRegistry(Path(directory) / "registry.json")
             registry.initialize(DECISION, at=TIME)
             evaluation, _ = self.run_eval(self.improving_cases())
-            decision = registry.decide(self.artifact, evaluation, PromotionCriteria(), at=LATER)
+            decision = registry.decide(
+                self.artifact, evaluation, PromotionCriteria(), at=LATER
+            )
             self.assertTrue(decision.promoted)
-            regress = group("t", 12, "target", 0.5, "failure") + group("r", 12, "regression", 0.5, "success")
+            regress = group("t", 12, "target", 0.5, "failure") + group(
+                "r", 12, "regression", 0.5, "success"
+            )
             registry2 = ChampionRegistry(Path(directory) / "registry2.json")
             registry2.initialize(DECISION, at=TIME)
             bad, _ = self.run_eval(regress)
-            rejected = registry2.decide(self.artifact, bad, PromotionCriteria(), at=LATER)
+            rejected = registry2.decide(
+                self.artifact, bad, PromotionCriteria(), at=LATER
+            )
             self.assertEqual(rejected.reasons, ("regression",))
 
 
@@ -161,8 +228,12 @@ class EvaluationEventStorageTest(unittest.TestCase):
     def setUp(self):
         proposal = proposals_for(overconfident(1, 2, 3)).proposals[0]
         artifact = build_challenger(proposal, DECISION, created_at=TIME)
-        cases = group("t", 12, "target", 0.5, "failure") + group("r", 12, "regression", 0.9, "success")
-        _, self.event = evaluate_candidate(artifact, cases, POLICY, evaluation_ref="eval.one", evaluated_at=EVALUATED)
+        cases = group("t", 12, "target", 0.5, "failure") + group(
+            "r", 12, "regression", 0.9, "success"
+        )
+        _, self.event = evaluate_candidate(
+            artifact, cases, POLICY, evaluation_ref="eval.one", evaluated_at=EVALUATED
+        )
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
         self.store = FileSystemArtifactStore(Path(self.directory.name))
@@ -182,7 +253,9 @@ class EvaluationEventStorageTest(unittest.TestCase):
             type(self.event).from_dict(value)
 
     def test_event_is_json_stable(self):
-        self.assertEqual(json.dumps(self.event.to_dict()), json.dumps(self.event.to_dict()))
+        self.assertEqual(
+            json.dumps(self.event.to_dict()), json.dumps(self.event.to_dict())
+        )
         self.assertTrue(self.event.to_dict()["event_id"].startswith("evaluation."))
 
 

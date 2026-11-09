@@ -20,11 +20,18 @@ from ai_game_player.challenger_evaluation_models import (
     EvaluationPolicy,
 )
 from ai_game_player.challenger_promotion_models import CandidateEvaluation
-from ai_game_player.challenger_update_models import ChallengerArtifact, ComponentParameters, canonical
+from ai_game_player.challenger_update_models import (
+    ChallengerArtifact,
+    ComponentParameters,
+    canonical,
+)
 
 MAX_EVENT_BYTES = 256 * 1024
 EVENT_ARTIFACT_TYPE = "learning.evaluation_event"
-SIGNAL_FIELDS = {"decision": "decision_expected_success", "recognition": "recognition_reliability"}
+SIGNAL_FIELDS = {
+    "decision": "decision_expected_success",
+    "recognition": "recognition_reliability",
+}
 
 
 # {
@@ -37,17 +44,20 @@ def predict_accept(parameters: ComponentParameters, case: Any) -> bool:
     signal = getattr(case, SIGNAL_FIELDS[parameters.component])
     if signal is None:
         raise ValueError("case has no signal for this component")
-    return min(signal * parameters.confidence_scale, 1.0) >= parameters.acceptance_threshold
+    return (
+        min(signal * parameters.confidence_scale, 1.0)
+        >= parameters.acceptance_threshold
+    )
 
 
 # {
 #   責務: [evaluate_candidate: 同じ症例でChampionとChallengerを採点し、#171向けの評価と保存用Eventを返す]
 #   処理: [1: 入力(artifact型・component・scope・群・重複)を検査, 2: 各症例を両armで採点(確定ラベルが無い症例は採点対象外),
-#     3: 例外・時間超過は誤り扱いで母数に含める, 4: 群×armで集計, 5: 改善・回帰・資源から学習Level信号を決める]
+#     3: 例外(型を問わずException)・時間超過は誤り扱いで母数に含める(同期callableは途中で強制停止できず、wall-clock上限は呼出側のworker/processで強制する), 4: 群×armで集計, 5: 改善・回帰・資源から学習Level信号を決める]
 #   引数: [artifact: #170のChallenger, cases: 群つき症例, policy: 方針, evaluation_ref/evaluated_at: 識別子と測り終えた時刻,
 #     predictor: 採点関数(試験用に差替え可), clock: 秒を返す時計(試験用に差替え可)]
 #   戻り値: [tuple[CandidateEvaluation, EvaluationEvent]]
-#   エラー: [EvaluationError: invalid_case/scope_mismatch/duplicate_case/invalid_artifact]
+#   エラー: [EvaluationError: invalid_case/scope_mismatch/duplicate_case(同一refの重複。群をまたぐものも含む)/invalid_artifact]
 # }
 def evaluate_candidate(
     artifact: ChallengerArtifact,
@@ -60,14 +70,24 @@ def evaluate_candidate(
     clock: Callable[[], float] = time.perf_counter,
 ) -> tuple[CandidateEvaluation, EvaluationEvent]:
     if type(artifact) is not ChallengerArtifact or type(policy) is not EvaluationPolicy:
-        raise EvaluationError("invalid_artifact", "artifact and policy must be typed values")
+        raise EvaluationError(
+            "invalid_artifact", "artifact and policy must be typed values"
+        )
     if artifact.parent.component not in SIGNAL_FIELDS:
-        raise EvaluationError("invalid_artifact", "this component has no evaluable signal")
+        raise EvaluationError(
+            "invalid_artifact", "this component has no evaluable signal"
+        )
     _check_cases(artifact, cases)
     arms = {"champion": artifact.parent, "challenger": artifact.challenger}
     summaries = {
         group: {
-            name: _summarize(parameters, [c.case for c in cases if c.group == group], policy, predictor, clock)
+            name: _summarize(
+                parameters,
+                [c.case for c in cases if c.group == group],
+                policy,
+                predictor,
+                clock,
+            )
             for name, parameters in arms.items()
         }
         for group in GROUPS
@@ -94,7 +114,9 @@ def evaluate_candidate(
         champion_sha256=artifact.parent.sha256,
         challenger_sha256=artifact.challenger.sha256,
         target_cases=min(target["champion"].scored, target["challenger"].scored),
-        regression_cases=min(regression["champion"].scored, regression["challenger"].scored),
+        regression_cases=min(
+            regression["champion"].scored, regression["challenger"].scored
+        ),
         target_baseline=target["champion"].accuracy,
         target_candidate=target["challenger"].accuracy,
         regression_baseline=regression["champion"].accuracy,
@@ -108,13 +130,20 @@ def evaluate_candidate(
 #   処理: [正規化JSONを上限内で保存する] 引数: [store: 保存先, event: 評価Event] 戻り値: [ArtifactReference]
 #   エラー: [EvaluationError: invalid_event(型不正・上限超過)]
 # }
-def save_evaluation_event(store: FileSystemArtifactStore, event: EvaluationEvent) -> ArtifactReference:
+def save_evaluation_event(
+    store: FileSystemArtifactStore, event: EvaluationEvent
+) -> ArtifactReference:
     if type(event) is not EvaluationEvent:
         raise EvaluationError("invalid_event", "event type is invalid")
     payload = canonical(event.to_dict())
     if len(payload) > MAX_EVENT_BYTES:
         raise EvaluationError("invalid_event", "event is too large")
-    return store.put(payload, media_type="application/json", artifact_type=EVENT_ARTIFACT_TYPE, sensitive=False)
+    return store.put(
+        payload,
+        media_type="application/json",
+        artifact_type=EVENT_ARTIFACT_TYPE,
+        sensitive=False,
+    )
 
 
 # {
@@ -123,10 +152,20 @@ def save_evaluation_event(store: FileSystemArtifactStore, event: EvaluationEvent
 #   引数: [store: 保存先, reference: save_evaluation_eventの参照] 戻り値: [EvaluationEvent]
 #   エラー: [EvaluationError: invalid_event, OSError: 読取失敗]
 # }
-def load_evaluation_event(store: FileSystemArtifactStore, reference: ArtifactReference) -> EvaluationEvent:
+def load_evaluation_event(
+    store: FileSystemArtifactStore, reference: ArtifactReference
+) -> EvaluationEvent:
     try:
-        payload = store.read_bounded(reference, max_bytes=MAX_EVENT_BYTES, expected_artifact_type=EVENT_ARTIFACT_TYPE)
-        value = json.loads(payload.decode("utf-8"), object_pairs_hook=_unique_object, parse_constant=_reject_constant)
+        payload = store.read_bounded(
+            reference,
+            max_bytes=MAX_EVENT_BYTES,
+            expected_artifact_type=EVENT_ARTIFACT_TYPE,
+        )
+        value = json.loads(
+            payload.decode("utf-8"),
+            object_pairs_hook=_unique_object,
+            parse_constant=_reject_constant,
+        )
     except (ValueError, UnicodeDecodeError) as error:
         raise EvaluationError("invalid_event", str(error)) from error
     return EvaluationEvent.from_dict(value)
@@ -138,11 +177,16 @@ def _check_cases(artifact: ChallengerArtifact, cases: Sequence[EvaluationCase]) 
         if type(item) is not EvaluationCase:
             raise EvaluationError("invalid_case", "cases must be EvaluationCase values")
         if item.case.scope != artifact.parent.scope:
-            raise EvaluationError("scope_mismatch", "case scope differs from the artifact scope")
-        key = (item.group, item.case.ref)
-        if key in seen:
-            raise EvaluationError("duplicate_case", "the same case appears twice in one group")
-        seen.add(key)
+            raise EvaluationError(
+                "scope_mismatch", "case scope differs from the artifact scope"
+            )
+        # targetとregressionは独立した改善/回帰検査なので、同じ症例をどちらにも置かせない(検証データ漏洩と件数の二重計上を防ぐ)。
+        if item.case.ref in seen:
+            raise EvaluationError(
+                "duplicate_case",
+                "the same case appears twice (in one group or across groups)",
+            )
+        seen.add(item.case.ref)
 
 
 def _summarize(
@@ -163,7 +207,7 @@ def _summarize(
         started = clock()
         try:
             accepted = predictor(parameters, case)
-        except (ValueError, TypeError, ArithmeticError):
+        except Exception:  # noqa: BLE001  # 型を問わず誤り扱いで母数へ残す。KeyboardInterrupt/SystemExitはBaseExceptionなので握り潰さない。
             failed += 1
             latencies.append((clock() - started) * 1000)
             continue
@@ -173,12 +217,23 @@ def _summarize(
             failed += 1  # 時間超過は誤り扱いにして母数へ含める
         elif accepted == label:
             correct += 1
-    return ArmSummary(scored, correct, failed, unscorable, correct / scored if scored else 0.0, _p95(latencies))
+    return ArmSummary(
+        scored,
+        correct,
+        failed,
+        unscorable,
+        correct / scored if scored else 0.0,
+        _p95(latencies),
+    )
 
 
 def _label(case: Any) -> bool | None:
     """確定ラベル(verified_effect)で成功/失敗が決まる症例だけ、成功ならTrueを返す。"""
-    if case.label_status != "verified_effect" or case.outcome_conflict or case.outcome_abstained:
+    if (
+        case.label_status != "verified_effect"
+        or case.outcome_conflict
+        or case.outcome_abstained
+    ):
         return None
     if case.outcome == "success":
         return True
@@ -194,11 +249,15 @@ def _p95(values: list[float]) -> float:
     return round(ordered[min(len(ordered) - 1, math.ceil(0.95 * len(ordered)) - 1)], 6)
 
 
-def _signal(summaries: dict[str, dict[str, ArmSummary]], policy: EvaluationPolicy) -> tuple[str, tuple[str, ...]]:
+def _signal(
+    summaries: dict[str, dict[str, ArmSummary]], policy: EvaluationPolicy
+) -> tuple[str, tuple[str, ...]]:
     target, regression = summaries["target"], summaries["regression"]
     scored = min(
-        target["champion"].scored, target["challenger"].scored,
-        regression["champion"].scored, regression["challenger"].scored,
+        target["champion"].scored,
+        target["challenger"].scored,
+        regression["champion"].scored,
+        regression["challenger"].scored,
     )
     drop = round(regression["champion"].accuracy - regression["challenger"].accuracy, 9)
     gain = round(target["challenger"].accuracy - target["champion"].accuracy, 9)
