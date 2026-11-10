@@ -92,6 +92,7 @@ class TkAfterScheduler:
 #     window_selection_status_var: 対象windowの候補と選択状態を説明する表示
 #     live_execution: 実入力の許可状態
 #     live_execution_toggle: Sessionの実行中に実入力設定を変更できないことを示すcheckbox
+#     run_button: 1ステップだけモデル推論と候補評価を行う判断ボタン
 #     resume_button: 停止状態を解除して実行世代を更新する再開ボタン
 #     _session_dry_run: 現在のSessionが開始時に固定した入力モード
 #     capture_mode/capture_region_x/y/width/height: capture方式とfixed/normalized ROIの入力値
@@ -123,8 +124,9 @@ class Application:
     #     7: 任意入力の操作候補JSONと、候補評価の表示欄を作る
     #     8: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
     #     9: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
-    #     10: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
-#     11: 再開ボタンへ共通ToolTipを接続し、停止解除と実行世代更新（re-arm）の役割を案内する
+#     10: 1ステップ判断ボタンへ共通ToolTipを接続し、実入力を伴わない単独推論・候補評価の役割を案内する
+#     11: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
+#     12: 再開ボタンへ共通ToolTipを接続し、停止解除と実行世代更新（re-arm）の役割を案内する
     #   ]
     #   引数: [
     #     root: UIを配置する、作成済みのTkルートウィンドウ
@@ -301,7 +303,14 @@ class Application:
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
         StopHelpHint(frame).pack(anchor=tk.W, fill=tk.X)
-        ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
+        self.run_button = ttk.Button(
+            controls, text="1ステップ判断（操作は実行しない）", command=self.run
+        )
+        self.run_button.pack(side=tk.LEFT)
+        ToolTip(
+            self.run_button,
+            "現在の画面観測と候補からAIの次の一手を1ステップだけ推論・評価します。ゲームへの実入力は行われません。",
+        )
         self.execute_button = ttk.Button(controls, command=self.run_and_execute)
         self.execute_button.pack(side=tk.LEFT, padx=6)
         self.loop_button = ttk.Button(controls, command=self.start_loop)

@@ -36,15 +36,22 @@ class LiveInputToolTipTests(unittest.TestCase):
             application = Application(root, observation_service=SimpleNamespace())
             root.geometry("1120x760+30000+30000")
             root.update()
-            self.assertEqual(len(tooltips), 3)
+            self.assertEqual(len(tooltips), 4)
             refresh_tooltip = tooltips[0]
             tooltip = tooltips[1]
-            resume_tooltip = tooltips[2]
+            run_tooltip = tooltips[2]
+            resume_tooltip = tooltips[3]
             self.assertIs(refresh_tooltip.widget, application.refresh_windows_button)
             self.assertEqual(refresh_tooltip.delay_ms, 400)
             self.assertEqual(
                 refresh_tooltip.text,
                 "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。",
+            )
+            self.assertIs(run_tooltip.widget, application.run_button)
+            self.assertEqual(run_tooltip.delay_ms, 400)
+            self.assertEqual(
+                run_tooltip.text,
+                "現在の画面観測と候補からAIの次の一手を1ステップだけ推論・評価します。ゲームへの実入力は行われません。",
             )
             self.assertIs(resume_tooltip.widget, application.resume_button)
             self.assertEqual(resume_tooltip.delay_ms, 400)
@@ -118,6 +125,49 @@ class LiveInputToolTipTests(unittest.TestCase):
             root.update()
             button = application.refresh_windows_button
             expected = "起動中のウィンドウ一覧を取得・更新します。対象ウィンドウを起動または再起動した後に押してください。"
+
+            for event, end_event in (
+                ("<Enter>", "<Leave>"),
+                ("<FocusIn>", "<FocusOut>"),
+            ):
+                button.event_generate(event)
+                root.after(450, root.quit)
+                root.mainloop()
+                popup = next(
+                    (
+                        child
+                        for child in button.winfo_children()
+                        if isinstance(child, tk.Toplevel)
+                    ),
+                    None,
+                )
+                self.assertIsNotNone(popup)
+                self.assertTrue(popup.winfo_viewable())
+                self.assertEqual(popup.winfo_children()[0].cget("text"), expected)
+                button.event_generate(end_event)
+                self.assertFalse(popup.winfo_exists())
+
+    def test_run_button_tooltip_shows_on_hover_and_focus(self):
+        try:
+            root = tk.Tk()
+        except tk.TclError as error:
+            self.skipTest(f"Tk desktop is unavailable: {error}")
+        self.addCleanup(root.destroy)
+        with (
+            patch("ai_game_player.app.ConfigStore.load", return_value=AppConfig()),
+            patch("ai_game_player.app.ShellStateStore.load", return_value=ShellState()),
+            patch("ai_game_player.app.RuntimeLog"),
+            patch.object(Application, "refresh_windows"),
+            patch.object(Application, "_poll_global_stop"),
+            patch.object(Application, "_poll_background_results"),
+        ):
+            application = Application(root, observation_service=SimpleNamespace())
+            root.geometry("1120x960+30000+30000")
+            root.update()
+            button = application.run_button
+            expected = (
+                "現在の画面観測と候補からAIの次の一手を1ステップだけ推論・評価します。ゲームへの実入力は行われません。"
+            )
 
             for event, end_event in (
                 ("<Enter>", "<Leave>"),
