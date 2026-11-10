@@ -16,6 +16,8 @@
 
 **初めて読む方へ：** [初めて読む人向けの日本語案内](doc/guide/README.md)から、操作の流れ・安全確認・モデルの使われる場所を図で確認できます。専門用語は[用語集](doc/guide/terms.md)にまとめています。
 
+**設計を読む：** [既存・将来の統合設計マップ](doc/architecture/system_design_map.md)から、[汎用Goal／評価関数v2](doc/architecture/generic_evaluation_v2.md)、[賢者ミスクの自己進化Reasoner](doc/architecture/self_evolving_reasoner.md)、[数値コマンド・表計算・自己生成探索](doc/architecture/reasoner_compute_and_search.md)へ進めます。これらの新設ページは**設計と受入条件**であり、全機能が実装済みという意味ではありません。
+
 主要コードは[`src/ai_game_player/`](src/ai_game_player/)にあります。観測、判断、安全評価、入力、記録の実装を調べる開発者は、[Python実装の読み方と責務別の入口](src/ai_game_player/README.md)から読み始めてください。
 
 - [現在の機能と制約](key_info.md)
