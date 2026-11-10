@@ -81,6 +81,8 @@ class CandidateMerger:
             # 上限超過は無制限のO(n^2)比較を避け、全候補を保留する
             return CandidateMergeReport(reason=REASON_CAPACITY)
         result: list[tuple[CandidateView, set[str], list[str]]] = []
+        # 統合済みグループの全メンバーの証拠（代表だけでなく全員と照合するため）
+        members: list[list[CandidateIdentity]] = []
         rejected: list[tuple[ActionCandidate, str]] = []
         comparisons = 0
         groups = (("automation", automation), ("ocr", ocr), ("image", image))
@@ -93,14 +95,25 @@ class CandidateMerger:
                 incoming_identity = self._identity(incoming, context)
                 duplicate = None
                 ambiguous = False
-                for index, (existing, _sources, _ids) in enumerate(result):
-                    comparisons += 1
-                    grounding = ground_pair(
-                        self._identity(existing, context),
-                        incoming_identity,
-                        self.proximity,
-                        self.iou_threshold,
-                    )
+                for index in range(len(result)):
+                    pairs = set()
+                    for member in members[index]:
+                        comparisons += 1
+                        pairs.add(
+                            ground_pair(
+                                member,
+                                incoming_identity,
+                                self.proximity,
+                                self.iou_threshold,
+                            )
+                        )
+                    # 全メンバーを確認し、1つでもSAME以外があれば統合せず曖昧として保留する
+                    if pairs == {Grounding.SAME}:
+                        grounding = Grounding.SAME
+                    elif Grounding.SAME in pairs or Grounding.AMBIGUOUS in pairs:
+                        grounding = Grounding.AMBIGUOUS
+                    else:
+                        grounding = Grounding.DIFFERENT
                     if grounding is Grounding.SAME:
                         duplicate = index
                         break
@@ -110,6 +123,7 @@ class CandidateMerger:
                         rejected.append((incoming[0], REASON_AMBIGUOUS))
                         continue
                     result.append((incoming, {group}, [incoming[0].action_id]))
+                    members.append([incoming_identity])
                     continue
                 existing, existing_sources, existing_ids = result[duplicate]
                 ids = (
@@ -121,6 +135,7 @@ class CandidateMerger:
                     incoming if self._prefer(incoming, existing) else existing
                 )
                 result[duplicate] = (representative, existing_sources | {group}, ids)
+                members[duplicate].append(incoming_identity)
         # 代表IDだけでなく統合された全元IDで衝突を判定する
         counts: dict[str, int] = {}
         for _view, _sources, ids in result:
