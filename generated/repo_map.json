@@ -119651,6 +119651,200 @@
       ]
     },
     {
+      "dependencies": [],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "subprocess",
+          "names": [
+            {
+              "alias": null,
+              "name": "subprocess"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "sys",
+          "names": [
+            {
+              "alias": null,
+              "name": "sys"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_babysit_skill_contract",
+      "path": "tests/test_babysit_skill_contract.py",
+      "source_location": {
+        "end_line": 52,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "unittest.skipUnless(DIGEST.is_file(), REDACTED)"
+          ],
+          "kind": "class",
+          "name": "BabysitSkillContractTest",
+          "parameters": [],
+          "qualified_name": "BabysitSkillContractTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 48,
+            "start_line": 18
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "skill_text",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BabysitSkillContractTest.skill_text",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 22,
+            "start_line": 21
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "digest_flags",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BabysitSkillContractTest.digest_flags",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 34,
+            "start_line": 24
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_every_flag_the_skill_passes_to_pr_digest_exists",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BabysitSkillContractTest.test_every_flag_the_skill_passes_to_pr_digest_exists",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 43,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_the_skill_states_the_limits_of_the_digest",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "BabysitSkillContractTest.test_the_skill_states_the_limits_of_the_digest",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 48,
+            "start_line": 45
+          }
+        }
+      ]
+    },
+    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.baseline_provider",
@@ -193777,259 +193971,6 @@
       ]
     },
     {
-      "dependencies": [],
-      "imports": [
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 1,
-          "local_dependencies": [],
-          "module": "importlib.util",
-          "names": [
-            {
-              "alias": null,
-              "name": "importlib.util"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 2,
-          "local_dependencies": [],
-          "module": "unittest",
-          "names": [
-            {
-              "alias": null,
-              "name": "unittest"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 3,
-          "local_dependencies": [],
-          "module": "pathlib",
-          "names": [
-            {
-              "alias": null,
-              "name": "Path"
-            }
-          ]
-        }
-      ],
-      "module": "tests.test_pr_digest",
-      "path": "tests/test_pr_digest.py",
-      "source_location": {
-        "end_line": 76,
-        "start_line": 1
-      },
-      "symbols": [
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "comment",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "identifier"
-            },
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "login"
-            },
-            {
-              "annotation": null,
-              "has_default": true,
-              "kind": "positional_or_keyword",
-              "name": "body"
-            },
-            {
-              "annotation": null,
-              "has_default": true,
-              "kind": "positional_or_keyword",
-              "name": "reply_to"
-            }
-          ],
-          "qualified_name": "comment",
-          "return_annotation": null,
-          "signature": "(identifier, login, body = …, reply_to = …)",
-          "source_location": {
-            "column": 0,
-            "end_line": 23,
-            "start_line": 19
-          }
-        },
-        {
-          "bases": [
-            "unittest.TestCase"
-          ],
-          "data_model": {
-            "dataclass": false,
-            "enum": false,
-            "protocol": false
-          },
-          "decorators": [],
-          "kind": "class",
-          "name": "PrDigestTest",
-          "parameters": [],
-          "qualified_name": "PrDigestTest",
-          "return_annotation": null,
-          "signature": null,
-          "source_location": {
-            "column": 0,
-            "end_line": 72,
-            "start_line": 26
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_check_counts_and_failed_names",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "PrDigestTest.test_check_counts_and_failed_names",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 35,
-            "start_line": 27
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_headline_skips_analysis_logs",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "PrDigestTest.test_headline_skips_analysis_logs",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 39,
-            "start_line": 37
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_bold_conclusion_wins_over_noisy_lines",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "PrDigestTest.test_bold_conclusion_wins_over_noisy_lines",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 43,
-            "start_line": 41
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_headline_is_bounded_and_has_a_fallback",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "PrDigestTest.test_headline_is_bounded_and_has_a_fallback",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 47,
-            "start_line": 45
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_findings_track_human_replies_only",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "PrDigestTest.test_findings_track_human_replies_only",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 57,
-            "start_line": 49
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "method",
-          "name": "test_pagination_stops_on_a_short_page_and_fails_when_incomplete",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "self"
-            }
-          ],
-          "qualified_name": "PrDigestTest.test_pagination_stops_on_a_short_page_and_fails_when_incomplete",
-          "return_annotation": null,
-          "signature": "(self)",
-          "source_location": {
-            "column": 4,
-            "end_line": 72,
-            "start_line": 59
-          }
-        }
-      ]
-    },
-    {
       "dependencies": [
         "ai_game_player",
         "ai_game_player.fail_safe_runtime",
@@ -265796,286 +265737,6 @@
             "column": 0,
             "end_line": 156,
             "start_line": 70
-          }
-        }
-      ]
-    },
-    {
-      "dependencies": [],
-      "imports": [
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 9,
-          "local_dependencies": [],
-          "module": "argparse",
-          "names": [
-            {
-              "alias": null,
-              "name": "argparse"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 10,
-          "local_dependencies": [],
-          "module": "json",
-          "names": [
-            {
-              "alias": null,
-              "name": "json"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 11,
-          "local_dependencies": [],
-          "module": "re",
-          "names": [
-            {
-              "alias": null,
-              "name": "re"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 12,
-          "local_dependencies": [],
-          "module": "subprocess",
-          "names": [
-            {
-              "alias": null,
-              "name": "subprocess"
-            }
-          ]
-        },
-        {
-          "kind": "import",
-          "level": 0,
-          "line": 13,
-          "local_dependencies": [],
-          "module": "sys",
-          "names": [
-            {
-              "alias": null,
-              "name": "sys"
-            }
-          ]
-        }
-      ],
-      "module": "tools.pr_digest",
-      "path": "tools/pr_digest.py",
-      "source_location": {
-        "end_line": 139,
-        "start_line": 1
-      },
-      "symbols": [
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "gh_json",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "args"
-            }
-          ],
-          "qualified_name": "gh_json",
-          "return_annotation": null,
-          "signature": "(args)",
-          "source_location": {
-            "column": 0,
-            "end_line": 25,
-            "start_line": 22
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "fetch_pages",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "repo"
-            },
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "path"
-            },
-            {
-              "annotation": null,
-              "has_default": true,
-              "kind": "positional_or_keyword",
-              "name": "key"
-            }
-          ],
-          "qualified_name": "fetch_pages",
-          "return_annotation": null,
-          "signature": "(repo, path, key = …)",
-          "source_location": {
-            "column": 0,
-            "end_line": 38,
-            "start_line": 28
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "count_checks",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "check_runs"
-            }
-          ],
-          "qualified_name": "count_checks",
-          "return_annotation": null,
-          "signature": "(check_runs)",
-          "source_location": {
-            "column": 0,
-            "end_line": 50,
-            "start_line": 41
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "headline",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "body"
-            }
-          ],
-          "qualified_name": "headline",
-          "return_annotation": null,
-          "signature": "(body)",
-          "source_location": {
-            "column": 0,
-            "end_line": 68,
-            "start_line": 53
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "severity",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "body"
-            }
-          ],
-          "qualified_name": "severity",
-          "return_annotation": null,
-          "signature": "(body)",
-          "source_location": {
-            "column": 0,
-            "end_line": 73,
-            "start_line": 71
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "inline_findings",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "comments"
-            }
-          ],
-          "qualified_name": "inline_findings",
-          "return_annotation": null,
-          "signature": "(comments)",
-          "source_location": {
-            "column": 0,
-            "end_line": 94,
-            "start_line": 76
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "digest",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "repo"
-            },
-            {
-              "annotation": null,
-              "has_default": false,
-              "kind": "positional_or_keyword",
-              "name": "number"
-            }
-          ],
-          "qualified_name": "digest",
-          "return_annotation": null,
-          "signature": "(repo, number)",
-          "source_location": {
-            "column": 0,
-            "end_line": 114,
-            "start_line": 97
-          }
-        },
-        {
-          "bases": [],
-          "data_model": null,
-          "decorators": [],
-          "kind": "function",
-          "name": "main",
-          "parameters": [
-            {
-              "annotation": null,
-              "has_default": true,
-              "kind": "positional_or_keyword",
-              "name": "argv"
-            }
-          ],
-          "qualified_name": "main",
-          "return_annotation": null,
-          "signature": "(argv = …)",
-          "source_location": {
-            "column": 0,
-            "end_line": 135,
-            "start_line": 117
           }
         }
       ]
