@@ -14,6 +14,7 @@ from ai_game_player.challenger_evaluation_models import (
     EvaluationCase,
     EvaluationError,
     EvaluationPolicy,
+    PredictionInput,
 )
 from ai_game_player.challenger_promotion import ChampionRegistry
 from ai_game_player.challenger_promotion_models import PromotionCriteria
@@ -168,7 +169,7 @@ class EvaluationRunnerTest(unittest.TestCase):
         seen = []
 
         def predictor(parameters, scored_case):
-            seen.append((id(scored_case), parameters.sha256))
+            seen.append((scored_case.ref, parameters.sha256))
             return True
 
         self.run_eval(self.improving_cases()[:2], predictor=predictor)
@@ -222,6 +223,154 @@ class EvaluationRunnerTest(unittest.TestCase):
                 self.artifact, bad, PromotionCriteria(), at=LATER
             )
             self.assertEqual(rejected.reasons, ("regression",))
+
+
+class PrototypeEvaluationTest(unittest.TestCase):
+    """prototypeだけ違うChallengerを、改善0と測らず評価不能として扱う(オーナーレビューのP1)。"""
+
+    def setUp(self):
+        proposals = proposals_for(overconfident(1, 2, 3)).proposals
+        self.artifact = build_challenger(proposals[1], DECISION, created_at=TIME)
+        self.assertEqual(self.artifact.proposal.strategy, "prototype")
+        self.assertEqual(
+            self.artifact.challenger.confidence_scale,
+            self.artifact.parent.confidence_scale,
+        )
+        self.assertEqual(
+            self.artifact.challenger.acceptance_threshold,
+            self.artifact.parent.acceptance_threshold,
+        )
+        # case(1..3)はprototypeの参照と同じref。負例と同じ症例は、prototype付きなら不採用になるべき。
+        self.cases = (
+            [
+                EvaluationCase(
+                    case(n, decision_expected_success=0.9, outcome="failure"), "target"
+                )
+                for n in (1, 2, 3)
+            ]
+            + group("t", 9, "target", 0.9, "success")
+            + group("r", 12, "regression", 0.9, "success")
+        )
+
+    def evaluate(self, **kwargs):
+        return evaluate_candidate(
+            self.artifact,
+            self.cases,
+            POLICY,
+            evaluation_ref="eval.proto",
+            evaluated_at=EVALUATED,
+            **kwargs,
+        )
+
+    def test_the_builtin_predictor_cannot_tell_a_prototype_only_challenger_apart(self):
+        # 根拠: 組込みの採点は全症例でChampionと同じ予測になる(だから「改善0」と測ってはいけない)。
+        from ai_game_player.challenger_evaluation import predict_accept
+
+        for item in self.cases:
+            self.assertEqual(
+                predict_accept(self.artifact.parent, item.case),
+                predict_accept(self.artifact.challenger, item.case),
+            )
+
+    def test_unsupported_evaluation_is_held_and_never_promotable(self):
+        calls = []
+
+        def spy(_parameters, _case):
+            calls.append(1)
+            return True
+
+        evaluation, event = self.evaluate(predictor=spy)
+        self.assertEqual(calls, [])
+        self.assertEqual(
+            (event.signal, event.reasons), ("hold", ("unsupported_evaluation",))
+        )
+        self.assertEqual((evaluation.target_cases, evaluation.regression_cases), (0, 0))
+        target = event.groups["target"]["challenger"]
+        self.assertEqual(
+            (target.scored, target.correct, target.failed, target.unscorable),
+            (0, 0, 0, 12),
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            registry = ChampionRegistry(Path(directory) / "registry.json")
+            registry.initialize(DECISION, at=TIME)
+            decision = registry.decide(
+                self.artifact, evaluation, PromotionCriteria(), at=LATER
+            )
+            self.assertFalse(decision.promoted)
+            self.assertIn("insufficient_target_cases", decision.reasons)
+
+    def test_unsupported_event_round_trips_through_storage(self):
+        _, event = self.evaluate()
+        with tempfile.TemporaryDirectory() as directory:
+            store = FileSystemArtifactStore(Path(directory))
+            reference = save_evaluation_event(store, event)
+            self.assertEqual(load_evaluation_event(store, reference), event)
+
+    def test_a_prototype_aware_predictor_measures_the_negative_reference_effect(self):
+        def predictor(parameters, scored):
+            # 負例prototypeと同じ症例は不採用、それ以外は信号が0.5以上なら採用。
+            if scored.ref in {item.ref for item in parameters.prototypes}:
+                return False
+            return scored.decision_expected_success >= parameters.acceptance_threshold
+
+        evaluation, event = self.evaluate(
+            predictor=predictor,
+            evaluable_strategies=("calibration", "threshold", "prototype"),
+        )
+        self.assertEqual(event.reasons, ("improved_without_regression",))
+        champion = event.groups["target"]["champion"]
+        challenger = event.groups["target"]["challenger"]
+        self.assertGreater(challenger.accuracy, champion.accuracy)
+        self.assertEqual((champion.correct, challenger.correct), (9, 12))
+        self.assertEqual(evaluation.target_cases, 12)
+
+    def test_a_threshold_candidate_is_still_evaluated_with_the_builtin_predictor(self):
+        proposals = proposals_for(overconfident(1, 2, 3)).proposals
+        artifact = build_challenger(proposals[0], DECISION, created_at=TIME)
+        self.assertNotEqual(artifact.proposal.strategy, "prototype")
+        evaluation, event = evaluate_candidate(
+            artifact,
+            group("t", 12, "target", 0.5, "failure")
+            + group("r", 12, "regression", 0.9, "success"),
+            POLICY,
+            evaluation_ref="eval.cal",
+            evaluated_at=EVALUATED,
+        )
+        self.assertEqual(evaluation.target_cases, 12)
+        self.assertNotIn("unsupported_evaluation", event.reasons)
+
+
+class PredictionInputSeparationTest(unittest.TestCase):
+    """予測の入力に正解ラベルを渡さない(ラベル漏洩の防止)。"""
+
+    def test_the_predictor_receives_signals_only_never_the_ground_truth(self):
+        proposal = proposals_for(overconfident(1, 2, 3)).proposals[0]
+        artifact = build_challenger(proposal, DECISION, created_at=TIME)
+        seen = []
+
+        def predictor(_parameters, scored):
+            seen.append(scored)
+            return True
+
+        evaluate_candidate(
+            artifact,
+            group("t", 12, "target", 0.5, "failure")
+            + group("r", 12, "regression", 0.9, "success"),
+            POLICY,
+            evaluation_ref="eval.leak",
+            evaluated_at=EVALUATED,
+            predictor=predictor,
+        )
+        self.assertTrue(seen)
+        for item in seen:
+            self.assertIsInstance(item, PredictionInput)
+            for forbidden in (
+                "outcome",
+                "label_status",
+                "outcome_conflict",
+                "outcome_abstained",
+            ):
+                self.assertFalse(hasattr(item, forbidden), forbidden)
 
 
 class EvaluationEventStorageTest(unittest.TestCase):

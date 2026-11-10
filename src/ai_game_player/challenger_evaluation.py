@@ -18,6 +18,7 @@ from ai_game_player.challenger_evaluation_models import (
     EvaluationError,
     EvaluationEvent,
     EvaluationPolicy,
+    PredictionInput,
 )
 from ai_game_player.challenger_promotion_models import CandidateEvaluation
 from ai_game_player.challenger_update_models import (
@@ -32,6 +33,11 @@ SIGNAL_FIELDS = {
     "decision": "decision_expected_success",
     "recognition": "recognition_reliability",
 }
+# 組込みの採点関数(predict_accept)が評価できるstrategy。prototype(負例参照の追加)はscale/thresholdを変えず、
+# predict_acceptはprototypesを参照しないため、prototypeだけ違うChallengerはChampionと必ず同じ予測になる。
+# それを「改善0」と測らず、評価不能として昇格を保留する。prototypeを使う採点関数を渡す時は、呼出側が"prototype"を含めて指定する。
+BUILTIN_EVALUABLE_STRATEGIES = ("calibration", "threshold")
+UNSUPPORTED_EVALUATION = "unsupported_evaluation"
 
 
 # {
@@ -55,7 +61,8 @@ def predict_accept(parameters: ComponentParameters, case: Any) -> bool:
 #   処理: [1: 入力(artifact型・component・scope・群・重複)を検査, 2: 各症例を両armで採点(確定ラベルが無い症例は採点対象外),
 #     3: 例外(型を問わずException)・時間超過は誤り扱いで母数に含める(同期callableは途中で強制停止できず、wall-clock上限は呼出側のworker/processで強制する), 4: 群×armで集計, 5: 改善・回帰・資源から学習Level信号を決める]
 #   引数: [artifact: #170のChallenger, cases: 群つき症例, policy: 方針, evaluation_ref/evaluated_at: 識別子と測り終えた時刻,
-#     predictor: 採点関数(試験用に差替え可), clock: 秒を返す時計(試験用に差替え可)]
+#     predictor: 採点関数(試験用に差替え可。予測用の入力PredictionInputだけを受け取り、正解ラベルは渡されない), clock: 秒を返す時計(試験用に差替え可),
+#     evaluable_strategies: predictorが評価できるstrategy。既定のpredict_acceptはprototypeを評価できないので、prototypeだけ違う候補は採点不可(unsupported_evaluation)として0件・holdで返す]
 #   戻り値: [tuple[CandidateEvaluation, EvaluationEvent]]
 #   エラー: [EvaluationError: invalid_case/scope_mismatch/duplicate_case(同一refの重複。群をまたぐものも含む)/invalid_artifact]
 # }
@@ -68,6 +75,7 @@ def evaluate_candidate(
     evaluated_at: str,
     predictor: Callable[[ComponentParameters, Any], bool] = predict_accept,
     clock: Callable[[], float] = time.perf_counter,
+    evaluable_strategies: Sequence[str] = BUILTIN_EVALUABLE_STRATEGIES,
 ) -> tuple[CandidateEvaluation, EvaluationEvent]:
     if type(artifact) is not ChallengerArtifact or type(policy) is not EvaluationPolicy:
         raise EvaluationError(
@@ -78,6 +86,14 @@ def evaluate_candidate(
             "invalid_artifact", "this component has no evaluable signal"
         )
     _check_cases(artifact, cases)
+    if not _is_evaluable(artifact, evaluable_strategies):
+        return _unsupported(
+            artifact,
+            cases,
+            policy,
+            evaluation_ref=evaluation_ref,
+            evaluated_at=evaluated_at,
+        )
     arms = {"champion": artifact.parent, "challenger": artifact.challenger}
     summaries = {
         group: {
@@ -206,7 +222,7 @@ def _summarize(
         scored += 1
         started = clock()
         try:
-            accepted = predictor(parameters, case)
+            accepted = predictor(parameters, _prediction_input(case))
         except Exception:  # noqa: BLE001  # 型を問わず誤り扱いで母数へ残す。KeyboardInterrupt/SystemExitはBaseExceptionなので握り潰さない。
             failed += 1
             latencies.append((clock() - started) * 1000)
@@ -225,6 +241,83 @@ def _summarize(
         correct / scored if scored else 0.0,
         _p95(latencies),
     )
+
+
+# {
+#   責務: [_prediction_input: 症例から予測に使う信号だけを取り出し、正解ラベルを渡さない入力にする]
+#   処理: [ref・decision/recognitionの信号だけを複写する] 引数: [case: #169の診断症例] 戻り値: [PredictionInput]
+# }
+def _prediction_input(case: Any) -> PredictionInput:
+    return PredictionInput(
+        ref=case.ref,
+        decision_expected_success=case.decision_expected_success,
+        recognition_reliability=case.recognition_reliability,
+    )
+
+
+# {
+#   責務: [_is_evaluable: 候補のstrategyと変更点を、採点関数が評価できるか判定する]
+#   処理: [strategyが対象外、またはprototypeが親と違うのにprototypeが対象外なら評価不能とする]
+#   引数: [artifact: Challenger, evaluable_strategies: 採点関数が評価できるstrategy] 戻り値: [bool]
+# }
+def _is_evaluable(
+    artifact: ChallengerArtifact, evaluable_strategies: Sequence[str]
+) -> bool:
+    if artifact.proposal.strategy not in evaluable_strategies:
+        return False
+    changes_prototypes = artifact.challenger.prototypes != artifact.parent.prototypes
+    return "prototype" in evaluable_strategies or not changes_prototypes
+
+
+# {
+#   責務: [_unsupported: 評価不能な候補を、改善0と測らず採点不可(0件・hold)として返す]
+#   処理: [全症例をunscorableとして数え、信号はhold・理由はunsupported_evaluation、#171向けの評価は0件にして昇格させない]
+#   引数: [artifact/cases/policy: 評価の入力, evaluation_ref/evaluated_at: 識別子と時刻] 戻り値: [tuple[CandidateEvaluation, EvaluationEvent]]
+# }
+def _unsupported(
+    artifact: ChallengerArtifact,
+    cases: Sequence[EvaluationCase],
+    policy: EvaluationPolicy,
+    *,
+    evaluation_ref: str,
+    evaluated_at: str,
+) -> tuple[CandidateEvaluation, EvaluationEvent]:
+    summaries = {
+        group: {
+            name: ArmSummary(
+                0, 0, 0, sum(1 for c in cases if c.group == group), 0.0, 0.0
+            )
+            for name in ("champion", "challenger")
+        }
+        for group in GROUPS
+    }
+    event = EvaluationEvent(
+        evaluation_ref=evaluation_ref,
+        evaluated_at=evaluated_at,
+        validation_state="offline",
+        artifact_id=artifact.artifact_id,
+        champion_sha256=artifact.parent.sha256,
+        challenger_sha256=artifact.challenger.sha256,
+        policy_fingerprint=policy.fingerprint,
+        groups=summaries,
+        resource_cost=artifact.resource_cost.to_dict(),
+        signal="hold",
+        reasons=(UNSUPPORTED_EVALUATION,),
+    )
+    evaluation = CandidateEvaluation(
+        evaluation_ref=evaluation_ref,
+        evaluated_at=evaluated_at,
+        artifact_id=artifact.artifact_id,
+        champion_sha256=artifact.parent.sha256,
+        challenger_sha256=artifact.challenger.sha256,
+        target_cases=0,
+        regression_cases=0,
+        target_baseline=0.0,
+        target_candidate=0.0,
+        regression_baseline=0.0,
+        regression_candidate=0.0,
+    )
+    return evaluation, event
 
 
 def _label(case: Any) -> bool | None:

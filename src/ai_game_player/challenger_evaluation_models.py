@@ -22,6 +22,17 @@ MAX_CASES = 1_000_000
 
 
 # {
+#   責務: [PredictionInput: 採点関数(predictor)に渡す予測用の入力。正解ラベル(outcome/label_status等)を含めず、予測と正解を分ける]
+#   フィールド: [ref: 症例の識別子, decision_expected_success/recognition_reliability: componentごとの較正対象の信号(無ければNone)]
+# }
+@dataclass(frozen=True, slots=True)
+class PredictionInput:
+    ref: str
+    decision_expected_success: float | None
+    recognition_reliability: float | None
+
+
+# {
 #   責務: [EvaluationError: 症例・方針・保存内容が契約に反することを機械可読な理由付きで伝える]
 #   フィールド: [code: invalid_case/scope_mismatch/duplicate_case/invalid_policy/invalid_artifact/invalid_event]
 # }
@@ -42,7 +53,9 @@ class EvaluationCase:
 
     def __post_init__(self) -> None:
         if type(self.case) is not DiagnosisCase or self.group not in GROUPS:
-            raise EvaluationError("invalid_case", "case must be a DiagnosisCase in a known group")
+            raise EvaluationError(
+                "invalid_case", "case must be a DiagnosisCase in a known group"
+            )
 
 
 # {
@@ -58,19 +71,34 @@ class EvaluationPolicy:
     case_latency_budget_ms: float = 50.0
 
     def __post_init__(self) -> None:
-        if type(self.min_scored_per_group) is not int or not 1 <= self.min_scored_per_group <= MAX_CASES:
-            raise EvaluationError("invalid_policy", "min_scored_per_group is out of range")
+        if (
+            type(self.min_scored_per_group) is not int
+            or not 1 <= self.min_scored_per_group <= MAX_CASES
+        ):
+            raise EvaluationError(
+                "invalid_policy", "min_scored_per_group is out of range"
+            )
         for name in ("min_gain", "regression_tolerance"):
             if not _ratio(getattr(self, name)):
-                raise EvaluationError("invalid_policy", f"{name} must be a ratio in [0, 1]")
+                raise EvaluationError(
+                    "invalid_policy", f"{name} must be a ratio in [0, 1]"
+                )
         budget = self.case_latency_budget_ms
-        if type(budget) not in (int, float) or not math.isfinite(budget) or not 0 < budget <= 60_000:
-            raise EvaluationError("invalid_policy", "case_latency_budget_ms is out of range")
+        if (
+            type(budget) not in (int, float)
+            or not math.isfinite(budget)
+            or not 0 < budget <= 60_000
+        ):
+            raise EvaluationError(
+                "invalid_policy", "case_latency_budget_ms is out of range"
+            )
 
     @property
     def fingerprint(self) -> str:
         body = {name: getattr(self, name) for name in self.__slots__}
-        return sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:16]
+        return sha256(
+            json.dumps(body, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()[:16]
 
 
 # {
@@ -90,11 +118,21 @@ class ArmSummary:
 
     def __post_init__(self) -> None:
         counts = (self.scored, self.correct, self.failed, self.unscorable)
-        if any(type(value) is not int or not 0 <= value <= MAX_CASES for value in counts):
+        if any(
+            type(value) is not int or not 0 <= value <= MAX_CASES for value in counts
+        ):
             raise EvaluationError("invalid_event", "counts are out of range")
-        if self.correct > self.scored or self.failed > self.scored or not _ratio(self.accuracy):
+        if (
+            self.correct > self.scored
+            or self.failed > self.scored
+            or not _ratio(self.accuracy)
+        ):
             raise EvaluationError("invalid_event", "summary is inconsistent")
-        if type(self.latency_p95_ms) not in (int, float) or not math.isfinite(self.latency_p95_ms) or self.latency_p95_ms < 0:
+        if (
+            type(self.latency_p95_ms) not in (int, float)
+            or not math.isfinite(self.latency_p95_ms)
+            or self.latency_p95_ms < 0
+        ):
             raise EvaluationError("invalid_event", "latency is invalid")
 
     def to_dict(self) -> dict[str, Any]:
@@ -130,10 +168,17 @@ class EvaluationEvent:
             or self.validation_state not in VALIDATION_STATES
             or self.signal not in SIGNALS
             or set(self.groups) != set(GROUPS)
-            or any(set(arms) != {"champion", "challenger"} for arms in self.groups.values())
-            or not all(re.fullmatch(r"[0-9a-f]{64}", value) for value in (self.champion_sha256, self.challenger_sha256))
+            or any(
+                set(arms) != {"champion", "challenger"} for arms in self.groups.values()
+            )
+            or not all(
+                re.fullmatch(r"[0-9a-f]{64}", value)
+                for value in (self.champion_sha256, self.challenger_sha256)
+            )
         ):
-            raise EvaluationError("invalid_event", "event fields do not match the contract")
+            raise EvaluationError(
+                "invalid_event", "event fields do not match the contract"
+            )
 
     def to_dict(self) -> dict[str, Any]:
         content = {
@@ -179,12 +224,20 @@ class EvaluationEvent:
         except (KeyError, TypeError, AttributeError) as error:
             raise EvaluationError("invalid_event", str(error)) from error
         if event.to_dict() != value:
-            raise EvaluationError("invalid_event", "event content does not match its digest")
+            raise EvaluationError(
+                "invalid_event", "event content does not match its digest"
+            )
         return event
 
 
 def digest(value: Any) -> str:
-    body = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False, ensure_ascii=False)
+    body = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+        ensure_ascii=False,
+    )
     return sha256(body.encode()).hexdigest()
 
 

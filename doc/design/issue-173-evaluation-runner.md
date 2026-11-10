@@ -12,7 +12,7 @@ Parent: #37（兄弟: #170 Challenger Update、#171 Promotion Gate）。最終�
 
 | 入口 | 役割 |
 |---|---|
-| `evaluate_candidate(artifact, cases, policy, *, evaluation_ref, evaluated_at, predictor=, clock=)` | `(CandidateEvaluation, EvaluationEvent)`を返す。副作用なし |
+| `evaluate_candidate(artifact, cases, policy, *, evaluation_ref, evaluated_at, predictor=, clock=, evaluable_strategies=)` | `(CandidateEvaluation, EvaluationEvent)`を返す。副作用なし |
 | `save_evaluation_event(store, event)` / `load_evaluation_event(store, reference)` | 内容hashの不変object（`artifact_type="learning.evaluation_event"`、256KiBまで）として保存・再検証して読込み |
 | `EvaluationCase(case, group)` | #169の`DiagnosisCase`に群（`target`＝改善を見たい症例、`regression`＝悪化させたくない症例）を付ける |
 
@@ -24,6 +24,13 @@ Parent: #37（兄弟: #170 Challenger Update、#171 Promotion Gate）。最終�
 4. 採点中の例外（`Exception`の型を問わない。`TimeoutError`・`RuntimeError`・Provider由来の例外を含む）と、1症例の採点が`case_latency_budget_ms`を超えた場合は**誤り扱いで母数に含める**（失敗・Timeoutを隠さない）。`KeyboardInterrupt`/`SystemExit`は握り潰さない。**限界**: 同期のPython callableは途中で強制停止できないため、このrunnerは「経過後に予算超過なら誤り」と数えるだけで、wall-clockの上限は強制しない。実Providerを接続する時は、強制停止できるworker/process側の契約（別Issue）で上限を課す。
 5. 群×armごとに`ArmSummary`（scored/correct/failed/unscorable/accuracy/latency_p95_ms）を作る。`CandidateEvaluation`の件数は両armの小さい方の`scored`。
 6. `resource_cost`はartifactの決定論的な見積りをEventへ写す（時間計測とは別）。
+
+## 評価できない候補（prototype）と、予測・正解の分離
+
+- 組込みの採点関数`predict_accept`は`confidence_scale`と`acceptance_threshold`だけを見て、`prototypes`を参照しない。一方#170の`prototype`戦略は負例参照を足すだけでscale/thresholdを変えない。そのため、prototypeだけ違うChallengerをこの採点で比べると、全症例でChampionと同じ予測になり、改善幅が必ず0になる。これを「測った結果が0」と返すと、有効な更新が採用不能に見えてしまう。
+- そこで、`evaluable_strategies`（既定は`calibration`と`threshold`）に含まれないstrategy、またはprototypeが親と違うのにprototypeを評価できない場合は、**採点不可**として返す: 全症例を`unscorable`に数え、`scored`は0、`CandidateEvaluation`の件数は0、信号は`hold`・理由は`unsupported_evaluation`。#171のGateは件数不足（`insufficient_target_cases`）で拒否するので昇格しない。Eventは通常どおり保存できる。
+- prototypeの参照の突き合わせと負例の効果を反映した採点関数は、このrunnerには含めない（後続Issue）。その採点関数を渡す時は、呼出側が`evaluable_strategies`に`"prototype"`を含める。
+- 採点関数は`PredictionInput`（症例の`ref`と、decision/recognitionの信号だけ）を受け取る。正解ラベル（`outcome`・`label_status`等）は渡さず、正解の判定はrunnerが別に持つ。将来の外部predictorへのラベル漏洩を防ぐため。
 
 ## 学習Level信号（助言のみ）
 
@@ -44,10 +51,12 @@ runnerが作るEventは常に`validation_state="offline"`。`real_world`は型�
 | Level調整signal | 上記signal試験、`test_insufficient_evidence_holds` |
 | offline/real-worldの区別 | `test_improvement_and_regression_are_aggregated_separately`（offline） |
 | 確定ラベルのみ採点 | `test_cases_without_verified_labels_are_not_scored` |
+| prototypeだけ違う候補を改善0と測らない | `PrototypeEvaluationTest`（組込み採点では区別できないこと、採点不可としてholdし昇格しないこと、保存の往復、prototype対応の採点関数では差が出ること、calibrationは従来どおり評価） |
+| 正解ラベルを予測に渡さない | `PredictionInputSeparationTest` |
 | #171との接続 | `test_evaluation_feeds_the_promotion_gate`（改善は昇格、回帰は却下） |
 
 ## 制限と未実装
 
-- prototypeだけを変えるChallengerは、この採点では差が出ない（`no_target_improvement`で却下される）。prototypeの評価は別途。
+- prototypeだけを変えるChallengerは、この採点では評価できないので採点不可（`unsupported_evaluation`、件数0・hold）として返し、昇格させない（上の節）。prototypeの参照の突き合わせと負例の効果を反映した採点関数は未実装で、後続Issueで扱う。
 - `predict_accept`は「信号×scale≧threshold」という最小の判定で、実Providerや実Decisionを通した評価ではない。実機・実Provider経由の評価は未実装。
 - 症例の集め方（targetとregressionの分け方）は呼出側の責務。runnerは母数の偏りを検査しない。
