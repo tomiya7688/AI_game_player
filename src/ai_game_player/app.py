@@ -124,7 +124,7 @@ class Application:
     #     8: ボタン・表示と実行処理を接続し、推論・評価・入力の部品を作る構成をセッション制御へ渡す
     #     9: StopHelpHintで共通の停止方法と補足説明の出し方を案内し、Play領域の幅で折り返す
     #     10: 実入力の許可欄に共通ToolTipを接続し、入力の発生条件・判断だけの場合・設定変更できない状態を説明する
-#     11: 再開ボタンへ共通ToolTipを接続し、停止解除と実行世代更新（re-arm）の役割を案内する
+#     11: 操作実行制御の各ボタンへ共通ToolTipを接続し、判断のみ・1ステップ実行・連続実行・停止解除と実行世代更新（re-arm）の役割を案内する
     #   ]
     #   引数: [
     #     root: UIを配置する、作成済みのTkルートウィンドウ
@@ -301,11 +301,29 @@ class Application:
         controls = ttk.Frame(frame)
         controls.pack(anchor=tk.W, pady=8)
         StopHelpHint(frame).pack(anchor=tk.W, fill=tk.X)
-        ttk.Button(controls, text="1ステップ判断（操作は実行しない）", command=self.run).pack(side=tk.LEFT)
+        self.run_decision_button = ttk.Button(
+            controls, text="1ステップ判断（操作は実行しない）", command=self.run
+        )
+        self.run_decision_button.pack(side=tk.LEFT)
+        ToolTip(
+            self.run_decision_button,
+            "現在の画面観測と候補をもとに、実入力を送らずに1ステップの操作判断のみを行います。"
+            "結果はPlay Workspaceおよび評価結果欄に表示されます。",
+        )
         self.execute_button = ttk.Button(controls, command=self.run_and_execute)
         self.execute_button.pack(side=tk.LEFT, padx=6)
+        ToolTip(
+            self.execute_button,
+            "1ステップの操作を判断し、設定された入力方式に従って実行します。"
+            "「実入力を許可」がONの場合は選択中のゲームウィンドウへ入力し、OFFの場合はdry-run（実入力なし）でシミュレーションします。",
+        )
         self.loop_button = ttk.Button(controls, command=self.start_loop)
         self.loop_button.pack(side=tk.LEFT)
+        ToolTip(
+            self.loop_button,
+            "画面取得・候補統合・判断・実行を停止されるまで連続して繰り返します。"
+            "実入力の許可状態に応じて実際の操作またはdry-runを繰り返し、いつでも停止ボタンやEscで停止できます。",
+        )
         self.resume_button = ttk.Button(controls, text="再開", command=self.start)
         self.resume_button.pack(side=tk.LEFT, padx=(6, 0))
         ToolTip(
