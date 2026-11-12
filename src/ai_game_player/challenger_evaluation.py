@@ -130,8 +130,11 @@ def evaluate_candidate(
         champion_sha256=artifact.parent.sha256,
         challenger_sha256=artifact.challenger.sha256,
         target_cases=min(target["champion"].scored, target["challenger"].scored),
-        regression_cases=min(
-            regression["champion"].scored, regression["challenger"].scored
+        # #171 Gateの型は故障数を持たない。故障が増えた候補は回帰証拠を渡さず(0件)、Gateに insufficient_regression_cases で拒否させる。
+        regression_cases=(
+            0
+            if _failures_increased(summaries)
+            else min(regression["champion"].scored, regression["challenger"].scored)
         ),
         target_baseline=target["champion"].accuracy,
         target_candidate=target["challenger"].accuracy,
@@ -342,6 +345,17 @@ def _p95(values: list[float]) -> float:
     return round(ordered[min(len(ordered) - 1, math.ceil(0.95 * len(ordered)) - 1)], 6)
 
 
+# {
+#   責務: [challengerのtarget/regression群で故障(例外・時間超過)がchampionより増えたかを判定する]
+#   処理: [各群のfailedを比較する] 引数: [summaries: 群別のArm集計] 戻り値: [増えたらTrue]
+# }
+def _failures_increased(summaries: dict[str, dict[str, ArmSummary]]) -> bool:
+    return any(
+        summaries[group]["challenger"].failed > summaries[group]["champion"].failed
+        for group in GROUPS
+    )
+
+
 def _signal(
     summaries: dict[str, dict[str, ArmSummary]], policy: EvaluationPolicy
 ) -> tuple[str, tuple[str, ...]]:
@@ -353,6 +367,9 @@ def _signal(
         regression["challenger"].scored,
     )
     drop = round(regression["champion"].accuracy - regression["challenger"].accuracy, 9)
+    if regression["challenger"].failed > regression["champion"].failed:
+        # 元から不正解の回帰症例がTimeout/例外へ置換されてもaccuracyは変わらないため、故障数の増加を回帰として扱う。
+        return "de_escalate", ("regression_failures",)
     gain = round(target["challenger"].accuracy - target["champion"].accuracy, 9)
     if drop > policy.regression_tolerance:
         return "de_escalate", ("regression",)

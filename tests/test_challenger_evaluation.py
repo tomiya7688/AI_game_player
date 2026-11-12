@@ -158,6 +158,38 @@ class EvaluationRunnerTest(unittest.TestCase):
         with self.assertRaises(KeyboardInterrupt):
             self.run_eval(self.improving_cases(), predictor=interrupted)
 
+    def test_regression_cases_replaced_by_timeouts_are_never_promotable(self):
+        # 回帰群は元から不正解(Champion=False)でも、Challengerが全例Timeoutへ置換したらaccuracyは同じでも劣化として扱う。
+        cases = group("t", 12, "target", 0.5, "failure") + group(
+            "r", 12, "regression", 0.5, "success"
+        )
+
+        def predictor(parameters, case):
+            is_challenger = parameters.sha256 == self.artifact.challenger.sha256
+            if case.ref.step_id.startswith("step.r"):
+                if is_challenger:
+                    raise TimeoutError("late")
+                return False
+            return not is_challenger
+
+        evaluation, event = self.run_eval(cases, predictor=predictor)
+        regression = event.groups["regression"]
+        self.assertEqual(
+            regression["champion"].accuracy, regression["challenger"].accuracy
+        )
+        self.assertEqual(regression["challenger"].failed, 12)
+        self.assertEqual(
+            (event.signal, event.reasons), ("de_escalate", ("regression_failures",))
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            registry = ChampionRegistry(Path(directory) / "registry.json")
+            registry.initialize(DECISION, at=TIME)
+            decision = registry.decide(
+                self.artifact, evaluation, PromotionCriteria(), at=LATER
+            )
+            self.assertFalse(decision.promoted)
+            self.assertIn("insufficient_regression_cases", decision.reasons)
+
     def test_latency_is_measured_per_arm(self):
         _, event = self.run_eval(self.improving_cases(), clock=FakeClock(0.001))
         self.assertAlmostEqual(
