@@ -19443,6 +19443,1182 @@
     {
       "dependencies": [
         "ai_game_player",
+        "ai_game_player.artifact_store",
+        "ai_game_player.challenger_evaluation_models",
+        "ai_game_player.challenger_promotion_models",
+        "ai_game_player.challenger_update_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "collections.abc",
+          "names": [
+            {
+              "alias": null,
+              "name": "Callable"
+            },
+            {
+              "alias": null,
+              "name": "Sequence"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "time",
+          "names": [
+            {
+              "alias": null,
+              "name": "time"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "ArtifactReference"
+            },
+            {
+              "alias": null,
+              "name": "FileSystemArtifactStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 14,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_evaluation_models"
+          ],
+          "module": "ai_game_player.challenger_evaluation_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "GROUPS"
+            },
+            {
+              "alias": null,
+              "name": "ArmSummary"
+            },
+            {
+              "alias": null,
+              "name": "EvaluationCase"
+            },
+            {
+              "alias": null,
+              "name": "EvaluationError"
+            },
+            {
+              "alias": null,
+              "name": "EvaluationEvent"
+            },
+            {
+              "alias": null,
+              "name": "EvaluationPolicy"
+            },
+            {
+              "alias": null,
+              "name": "PredictionInput"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 23,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_promotion_models"
+          ],
+          "module": "ai_game_player.challenger_promotion_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateEvaluation"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 24,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update_models"
+          ],
+          "module": "ai_game_player.challenger_update_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ChallengerArtifact"
+            },
+            {
+              "alias": null,
+              "name": "ComponentParameters"
+            },
+            {
+              "alias": null,
+              "name": "canonical"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.challenger_evaluation",
+      "path": "src/ai_game_player/challenger_evaluation.py",
+      "source_location": {
+        "end_line": 395,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predict_accept",
+          "parameters": [
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parameters"
+            },
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            }
+          ],
+          "qualified_name": "predict_accept",
+          "return_annotation": "bool",
+          "signature": "(parameters: ComponentParameters, case: Any) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 56,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "evaluate_candidate",
+          "parameters": [
+            {
+              "annotation": "ChallengerArtifact",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": "Sequence[EvaluationCase]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": "EvaluationPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "evaluation_ref"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "evaluated_at"
+            },
+            {
+              "annotation": "Callable[[ComponentParameters, Any], bool]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "predictor"
+            },
+            {
+              "annotation": "Callable[[], float]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "clock"
+            },
+            {
+              "annotation": "Sequence[str]",
+              "has_default": true,
+              "kind": "keyword_only",
+              "name": "evaluable_strategies"
+            }
+          ],
+          "qualified_name": "evaluate_candidate",
+          "return_annotation": "tuple[CandidateEvaluation, EvaluationEvent]",
+          "signature": "(artifact: ChallengerArtifact, cases: Sequence[EvaluationCase], policy: EvaluationPolicy, *, evaluation_ref: str, evaluated_at: str, predictor: Callable[[ComponentParameters, Any], bool] = …, clock: Callable[[], float] = …, evaluable_strategies: Sequence[str] = …) -> tuple[CandidateEvaluation, EvaluationEvent]",
+          "source_location": {
+            "column": 0,
+            "end_line": 144,
+            "start_line": 69
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "save_evaluation_event",
+          "parameters": [
+            {
+              "annotation": "FileSystemArtifactStore",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "store"
+            },
+            {
+              "annotation": "EvaluationEvent",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "event"
+            }
+          ],
+          "qualified_name": "save_evaluation_event",
+          "return_annotation": "ArtifactReference",
+          "signature": "(store: FileSystemArtifactStore, event: EvaluationEvent) -> ArtifactReference",
+          "source_location": {
+            "column": 0,
+            "end_line": 165,
+            "start_line": 152
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "load_evaluation_event",
+          "parameters": [
+            {
+              "annotation": "FileSystemArtifactStore",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "store"
+            },
+            {
+              "annotation": "ArtifactReference",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "reference"
+            }
+          ],
+          "qualified_name": "load_evaluation_event",
+          "return_annotation": "EvaluationEvent",
+          "signature": "(store: FileSystemArtifactStore, reference: ArtifactReference) -> EvaluationEvent",
+          "source_location": {
+            "column": 0,
+            "end_line": 190,
+            "start_line": 174
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_check_cases",
+          "parameters": [
+            {
+              "annotation": "ChallengerArtifact",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": "Sequence[EvaluationCase]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            }
+          ],
+          "qualified_name": "_check_cases",
+          "return_annotation": "None",
+          "signature": "(artifact: ChallengerArtifact, cases: Sequence[EvaluationCase]) -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 208,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_summarize",
+          "parameters": [
+            {
+              "annotation": "ComponentParameters",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parameters"
+            },
+            {
+              "annotation": "list[Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": "EvaluationPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            },
+            {
+              "annotation": "Callable[[ComponentParameters, Any], bool]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "predictor"
+            },
+            {
+              "annotation": "Callable[[], float]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "clock"
+            }
+          ],
+          "qualified_name": "_summarize",
+          "return_annotation": "ArmSummary",
+          "signature": "(parameters: ComponentParameters, cases: list[Any], policy: EvaluationPolicy, predictor: Callable[[ComponentParameters, Any], bool], clock: Callable[[], float]) -> ArmSummary",
+          "source_location": {
+            "column": 0,
+            "end_line": 246,
+            "start_line": 211
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_prediction_input",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            }
+          ],
+          "qualified_name": "_prediction_input",
+          "return_annotation": "PredictionInput",
+          "signature": "(case: Any) -> PredictionInput",
+          "source_location": {
+            "column": 0,
+            "end_line": 258,
+            "start_line": 253
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_is_evaluable",
+          "parameters": [
+            {
+              "annotation": "ChallengerArtifact",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": "Sequence[str]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "evaluable_strategies"
+            }
+          ],
+          "qualified_name": "_is_evaluable",
+          "return_annotation": "bool",
+          "signature": "(artifact: ChallengerArtifact, evaluable_strategies: Sequence[str]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 272,
+            "start_line": 266
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unsupported",
+          "parameters": [
+            {
+              "annotation": "ChallengerArtifact",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "artifact"
+            },
+            {
+              "annotation": "Sequence[EvaluationCase]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": "EvaluationPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "evaluation_ref"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "keyword_only",
+              "name": "evaluated_at"
+            }
+          ],
+          "qualified_name": "_unsupported",
+          "return_annotation": "tuple[CandidateEvaluation, EvaluationEvent]",
+          "signature": "(artifact: ChallengerArtifact, cases: Sequence[EvaluationCase], policy: EvaluationPolicy, *, evaluation_ref: str, evaluated_at: str) -> tuple[CandidateEvaluation, EvaluationEvent]",
+          "source_location": {
+            "column": 0,
+            "end_line": 323,
+            "start_line": 280
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_label",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            }
+          ],
+          "qualified_name": "_label",
+          "return_annotation": "bool | None",
+          "signature": "(case: Any) -> bool | None",
+          "source_location": {
+            "column": 0,
+            "end_line": 338,
+            "start_line": 326
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_p95",
+          "parameters": [
+            {
+              "annotation": "list[float]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "values"
+            }
+          ],
+          "qualified_name": "_p95",
+          "return_annotation": "float",
+          "signature": "(values: list[float]) -> float",
+          "source_location": {
+            "column": 0,
+            "end_line": 345,
+            "start_line": 341
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_failures_increased",
+          "parameters": [
+            {
+              "annotation": "dict[str, dict[str, ArmSummary]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "summaries"
+            }
+          ],
+          "qualified_name": "_failures_increased",
+          "return_annotation": "bool",
+          "signature": "(summaries: dict[str, dict[str, ArmSummary]]) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 356,
+            "start_line": 352
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_signal",
+          "parameters": [
+            {
+              "annotation": "dict[str, dict[str, ArmSummary]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "summaries"
+            },
+            {
+              "annotation": "EvaluationPolicy",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "policy"
+            }
+          ],
+          "qualified_name": "_signal",
+          "return_annotation": "tuple[str, tuple[str, ...]]",
+          "signature": "(summaries: dict[str, dict[str, ArmSummary]], policy: EvaluationPolicy) -> tuple[str, tuple[str, ...]]",
+          "source_location": {
+            "column": 0,
+            "end_line": 382,
+            "start_line": 359
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_unique_object",
+          "parameters": [
+            {
+              "annotation": "list[tuple[str, Any]]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "pairs"
+            }
+          ],
+          "qualified_name": "_unique_object",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
+          "source_location": {
+            "column": 0,
+            "end_line": 391,
+            "start_line": 385
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_reject_constant",
+          "parameters": [
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_reject_constant",
+          "return_annotation": "Any",
+          "signature": "(value: str) -> Any",
+          "source_location": {
+            "column": 0,
+            "end_line": 395,
+            "start_line": 394
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.training_diagnosis_models"
+      ],
+      "imports": [
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 6,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "dataclass"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [],
+          "module": "hashlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "sha256"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 9,
+          "local_dependencies": [],
+          "module": "math",
+          "names": [
+            {
+              "alias": null,
+              "name": "math"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 10,
+          "local_dependencies": [],
+          "module": "re",
+          "names": [
+            {
+              "alias": null,
+              "name": "re"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 11,
+          "local_dependencies": [],
+          "module": "typing",
+          "names": [
+            {
+              "alias": null,
+              "name": "Any"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.training_diagnosis_models"
+          ],
+          "module": "ai_game_player.training_diagnosis_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "DiagnosisCase"
+            }
+          ]
+        }
+      ],
+      "module": "ai_game_player.challenger_evaluation_models",
+      "path": "src/ai_game_player/challenger_evaluation_models.py",
+      "source_location": {
+        "end_line": 245,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "PredictionInput",
+          "parameters": [],
+          "qualified_name": "PredictionInput",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 32,
+            "start_line": 29
+          }
+        },
+        {
+          "bases": [
+            "ValueError"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "EvaluationError",
+          "parameters": [],
+          "qualified_name": "EvaluationError",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 42,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "code"
+            },
+            {
+              "annotation": "str",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "message"
+            }
+          ],
+          "qualified_name": "EvaluationError.__init__",
+          "return_annotation": "None",
+          "signature": "(self, code: str, message: str) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 42,
+            "start_line": 40
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "EvaluationCase",
+          "parameters": [],
+          "qualified_name": "EvaluationCase",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 58,
+            "start_line": 50
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationCase.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 58,
+            "start_line": 54
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "EvaluationPolicy",
+          "parameters": [],
+          "qualified_name": "EvaluationPolicy",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 101,
+            "start_line": 67
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationPolicy.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 94,
+            "start_line": 73
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "property"
+          ],
+          "kind": "method",
+          "name": "fingerprint",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationPolicy.fingerprint",
+          "return_annotation": "str",
+          "signature": "(self) -> str",
+          "source_location": {
+            "column": 4,
+            "end_line": 101,
+            "start_line": 97
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "ArmSummary",
+          "parameters": [],
+          "qualified_name": "ArmSummary",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 139,
+            "start_line": 111
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ArmSummary.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 136,
+            "start_line": 119
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "ArmSummary.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 139,
+            "start_line": 138
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": true,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [
+            "dataclass(frozen=True, slots=True)"
+          ],
+          "kind": "class",
+          "name": "EvaluationEvent",
+          "parameters": [],
+          "qualified_name": "EvaluationEvent",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 230,
+            "start_line": 150
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__post_init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationEvent.__post_init__",
+          "return_annotation": "None",
+          "signature": "(self) -> None",
+          "source_location": {
+            "column": 4,
+            "end_line": 181,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "to_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationEvent.to_dict",
+          "return_annotation": "dict[str, Any]",
+          "signature": "(self) -> dict[str, Any]",
+          "source_location": {
+            "column": 4,
+            "end_line": 202,
+            "start_line": 183
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [
+            "classmethod"
+          ],
+          "kind": "method",
+          "name": "from_dict",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cls"
+            },
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "EvaluationEvent.from_dict",
+          "return_annotation": "REDACTED",
+          "signature": "(cls, value: object) -> REDACTED",
+          "source_location": {
+            "column": 4,
+            "end_line": 230,
+            "start_line": 205
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "digest",
+          "parameters": [
+            {
+              "annotation": "Any",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "digest",
+          "return_annotation": "str",
+          "signature": "(value: Any) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 241,
+            "start_line": 233
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_ratio",
+          "parameters": [
+            {
+              "annotation": "object",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "value"
+            }
+          ],
+          "qualified_name": "_ratio",
+          "return_annotation": "bool",
+          "signature": "(value: object) -> bool",
+          "source_location": {
+            "column": 0,
+            "end_line": 245,
+            "start_line": 244
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
         "ai_game_player.atomic_json",
         "ai_game_player.bounded_file",
         "ai_game_player.challenger_promotion_models",
@@ -129923,6 +131099,1327 @@
             "column": 4,
             "end_line": 9,
             "start_line": 7
+          }
+        }
+      ]
+    },
+    {
+      "dependencies": [
+        "ai_game_player",
+        "ai_game_player.artifact_store",
+        "ai_game_player.challenger_evaluation",
+        "ai_game_player.challenger_evaluation_models",
+        "ai_game_player.challenger_promotion",
+        "ai_game_player.challenger_promotion_models",
+        "ai_game_player.challenger_update",
+        "tests.test_challenger_update"
+      ],
+      "imports": [
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 1,
+          "local_dependencies": [],
+          "module": "json",
+          "names": [
+            {
+              "alias": null,
+              "name": "json"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 2,
+          "local_dependencies": [],
+          "module": "tempfile",
+          "names": [
+            {
+              "alias": null,
+              "name": "tempfile"
+            }
+          ]
+        },
+        {
+          "kind": "import",
+          "level": 0,
+          "line": 3,
+          "local_dependencies": [],
+          "module": "unittest",
+          "names": [
+            {
+              "alias": null,
+              "name": "unittest"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 4,
+          "local_dependencies": [],
+          "module": "dataclasses",
+          "names": [
+            {
+              "alias": null,
+              "name": "replace"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 5,
+          "local_dependencies": [],
+          "module": "pathlib",
+          "names": [
+            {
+              "alias": null,
+              "name": "Path"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 7,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.artifact_store"
+          ],
+          "module": "ai_game_player.artifact_store",
+          "names": [
+            {
+              "alias": null,
+              "name": "FileSystemArtifactStore"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 8,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_evaluation"
+          ],
+          "module": "ai_game_player.challenger_evaluation",
+          "names": [
+            {
+              "alias": null,
+              "name": "evaluate_candidate"
+            },
+            {
+              "alias": null,
+              "name": "load_evaluation_event"
+            },
+            {
+              "alias": null,
+              "name": "save_evaluation_event"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 13,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_evaluation_models"
+          ],
+          "module": "ai_game_player.challenger_evaluation_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "EvaluationCase"
+            },
+            {
+              "alias": null,
+              "name": "EvaluationError"
+            },
+            {
+              "alias": null,
+              "name": "EvaluationPolicy"
+            },
+            {
+              "alias": null,
+              "name": "PredictionInput"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 19,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_promotion"
+          ],
+          "module": "ai_game_player.challenger_promotion",
+          "names": [
+            {
+              "alias": null,
+              "name": "ChampionRegistry"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 20,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_promotion_models"
+          ],
+          "module": "ai_game_player.challenger_promotion_models",
+          "names": [
+            {
+              "alias": null,
+              "name": "PromotionCriteria"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 21,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_update"
+          ],
+          "module": "ai_game_player.challenger_update",
+          "names": [
+            {
+              "alias": null,
+              "name": "build_challenger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 22,
+          "local_dependencies": [
+            "tests.test_challenger_update"
+          ],
+          "module": "tests.test_challenger_update",
+          "names": [
+            {
+              "alias": null,
+              "name": "DECISION"
+            },
+            {
+              "alias": null,
+              "name": "OTHER_SCOPE"
+            },
+            {
+              "alias": null,
+              "name": "TIME"
+            },
+            {
+              "alias": null,
+              "name": "case"
+            },
+            {
+              "alias": null,
+              "name": "overconfident"
+            },
+            {
+              "alias": null,
+              "name": "proposals_for"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 299,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.challenger_evaluation"
+          ],
+          "module": "ai_game_player.challenger_evaluation",
+          "names": [
+            {
+              "alias": null,
+              "name": "predict_accept"
+            }
+          ]
+        }
+      ],
+      "module": "tests.test_challenger_evaluation",
+      "path": "tests/test_challenger_evaluation.py",
+      "source_location": {
+        "end_line": 444,
+        "start_line": 1
+      },
+      "symbols": [
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "FakeClock",
+          "parameters": [],
+          "qualified_name": "FakeClock",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 46,
+            "start_line": 36
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__init__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "step"
+            }
+          ],
+          "qualified_name": "FakeClock.__init__",
+          "return_annotation": null,
+          "signature": "(self, step)",
+          "source_location": {
+            "column": 4,
+            "end_line": 41,
+            "start_line": 39
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__call__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "FakeClock.__call__",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 46,
+            "start_line": 43
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "group",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "prefix"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "count"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "group_name"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "signal"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "outcome"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "overrides"
+            }
+          ],
+          "qualified_name": "group",
+          "return_annotation": null,
+          "signature": "(prefix, count, group_name, signal, outcome, **overrides)",
+          "source_location": {
+            "column": 0,
+            "end_line": 61,
+            "start_line": 49
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "EvaluationRunnerTest",
+          "parameters": [],
+          "qualified_name": "EvaluationRunnerTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 257,
+            "start_line": 64
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 68,
+            "start_line": 65
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "run_eval",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "cases"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.run_eval",
+          "return_annotation": null,
+          "signature": "(self, cases, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 73,
+            "start_line": 70
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "improving_cases",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.improving_cases",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 80,
+            "start_line": 75
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_improvement_and_regression_are_aggregated_separately",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_improvement_and_regression_are_aggregated_separately",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 82
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_regression_lowers_the_level_signal",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_regression_lowers_the_level_signal",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 106,
+            "start_line": 98
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_insufficient_evidence_holds",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_insufficient_evidence_holds",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 115,
+            "start_line": 108
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_cases_without_verified_labels_are_not_scored",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_cases_without_verified_labels_are_not_scored",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 124,
+            "start_line": 117
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_errors_and_timeouts_count_as_failures_in_the_denominator",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_errors_and_timeouts_count_as_failures_in_the_denominator",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 142,
+            "start_line": 126
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_case"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_errors_and_timeouts_count_as_failures_in_the_denominator.predictor",
+          "return_annotation": null,
+          "signature": "(parameters, _case)",
+          "source_location": {
+            "column": 8,
+            "end_line": 130,
+            "start_line": 127
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 159,
+            "start_line": 144
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_case"
+            },
+            {
+              "annotation": null,
+              "has_default": true,
+              "kind": "positional_or_keyword",
+              "name": "error"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate.predictor",
+          "return_annotation": null,
+          "signature": "(_parameters, _case, error = …)",
+          "source_location": {
+            "column": 16,
+            "end_line": 149,
+            "start_line": 148
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "interrupted",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_case"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_any_exception_type_counts_as_a_failure_but_base_exceptions_propagate.interrupted",
+          "return_annotation": null,
+          "signature": "(_parameters, _case)",
+          "source_location": {
+            "column": 8,
+            "end_line": 156,
+            "start_line": 155
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_regression_cases_replaced_by_timeouts_are_never_promotable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_regression_cases_replaced_by_timeouts_are_never_promotable",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 191,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "case"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_regression_cases_replaced_by_timeouts_are_never_promotable.predictor",
+          "return_annotation": null,
+          "signature": "(parameters, case)",
+          "source_location": {
+            "column": 8,
+            "end_line": 173,
+            "start_line": 167
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_latency_is_measured_per_arm",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_latency_is_measured_per_arm",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 198,
+            "start_line": 193
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_same_case_is_scored_by_both_arms",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_same_case_is_scored_by_both_arms",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 211,
+            "start_line": 200
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scored_case"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_same_case_is_scored_by_both_arms.predictor",
+          "return_annotation": null,
+          "signature": "(parameters, scored_case)",
+          "source_location": {
+            "column": 8,
+            "end_line": 205,
+            "start_line": 203
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_invalid_inputs_are_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_invalid_inputs_are_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 237,
+            "start_line": 213
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_evaluation_feeds_the_promotion_gate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_evaluation_feeds_the_promotion_gate",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 257,
+            "start_line": 239
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PrototypeEvaluationTest",
+          "parameters": [],
+          "qualified_name": "PrototypeEvaluationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 372,
+            "start_line": 260
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 285,
+            "start_line": 263
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "evaluate",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "var_keyword",
+              "name": "kwargs"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.evaluate",
+          "return_annotation": null,
+          "signature": "(self, **kwargs)",
+          "source_location": {
+            "column": 4,
+            "end_line": 295,
+            "start_line": 287
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_the_builtin_predictor_cannot_tell_a_prototype_only_challenger_apart",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.test_the_builtin_predictor_cannot_tell_a_prototype_only_challenger_apart",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 305,
+            "start_line": 297
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unsupported_evaluation_is_held_and_never_promotable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.test_unsupported_evaluation_is_held_and_never_promotable",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 332,
+            "start_line": 307
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "spy",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_case"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.test_unsupported_evaluation_is_held_and_never_promotable.spy",
+          "return_annotation": null,
+          "signature": "(_parameters, _case)",
+          "source_location": {
+            "column": 8,
+            "end_line": 312,
+            "start_line": 310
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_unsupported_event_round_trips_through_storage",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.test_unsupported_event_round_trips_through_storage",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 339,
+            "start_line": 334
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_a_prototype_aware_predictor_measures_the_negative_reference_effect",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.test_a_prototype_aware_predictor_measures_the_negative_reference_effect",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 357,
+            "start_line": 341
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scored"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.test_a_prototype_aware_predictor_measures_the_negative_reference_effect.predictor",
+          "return_annotation": null,
+          "signature": "(parameters, scored)",
+          "source_location": {
+            "column": 8,
+            "end_line": 346,
+            "start_line": 342
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_a_threshold_candidate_is_still_evaluated_with_the_builtin_predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PrototypeEvaluationTest.test_a_threshold_candidate_is_still_evaluated_with_the_builtin_predictor",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 372,
+            "start_line": 359
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "PredictionInputSeparationTest",
+          "parameters": [],
+          "qualified_name": "PredictionInputSeparationTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 405,
+            "start_line": 375
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_the_predictor_receives_signals_only_never_the_ground_truth",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PredictionInputSeparationTest.test_the_predictor_receives_signals_only_never_the_ground_truth",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 405,
+            "start_line": 378
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "predictor",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_parameters"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "scored"
+            }
+          ],
+          "qualified_name": "PredictionInputSeparationTest.test_the_predictor_receives_signals_only_never_the_ground_truth.predictor",
+          "return_annotation": null,
+          "signature": "(_parameters, scored)",
+          "source_location": {
+            "column": 8,
+            "end_line": 385,
+            "start_line": 383
+          }
+        },
+        {
+          "bases": [
+            "unittest.TestCase"
+          ],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "EvaluationEventStorageTest",
+          "parameters": [],
+          "qualified_name": "EvaluationEventStorageTest",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 0,
+            "end_line": 440,
+            "start_line": 408
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "setUp",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationEventStorageTest.setUp",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 420,
+            "start_line": 409
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_round_trip",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationEventStorageTest.test_round_trip",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 424,
+            "start_line": 422
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_tampered_event_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationEventStorageTest.test_tampered_event_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 434,
+            "start_line": 426
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_event_is_json_stable",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationEventStorageTest.test_event_is_json_stable",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 440,
+            "start_line": 436
           }
         }
       ]
