@@ -34,7 +34,7 @@ Parent: #37（兄弟: #170 Challenger Update、#171 Promotion Gate）。最終�
 
 ## 学習Level信号（助言のみ）
 
-回帰群でChallengerの失敗(例外・時間超過)がChampionより多い→`de_escalate`（`regression_failures`）。元から不正解の症例がTimeoutに置換されてもaccuracyは変わらないため、故障数で検出する。回帰群の低下が`regression_tolerance`を超える→`de_escalate`（`regression`）。採点件数が`min_scored_per_group`未満→`hold`（`insufficient_evidence`）。Challengerの失敗がChampionより多い→`de_escalate`（`more_failures`）。対象の改善が`min_gain`以上→`escalate`（`improved_without_regression`）。それ以外→`hold`。#171 Gateの型(`CandidateEvaluation`)は故障数を持たないため、いずれかの群でChallengerの故障がChampionより増えた候補は`regression_cases=0`として渡し、Gateが`insufficient_regression_cases`で拒否する(型の拡張は未実施。p95遅延も本番昇格条件には未反映)。信号は#36のController等が読む助言で、runnerは学習Levelを変更しない。
+回帰群でChallengerの失敗(例外・時間超過)がChampionより多い→`de_escalate`（`regression_failures`）。元から不正解の症例がTimeoutに置換されてもaccuracyは変わらないため、故障数で検出する。回帰群の低下が`regression_tolerance`を超える→`de_escalate`（`regression`）。採点件数が`min_scored_per_group`未満→`hold`（`insufficient_evidence`）。Challengerの失敗がChampionより多い→`de_escalate`（`more_failures`）。対象の改善が`min_gain`以上→`escalate`（`improved_without_regression`）。それ以外→`hold`。#171 Gateの型(`CandidateEvaluation`)は故障数を持たないため、いずれかの群でChallengerの故障がChampionより増えた候補は`regression_cases=0`として渡し、Gateが`insufficient_regression_cases`で拒否する(これは件数を偽る暫定のfail-closed接続で、型付きEvidenceへの移行は#901で行う。p95遅延も本番昇格条件には未反映)。信号は#36のController等が読む助言で、runnerは学習Levelを変更しない。
 
 ## offline / real-world
 
