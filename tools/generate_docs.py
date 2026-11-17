@@ -11,10 +11,14 @@ from typing import Callable
 try:
     from .analyze_repo import RepositoryMapGenerator
     from .generate_class_diagram import render_class_diagram
+    from .generate_doc_index import render_doc_index
+    from .generate_module_index import render_module_index
     from .generate_sequence_diagram import render_sequence_diagram
 except ImportError:  # Direct execution: python tools/generate_docs.py
     from analyze_repo import RepositoryMapGenerator
     from generate_class_diagram import render_class_diagram
+    from generate_doc_index import render_doc_index
+    from generate_module_index import render_module_index
     from generate_sequence_diagram import render_sequence_diagram
 
 
@@ -59,13 +63,23 @@ def generated_documents(root: Path, config: dict) -> list[GeneratedDocument]:
     repository_map_config = config.get("repository_map")
     if repository_map_config is not None:
         generator = RepositoryMapGenerator(root, Path(repository_map_config["config"]))
+        repository_map_text = generator.render()
         documents.append(
             GeneratedDocument(
                 generator.output_path(),
-                generator.render(),
+                repository_map_text,
                 generator.publish,
             )
         )
+        if config["docs"].get("module_index", False):
+            documents.append(
+                GeneratedDocument(
+                    root / paths["module_index"],
+                    render_module_index(root, repository_map_text),
+                )
+            )
+    if config["docs"].get("doc_index", False):
+        documents.append(GeneratedDocument(root / paths["doc_index"], render_doc_index(root)))
     return documents
 
 
