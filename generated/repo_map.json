@@ -19652,7 +19652,7 @@
       "module": "ai_game_player.challenger_promotion",
       "path": "src/ai_game_player/challenger_promotion.py",
       "source_location": {
-        "end_line": 407,
+        "end_line": 422,
         "start_line": 1
       },
       "symbols": [
@@ -20229,8 +20229,31 @@
           "signature": "(state: dict[str, Any], action: str, subject: ComponentParameters, artifact: ChallengerArtifact | None, to_sha256: str, evaluation: CandidateEvaluation | None, criteria: PromotionCriteria | None, reasons: tuple[str, ...], at: str, *, from_sha256: str | None = …) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 286,
+            "end_line": 287,
             "start_line": 257
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "_state_digest",
+          "parameters": [
+            {
+              "annotation": "dict[str, Any]",
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "state"
+            }
+          ],
+          "qualified_name": "_state_digest",
+          "return_annotation": "str",
+          "signature": "(state: dict[str, Any]) -> str",
+          "source_location": {
+            "column": 0,
+            "end_line": 304,
+            "start_line": 290
           }
         },
         {
@@ -20252,8 +20275,8 @@
           "signature": "(event: dict[str, Any]) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 291,
-            "start_line": 289
+            "end_line": 309,
+            "start_line": 307
           }
         },
         {
@@ -20275,8 +20298,8 @@
           "signature": "(parameters: ComponentParameters) -> str",
           "source_location": {
             "column": 0,
-            "end_line": 295,
-            "start_line": 294
+            "end_line": 313,
+            "start_line": 312
           }
         },
         {
@@ -20298,8 +20321,8 @@
           "signature": "(value: object) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 302,
-            "start_line": 298
+            "end_line": 320,
+            "start_line": 316
           }
         },
         {
@@ -20314,8 +20337,8 @@
           "signature": "() -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 314,
-            "start_line": 305
+            "end_line": 332,
+            "start_line": 323
           }
         },
         {
@@ -20337,8 +20360,8 @@
           "signature": "(path: Path) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 326,
-            "start_line": 317
+            "end_line": 344,
+            "start_line": 335
           }
         },
         {
@@ -20360,8 +20383,8 @@
           "signature": "(state: Any) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 366,
-            "start_line": 329
+            "end_line": 384,
+            "start_line": 347
           }
         },
         {
@@ -20383,8 +20406,8 @@
           "signature": "(state: dict[str, Any]) -> None",
           "source_location": {
             "column": 0,
-            "end_line": 393,
-            "start_line": 369
+            "end_line": 408,
+            "start_line": 387
           }
         },
         {
@@ -20406,8 +20429,8 @@
           "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 402,
-            "start_line": 396
+            "end_line": 417,
+            "start_line": 411
           }
         },
         {
@@ -20429,8 +20452,8 @@
           "signature": "(value: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 406,
-            "start_line": 405
+            "end_line": 421,
+            "start_line": 420
           }
         }
       ]
@@ -130130,7 +130153,7 @@
       "module": "tests.test_challenger_promotion",
       "path": "tests/test_challenger_promotion.py",
       "source_location": {
-        "end_line": 304,
+        "end_line": 338,
         "start_line": 1
       },
       "symbols": [
@@ -130181,7 +130204,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 300,
+            "end_line": 334,
             "start_line": 50
           }
         },
@@ -130760,6 +130783,104 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "_tamper_history_and_rollback",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "mutate"
+            }
+          ],
+          "qualified_name": "PromotionGateTest._tamper_history_and_rollback",
+          "return_annotation": null,
+          "signature": "(self, mutate)",
+          "source_location": {
+            "column": 4,
+            "end_line": 263,
+            "start_line": 256
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_history_swap_after_a_reject_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_history_swap_after_a_reject_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 270,
+            "start_line": 265
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_older_history_entry_tamper_is_rejected",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_older_history_entry_tamper_is_rejected",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 276,
+            "start_line": 272
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_history_tamper_is_rejected_after_audit_truncation",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "PromotionGateTest.test_history_tamper_is_rejected_after_audit_truncation",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 288,
+            "start_line": 278
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_non_list_history_and_empty_audit_are_rejected",
           "parameters": [
             {
@@ -130774,8 +130895,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 269,
-            "start_line": 256
+            "end_line": 303,
+            "start_line": 290
           }
         },
         {
@@ -130797,8 +130918,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 274,
-            "start_line": 271
+            "end_line": 308,
+            "start_line": 305
           }
         },
         {
@@ -130820,8 +130941,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 281,
-            "start_line": 276
+            "end_line": 315,
+            "start_line": 310
           }
         },
         {
@@ -130843,8 +130964,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 293,
-            "start_line": 283
+            "end_line": 327,
+            "start_line": 317
           }
         },
         {
@@ -130866,8 +130987,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 300,
-            "start_line": 295
+            "end_line": 334,
+            "start_line": 329
           }
         }
       ]

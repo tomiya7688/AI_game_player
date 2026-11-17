@@ -33,7 +33,7 @@ Parent: #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner�
 
 ## 状態と監査
 
-1ファイルのJSON（`schema: challenger-champion-registry`）。targetごとにChampion・rollback履歴・`last_change_at`を持つ。評価の再利用防止は監査ログではなくこの`last_change_at`（targetごとに1つの単調な時刻）で行うので、監査の保持上限(128件)に依存せず永続的に効き、状態は増えない。各操作は`cross_process_file_lock`内で状態を読み直し、検証し、一時ファイル経由で原子的に置換する（失敗時は旧状態）。audit eventは`prev_digest`/`digest`のhash連鎖で、保持上限128件。切り詰めた分は`audit_base_digest`に連鎖を引き継ぐ。読込時にkeyとparameterの整合、連鎖、重複key、NaNを検査し、不整合は`PromotionError(invalid_state)`にする。
+1ファイルのJSON（`schema: challenger-champion-registry`）。targetごとにChampion・rollback履歴・`last_change_at`を持つ。評価の再利用防止は監査ログではなくこの`last_change_at`（targetごとに1つの単調な時刻）で行うので、監査の保持上限(128件)に依存せず永続的に効き、状態は増えない。各操作は`cross_process_file_lock`内で状態を読み直し、検証し、一時ファイル経由で原子的に置換する（失敗時は旧状態）。audit eventは`prev_digest`/`digest`のhash連鎖で、保持上限128件。切り詰めた分は`audit_base_digest`に連鎖を引き継ぐ。各audit event（却下を含む）は`state_digest`として、確定直後の全targetのChampion・rollback履歴(全要素)・`last_change_at`へのcommitmentを持つ。読込時は最新eventの`state_digest`を現在の状態から再計算して照合するので、最新が`reject`でも、昇格eventが監査の保持上限から落ちた後でも、rollback履歴の差し替え・差し込みを検出する（保存形式はschema_version 2）。読込時にkeyとparameterの整合、連鎖、重複key、NaNを検査し、不整合は`PromotionError(invalid_state)`にする。
 
 ## テスト（`tests/test_challenger_promotion.py`）
 
@@ -49,6 +49,6 @@ Parent: #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner�
 
 - 実runtime（Decision等）が`ChampionRegistry`のpointerを読む配線は未実装。
 - 評価値の真正性は呼出側（#173）の責務。Gateは数値の範囲・対象一致・件数だけ検査する。
-- 履歴32世代・監査128件を超えた古い分は保持しない。読込時にChampion pointerと世代は、保持している監査eventの最新状態と一致することを検査する（切り詰めで消えたtargetは監査との照合ができない）。
+- 履歴32世代・監査128件を超えた古い分は保持しない。読込時にChampion pointerと世代は、保持している監査eventの最新状態と一致することを検査する。rollback履歴は最新eventの`state_digest`で全targetぶん照合する。ただしhash連鎖は署名ではないので、監査と状態をまとめて再計算できる書換えは検出できない（外部署名・外部anchorは範囲外）。
 - Windows実機・複数processの同時書込みの実測は未実施（lockはdependency-freeなadvisory lock）。
 - #426のaggressivenessは生成側にだけ影響し、本Gateの最低条件は弱めない。#427の複数candidateは、best candidateを1件ずつ`decide`へ渡す。

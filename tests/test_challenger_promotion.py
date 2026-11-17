@@ -253,6 +253,40 @@ class PromotionGateTest(unittest.TestCase):
             self.registry.rollback("decision", SCOPE, reason="safety_stop", at=LATER)
         self.assertEqual(context.exception.code, "invalid_state")
 
+    def _tamper_history_and_rollback(self, mutate):
+        state = json.loads(self.path.read_text(encoding="utf-8"))
+        key = next(iter(state["targets"]))
+        mutate(state["targets"][key]["history"])
+        self.path.write_text(json.dumps(state), encoding="utf-8")
+        with self.assertRaises(PromotionError) as context:
+            ChampionRegistry(self.path).rollback("decision", SCOPE, reason="safety_stop", at=AFTER_ROLLBACK)
+        self.assertEqual(context.exception.code, "invalid_state")
+
+    def test_history_swap_after_a_reject_is_rejected(self):
+        # promote -> reject -> history改ざん -> 再open -> rollback。最新eventがrejectでも履歴を照合する。
+        self.assertTrue(self.decide().promoted)
+        self.assertFalse(self.decide(at="2026-11-06T01:10:00Z", target_candidate=0.5).promoted)
+        forged = replace(DECISION, version="decision.v9").to_dict()
+        self._tamper_history_and_rollback(lambda history: history.__setitem__(-1, forged))
+
+    def test_older_history_entry_tamper_is_rejected(self):
+        # 末尾は正しいまま、より古いrollback先だけを差し込んでも検出する。
+        self.assertTrue(self.decide().promoted)
+        forged = replace(DECISION, version="decision.v9").to_dict()
+        self._tamper_history_and_rollback(lambda history: history.insert(0, forged))
+
+    def test_history_tamper_is_rejected_after_audit_truncation(self):
+        # 昇格eventが監査の保持範囲(128件)から落ちた後でも、履歴の改ざんを検出する。
+        self.assertTrue(self.decide().promoted)
+        for _ in range(MAX_AUDIT_EVENTS + 2):
+            self.registry.decide(
+                self.artifact, evaluation_for(self.artifact, target_candidate=0.5), CRITERIA, at=LATER
+            )
+        events = ChampionRegistry(self.path).audit_events()
+        self.assertNotIn("promote", [event["action"] for event in events])
+        forged = replace(DECISION, version="decision.v9").to_dict()
+        self._tamper_history_and_rollback(lambda history: history.__setitem__(-1, forged))
+
     def test_non_list_history_and_empty_audit_are_rejected(self):
         for mutate in (
             lambda state: state["targets"][next(iter(state["targets"]))].update(history={}),

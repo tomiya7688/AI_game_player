@@ -280,10 +280,28 @@ def _append_audit(
         "criteria_fingerprint": None if criteria is None else criteria.fingerprint,
         "reasons": list(reasons),
         "at": at,
+        "state_digest": _state_digest(state),
         "prev_digest": previous,
     }
     event["digest"] = _event_digest(event)
     state["audit"].append(event)
+
+
+def _state_digest(state: dict[str, Any]) -> str:
+    """全targetのChampion・rollback履歴(全要素)・最終変更時刻へのcommitment。
+
+    各監査eventへ、そのevent確定直後の状態を束縛する。rejectも状態を変えないだけで最新状態へ束縛されるので、
+    直近が却下でも、監査の保持上限(128件)を超えた古い昇格の履歴でも、改ざんを後で検出できる。
+    """
+    body = {
+        key: {
+            "champion": ComponentParameters.from_dict(target["champion"]).sha256,
+            "history": [ComponentParameters.from_dict(item).sha256 for item in target["history"]],
+            "last_change_at": target["last_change_at"],
+        }
+        for key, target in state["targets"].items()
+    }
+    return sha256(to_json_bytes(body)).hexdigest()
 
 
 def _event_digest(event: dict[str, Any]) -> str:
@@ -383,14 +401,11 @@ def _validate_pointer_binding(state: dict[str, Any]) -> None:
         target = state["targets"].get(key)
         if target is None or ComponentParameters.from_dict(target["champion"]).sha256 != event["to_sha256"]:
             raise ValueError("champion pointer does not match the audit trail")
-        # 直前のeventが昇格なら、rollback先（履歴の末尾）はその昇格前のChampionと一致しなければならない。
-        if event["action"] == "promote" and (
-            not target["history"]
-            or ComponentParameters.from_dict(target["history"][-1]).sha256 != event["from_sha256"]
-        ):
-            raise ValueError("rollback history does not match the audit trail")
     if state["audit"] and state["audit"][-1]["generation"] != state["generation"]:
         raise ValueError("generation does not match the audit trail")
+    # 最新event(却下を含む)が束縛した状態と、現在の全target・rollback履歴が一致しなければならない。
+    if state["audit"] and state["audit"][-1]["state_digest"] != _state_digest(state):
+        raise ValueError("targets or rollback history do not match the audit trail")
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
