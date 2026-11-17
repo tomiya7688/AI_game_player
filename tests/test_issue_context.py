@@ -68,11 +68,25 @@ class IssueContextTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             with patch.object(context, "OUT", Path(directory) / "pack.md"), \
                     patch.object(context, "fetch_issues", return_value=[issue(5), issue(1, "P0")]), \
+                    patch.object(context, "fetch_claimed_issue_numbers", return_value=set()), \
+                    patch.object(context, "has_claim_comment", return_value=False), \
                     patch.object(context, "fetch_issue", return_value=issue(1, "P0")) as fetch, \
                     patch.object(context, "fetch_worktree_paths", return_value=[]), \
                     patch.object(context, "load_repository_map", return_value=(None, "map unavailable")):
                 self.assertEqual(context.main([]), 0)
                 fetch.assert_called_once_with(1)
+
+    def test_claimed_issue_is_skipped_by_main_selection(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(context, "OUT", Path(directory) / "pack.md"), \
+                    patch.object(context, "fetch_issues", return_value=[issue(5), issue(1, "P0")]), \
+                    patch.object(context, "fetch_claimed_issue_numbers", return_value={1}), \
+                    patch.object(context, "has_claim_comment", return_value=False), \
+                    patch.object(context, "fetch_issue", return_value=issue(5)) as fetch, \
+                    patch.object(context, "fetch_worktree_paths", return_value=[]), \
+                    patch.object(context, "load_repository_map", return_value=(None, "map unavailable")):
+                self.assertEqual(context.main([]), 0)
+                fetch.assert_called_once_with(5)
 
     def test_context_pack_uses_git_paths_repository_map_and_explained_candidates(self):
         selected = issue(143, title="Update tools/issue_context.py and render_context")
@@ -575,6 +589,7 @@ class IssueContextTests(unittest.TestCase):
                     self.assertIn("Do not use", printing.call_args.args[0])
                 self.assertEqual(output.read_text(encoding="utf-8"), "old")
         with patch.object(context, "fetch_issues", return_value=[]), \
+                patch.object(context, "fetch_claimed_issue_numbers", return_value=set()), \
                 patch.object(context, "fetch_issue") as fetch:
             self.assertEqual(context.main([]), 1)
             fetch.assert_not_called()

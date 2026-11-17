@@ -55,6 +55,113 @@ class IssueContextPriorityTest(unittest.TestCase):
             20,
         )
 
+    def test_claimed_issue_is_skipped(self):
+        selected = MODULE.select_issue(
+            [issue(514, "P0"), issue(20, "P1")], claimed={514}
+        )
+        self.assertEqual(selected["number"], 20)
+
+    def test_all_claimed_returns_none(self):
+        self.assertIsNone(MODULE.select_issue([issue(514, "P0")], claimed={514}))
+
+    def test_claimed_numbers_come_from_issue_branches(self):
+        pages = [[{"name": "main"}, {"name": "claude/issue-514-trust-pin"}, {"name": "codex/issue-7"}]]
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: pages.pop(0)
+        try:
+            self.assertEqual(MODULE.fetch_claimed_issue_numbers(), {514, 7})
+        finally:
+            MODULE.gh_json = original
+
+    def test_commented_claim_is_skipped_in_priority_order(self):
+        original = MODULE.has_claim_comment
+        MODULE.has_claim_comment = lambda number: number == 92
+        try:
+            selected = MODULE.select_unclaimed_issue(
+                [issue(92, "P1"), issue(30, "P2"), issue(40, "P3")], set()
+            )
+        finally:
+            MODULE.has_claim_comment = original
+        self.assertEqual(selected["number"], 30)
+
+    def test_fullwidth_colon_claim_comment_is_detected(self):
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: [{"body": "着手：Codex, branch"}]
+        try:
+            self.assertTrue(MODULE.has_claim_comment(1))
+        finally:
+            MODULE.gh_json = original
+
+    def test_claim_comment_on_later_page_is_found(self):
+        pages = [[{"body": "雑談"}] * 100, [{"body": "着手: Codex"}]]
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: pages.pop(0)
+        try:
+            self.assertTrue(MODULE.has_claim_comment(1))
+        finally:
+            MODULE.gh_json = original
+
+    def test_rest_fallback_is_used_for_graphql_failures(self):
+        import json
+        import subprocess
+
+        failures = (
+            subprocess.CalledProcessError(1, "gh"),
+            subprocess.TimeoutExpired("gh", 120),
+            json.JSONDecodeError("bad", "", 0),
+        )
+        for failure in failures:
+            with self.subTest(failure=type(failure).__name__):
+                def graphql(*_args, **_kwargs):
+                    raise failure
+
+                original = (MODULE.fetch_issues_graphql, MODULE.fetch_issues_rest)
+                MODULE.fetch_issues_graphql = graphql
+                MODULE.fetch_issues_rest = lambda: ["rest"]
+                try:
+                    self.assertEqual(MODULE.fetch_issues(), ["rest"])
+                finally:
+                    MODULE.fetch_issues_graphql, MODULE.fetch_issues_rest = original
+
+    def test_rest_listing_excludes_prs_and_handles_page_boundaries(self):
+        def node(number, pull=False):
+            item = {"number": number, "title": "t", "html_url": "u", "labels": [{"name": "P1"}]}
+            return {**item, "pull_request": {}} if pull else item
+
+        pages = [[node(n) for n in range(100)], [node(100), node(101, pull=True)]]
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: pages.pop(0)
+        try:
+            numbers = [issue["number"] for issue in MODULE.fetch_issues_rest()]
+        finally:
+            MODULE.gh_json = original
+        self.assertEqual(numbers, list(range(101)))
+
+    def test_rest_listing_fails_closed_when_pagination_never_ends(self):
+        original = MODULE.gh_json
+        MODULE.gh_json = lambda args: [
+            {"number": 1, "title": "t", "html_url": "u", "labels": []} for _ in range(100)
+        ]
+        try:
+            with self.assertRaises(ValueError):
+                MODULE.fetch_issues_rest()
+        finally:
+            MODULE.gh_json = original
+
+    def test_release_comment_after_claim_frees_the_issue(self):
+        def claimed_by(bodies):
+            original = MODULE.gh_json
+            MODULE.gh_json = lambda args: [{"body": body} for body in bodies]
+            try:
+                return MODULE.has_claim_comment(1)
+            finally:
+                MODULE.gh_json = original
+
+        self.assertTrue(claimed_by(["着手: Codex"]))
+        self.assertFalse(claimed_by(["着手: Codex", "中断: 別作業を優先"]))
+        self.assertTrue(claimed_by(["着手: Codex", "解除: 一時停止", "着手：Claude"]))
+        self.assertFalse(claimed_by(["雑談"]))
+
 
 if __name__ == "__main__":
     unittest.main()

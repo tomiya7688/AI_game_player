@@ -10,7 +10,7 @@ import math
 import re
 from typing import Any
 
-PROMOTION_SCHEMA_VERSION = 1
+PROMOTION_SCHEMA_VERSION = 2
 MAX_CASES = 1_000_000
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 TIMESTAMP_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
