@@ -84,6 +84,17 @@ class IssueContextPriorityTest(unittest.TestCase):
             MODULE.has_claim_comment = original
         self.assertEqual(selected["number"], 30)
 
+    def test_candidates_beyond_the_check_limit_stop_instead_of_reporting_none(self):
+        # 上限内が全て占有済みで未確認の候補が残る場合は「なし」と答えず止める。
+        original = MODULE.has_claim_comment
+        MODULE.has_claim_comment = lambda number: True
+        try:
+            with self.assertRaises(ValueError):
+                MODULE.select_unclaimed_issue([issue(n, "P1") for n in range(100, 105)], set(), limit=3)
+            self.assertIsNone(MODULE.select_unclaimed_issue([issue(n, "P1") for n in range(100, 103)], set(), limit=3))
+        finally:
+            MODULE.has_claim_comment = original
+
     def test_fullwidth_colon_claim_comment_is_detected(self):
         original = MODULE.gh_json
         MODULE.gh_json = lambda args: [{"body": "着手：Codex, branch"}]

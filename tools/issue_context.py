@@ -503,6 +503,9 @@ def select_unclaimed_issue(issues, claimed, limit=200):
         if not has_claim_comment(issue["number"]):
             return issue
         print(f"[skip] #{issue['number']} は着手コメントあり（他の作業者が占有済み）")
+    if len(ordered) > limit:
+        # 上限内が全て占有済みでも、残りに未占有があり得る。「作業Issueなし」と誤って伝えず止める。
+        raise ValueError(f"{len(ordered) - limit} candidate Issues were not checked for claim comments; refusing to report none")
     return None
 
 
