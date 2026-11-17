@@ -121,7 +121,7 @@ class ChampionRegistry:
     #   処理: [履歴の最後を現在のChampionにし、戻した事実と固定理由を監査へ残す]
     #   引数: [component: 部品名, scope: 対象scope, reason: ROLLBACK_REASONSの一つ, at: UTC Z時刻]
     #   戻り値: [PromotionDecision: status=promoted(=戻した版を本番にした), reasons=空]
-    #   エラー: [PromotionError: not_initialized / no_rollback_target / invalid_input]
+    #   エラー: [PromotionError: not_initialized / no_rollback_target / invalid_input(atが直前の変更時刻より前の場合を含む)]
     # }
     def rollback(self, component: str, scope: KnowledgeScope, *, reason: str, at: str) -> PromotionDecision:
         _check_time(at)
@@ -133,6 +133,10 @@ class ChampionRegistry:
                 raise PromotionError("not_initialized", "no champion registered for this target")
             if not target["history"]:
                 raise PromotionError("no_rollback_target", "no previous champion to restore")
+            # 時刻の巻戻しで評価の鮮度基準(last_change_at)を過去へ戻し、使用済みの評価を再利用させない。
+            # 同じ秒は許す(評価はlast_change_atより厳密に後でなければ使えないので、同秒でも再利用できない)。
+            if at < target["last_change_at"]:
+                raise PromotionError("invalid_input", "at must not precede the last change of this target")
             current = ComponentParameters.from_dict(target["champion"])
             previous = ComponentParameters.from_dict(target["history"].pop())
             target["champion"] = previous.to_dict()

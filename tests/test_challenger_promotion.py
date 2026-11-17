@@ -287,6 +287,21 @@ class PromotionGateTest(unittest.TestCase):
         forged = replace(DECISION, version="decision.v9").to_dict()
         self._tamper_history_and_rollback(lambda history: history.__setitem__(-1, forged))
 
+    def test_backdated_rollback_cannot_reopen_a_used_evaluation(self):
+        # promote(R) -> 過去時刻のrollback -> 同じRの再送。巻戻しは拒否され、状態は変わらない。
+        self.assertTrue(self.decide().promoted)
+        before = self.path.read_text(encoding="utf-8")
+        with self.assertRaises(PromotionError) as context:
+            self.registry.rollback("decision", SCOPE, reason="safety_stop", at="2026-11-06T00:15:00Z")
+        self.assertEqual(context.exception.code, "invalid_input")
+        self.assertEqual(self.path.read_text(encoding="utf-8"), before)
+        self.assertEqual(self.registry.champion("decision", SCOPE).sha256, self.artifact.challenger.sha256)
+
+    def test_same_second_rollback_still_rejects_the_used_evaluation(self):
+        self.assertTrue(self.decide().promoted)
+        self.registry.rollback("decision", SCOPE, reason="safety_stop", at=LATER)  # promoteと同じ秒
+        self.assertEqual(self.decide(at="2026-11-06T02:00:00Z").reasons, ("stale_evaluation",))
+
     def test_non_list_history_and_empty_audit_are_rejected(self):
         for mutate in (
             lambda state: state["targets"][next(iter(state["targets"]))].update(history={}),
