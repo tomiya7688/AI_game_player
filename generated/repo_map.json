@@ -159647,7 +159647,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 105,
+          "line": 116,
           "local_dependencies": [],
           "module": "json",
           "names": [
@@ -159660,7 +159660,7 @@
         {
           "kind": "import",
           "level": 0,
-          "line": 106,
+          "line": 117,
           "local_dependencies": [],
           "module": "subprocess",
           "names": [
@@ -159674,7 +159674,7 @@
       "module": "tests.test_issue_context_priority",
       "path": "tests/test_issue_context_priority.py",
       "source_location": {
-        "end_line": 167,
+        "end_line": 178,
         "start_line": 1
       },
       "symbols": [
@@ -159731,7 +159731,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 163,
+            "end_line": 174,
             "start_line": 22
           }
         },
@@ -159970,6 +159970,29 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_candidates_beyond_the_check_limit_stop_instead_of_reporting_none",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "IssueContextPriorityTest.test_candidates_beyond_the_check_limit_stop_instead_of_reporting_none",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 96,
+            "start_line": 87
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_fullwidth_colon_claim_comment_is_detected",
           "parameters": [
             {
@@ -159984,8 +160007,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 93,
-            "start_line": 87
+            "end_line": 104,
+            "start_line": 98
           }
         },
         {
@@ -160007,8 +160030,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 102,
-            "start_line": 95
+            "end_line": 113,
+            "start_line": 106
           }
         },
         {
@@ -160030,8 +160053,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 124,
-            "start_line": 104
+            "end_line": 135,
+            "start_line": 115
           }
         },
         {
@@ -160059,8 +160082,8 @@
           "signature": "(*_args, **_kwargs)",
           "source_location": {
             "column": 16,
-            "end_line": 116,
-            "start_line": 115
+            "end_line": 127,
+            "start_line": 126
           }
         },
         {
@@ -160082,8 +160105,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 138,
-            "start_line": 126
+            "end_line": 149,
+            "start_line": 137
           }
         },
         {
@@ -160111,8 +160134,8 @@
           "signature": "(number, pull = …)",
           "source_location": {
             "column": 8,
-            "end_line": 129,
-            "start_line": 127
+            "end_line": 140,
+            "start_line": 138
           }
         },
         {
@@ -160134,8 +160157,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 149,
-            "start_line": 140
+            "end_line": 160,
+            "start_line": 151
           }
         },
         {
@@ -160157,8 +160180,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 163,
-            "start_line": 151
+            "end_line": 174,
+            "start_line": 162
           }
         },
         {
@@ -160180,8 +160203,8 @@
           "signature": "(bodies)",
           "source_location": {
             "column": 8,
-            "end_line": 158,
-            "start_line": 152
+            "end_line": 169,
+            "start_line": 163
           }
         }
       ]
@@ -266818,7 +266841,7 @@
       "module": "tools.issue_context",
       "path": "tools/issue_context.py",
       "source_location": {
-        "end_line": 626,
+        "end_line": 629,
         "start_line": 1
       },
       "symbols": [
@@ -267319,7 +267342,7 @@
           "signature": "(issues, claimed, limit = …)",
           "source_location": {
             "column": 0,
-            "end_line": 506,
+            "end_line": 509,
             "start_line": 497
           }
         },
@@ -267348,8 +267371,8 @@
           "signature": "(issues, claimed = …)",
           "source_location": {
             "column": 0,
-            "end_line": 517,
-            "start_line": 509
+            "end_line": 520,
+            "start_line": 512
           }
         },
         {
@@ -267395,8 +267418,8 @@
           "signature": "(issue, max_chars = …, repository_map = …, changed_paths = …, map_error = …)",
           "source_location": {
             "column": 0,
-            "end_line": 587,
-            "start_line": 520
+            "end_line": 590,
+            "start_line": 523
           }
         },
         {
@@ -267418,8 +267441,8 @@
           "signature": "(argv = …)",
           "source_location": {
             "column": 0,
-            "end_line": 623,
-            "start_line": 590
+            "end_line": 626,
+            "start_line": 593
           }
         }
       ]
