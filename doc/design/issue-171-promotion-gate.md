@@ -33,7 +33,7 @@ Parent: #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner�
 
 ## 状態と監査
 
-1ファイルのJSON（`schema: challenger-champion-registry`）。targetごとにChampion・rollback履歴・`last_change_at`を持つ。評価の再利用防止は監査ログではなくこの`last_change_at`（targetごとに1つの単調な時刻）で行うので、監査の保持上限(128件)に依存せず永続的に効き、状態は増えない。各操作は`cross_process_file_lock`内で状態を読み直し、検証し、一時ファイル経由で原子的に置換する（失敗時は旧状態）。audit eventは`prev_digest`/`digest`のhash連鎖で、保持上限128件。切り詰めた分は`audit_base_digest`に連鎖を引き継ぐ。各audit event（却下を含む）は`state_digest`として、確定直後の全targetのChampion・rollback履歴(全要素)・`last_change_at`へのcommitmentを持つ。読込時は最新eventの`state_digest`を現在の状態から再計算して照合するので、最新が`reject`でも、昇格eventが監査の保持上限から落ちた後でも、rollback履歴の差し替え・差し込みを検出する（保存形式はschema_version 2）。読込時にkeyとparameterの整合、連鎖、重複key、NaNを検査し、不整合は`PromotionError(invalid_state)`にする。
+1ファイルのJSON（`schema: challenger-champion-registry`）。targetごとにChampion・rollback履歴・`last_change_at`を持つ。評価の再利用防止は監査ログではなくこの`last_change_at`（targetごとに1つの単調な時刻）で行うので、監査の保持上限(128件)に依存せず永続的に効き、状態は増えない。各操作は`cross_process_file_lock`内で状態を読み直し、検証し、一時ファイル経由で原子的に置換する（失敗時は旧状態）。audit eventは`prev_digest`/`digest`のhash連鎖で、保持上限128件。切り詰めた分は`audit_base_digest`に連鎖を引き継ぐ。rollbackの`at`は直前の`last_change_at`より前にできない（時刻の巻戻しで使用済みの評価を再利用させないため、`invalid_input`で拒否。同じ秒は許すが、評価は`last_change_at`より厳密に後でなければ使えないので再利用はできない）。各audit event（却下を含む）は`state_digest`として、確定直後の全targetのChampion・rollback履歴(全要素)・`last_change_at`へのcommitmentを持つ。読込時は最新eventの`state_digest`を現在の状態から再計算して照合するので、最新が`reject`でも、昇格eventが監査の保持上限から落ちた後でも、rollback履歴の差し替え・差し込みを検出する（保存形式はschema_version 2）。読込時にkeyとparameterの整合、連鎖、重複key、NaNを検査し、不整合は`PromotionError(invalid_state)`にする。
 
 ## テスト（`tests/test_challenger_promotion.py`）
 
