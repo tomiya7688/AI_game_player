@@ -158,6 +158,32 @@ class EvaluationRunnerTest(unittest.TestCase):
         with self.assertRaises(KeyboardInterrupt):
             self.run_eval(self.improving_cases(), predictor=interrupted)
 
+    def test_non_bool_predictions_are_failures_never_correct_answers(self):
+        # 1/0/1.0/0.0 は True/False と == で等しいが、bool以外は契約違反として故障に数える。
+        class RaisingEq:
+            def __eq__(self, _other):
+                raise RuntimeError("comparison")
+
+            __hash__ = None
+
+        for value in (1, 0, 1.0, 0.0, None, "True", RaisingEq()):
+            with self.subTest(value=repr(value)):
+                _, event = self.run_eval(
+                    self.improving_cases(), predictor=lambda _p, _c, value=value: value
+                )
+                for arm in ("champion", "challenger"):
+                    summary = event.groups["target"][arm]
+                    self.assertEqual(
+                        (summary.scored, summary.failed, summary.correct), (12, 12, 0)
+                    )
+
+    def test_bool_predictions_are_still_scored_normally(self):
+        _, event = self.run_eval(
+            self.improving_cases(), predictor=lambda _p, _c: True
+        )
+        summary = event.groups["target"]["champion"]
+        self.assertEqual((summary.scored, summary.failed), (12, 0))
+
     def test_regression_cases_replaced_by_timeouts_are_never_promotable(self):
         # 回帰群は元から不正解(Champion=False)でも、Challengerが全例Timeoutへ置換したらaccuracyは同じでも劣化として扱う。
         cases = group("t", 12, "target", 0.5, "failure") + group(

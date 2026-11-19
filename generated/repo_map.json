@@ -19622,7 +19622,7 @@
       "module": "ai_game_player.challenger_evaluation",
       "path": "src/ai_game_player/challenger_evaluation.py",
       "source_location": {
-        "end_line": 395,
+        "end_line": 398,
         "start_line": 1
       },
       "symbols": [
@@ -19850,7 +19850,7 @@
           "signature": "(parameters: ComponentParameters, cases: list[Any], policy: EvaluationPolicy, predictor: Callable[[ComponentParameters, Any], bool], clock: Callable[[], float]) -> ArmSummary",
           "source_location": {
             "column": 0,
-            "end_line": 246,
+            "end_line": 249,
             "start_line": 211
           }
         },
@@ -19873,8 +19873,8 @@
           "signature": "(case: Any) -> PredictionInput",
           "source_location": {
             "column": 0,
-            "end_line": 258,
-            "start_line": 253
+            "end_line": 261,
+            "start_line": 256
           }
         },
         {
@@ -19902,8 +19902,8 @@
           "signature": "(artifact: ChallengerArtifact, evaluable_strategies: Sequence[str]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 272,
-            "start_line": 266
+            "end_line": 275,
+            "start_line": 269
           }
         },
         {
@@ -19949,8 +19949,8 @@
           "signature": "(artifact: ChallengerArtifact, cases: Sequence[EvaluationCase], policy: EvaluationPolicy, *, evaluation_ref: str, evaluated_at: str) -> tuple[CandidateEvaluation, EvaluationEvent]",
           "source_location": {
             "column": 0,
-            "end_line": 323,
-            "start_line": 280
+            "end_line": 326,
+            "start_line": 283
           }
         },
         {
@@ -19972,8 +19972,8 @@
           "signature": "(case: Any) -> bool | None",
           "source_location": {
             "column": 0,
-            "end_line": 338,
-            "start_line": 326
+            "end_line": 341,
+            "start_line": 329
           }
         },
         {
@@ -19995,8 +19995,8 @@
           "signature": "(values: list[float]) -> float",
           "source_location": {
             "column": 0,
-            "end_line": 345,
-            "start_line": 341
+            "end_line": 348,
+            "start_line": 344
           }
         },
         {
@@ -20018,8 +20018,8 @@
           "signature": "(summaries: dict[str, dict[str, ArmSummary]]) -> bool",
           "source_location": {
             "column": 0,
-            "end_line": 356,
-            "start_line": 352
+            "end_line": 359,
+            "start_line": 355
           }
         },
         {
@@ -20047,8 +20047,8 @@
           "signature": "(summaries: dict[str, dict[str, ArmSummary]], policy: EvaluationPolicy) -> tuple[str, tuple[str, ...]]",
           "source_location": {
             "column": 0,
-            "end_line": 382,
-            "start_line": 359
+            "end_line": 385,
+            "start_line": 362
           }
         },
         {
@@ -20070,8 +20070,8 @@
           "signature": "(pairs: list[tuple[str, Any]]) -> dict[str, Any]",
           "source_location": {
             "column": 0,
-            "end_line": 391,
-            "start_line": 385
+            "end_line": 394,
+            "start_line": 388
           }
         },
         {
@@ -20093,8 +20093,8 @@
           "signature": "(value: str) -> Any",
           "source_location": {
             "column": 0,
-            "end_line": 395,
-            "start_line": 394
+            "end_line": 398,
+            "start_line": 397
           }
         }
       ]
@@ -131357,7 +131357,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 299,
+          "line": 325,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.challenger_evaluation"
@@ -131374,7 +131374,7 @@
       "module": "tests.test_challenger_evaluation",
       "path": "tests/test_challenger_evaluation.py",
       "source_location": {
-        "end_line": 444,
+        "end_line": 470,
         "start_line": 1
       },
       "symbols": [
@@ -131521,7 +131521,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 257,
+            "end_line": 283,
             "start_line": 64
           }
         },
@@ -131842,6 +131842,101 @@
           "data_model": null,
           "decorators": [],
           "kind": "method",
+          "name": "test_non_bool_predictions_are_failures_never_correct_answers",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_non_bool_predictions_are_failures_never_correct_answers",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 178,
+            "start_line": 161
+          }
+        },
+        {
+          "bases": [],
+          "data_model": {
+            "dataclass": false,
+            "enum": false,
+            "protocol": false
+          },
+          "decorators": [],
+          "kind": "class",
+          "name": "RaisingEq",
+          "parameters": [],
+          "qualified_name": "EvaluationRunnerTest.test_non_bool_predictions_are_failures_never_correct_answers.RaisingEq",
+          "return_annotation": null,
+          "signature": null,
+          "source_location": {
+            "column": 8,
+            "end_line": 167,
+            "start_line": 163
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "__eq__",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            },
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "_other"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_non_bool_predictions_are_failures_never_correct_answers.RaisingEq.__eq__",
+          "return_annotation": null,
+          "signature": "(self, _other)",
+          "source_location": {
+            "column": 12,
+            "end_line": 165,
+            "start_line": 164
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
+          "name": "test_bool_predictions_are_still_scored_normally",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "EvaluationRunnerTest.test_bool_predictions_are_still_scored_normally",
+          "return_annotation": null,
+          "signature": "(self)",
+          "source_location": {
+            "column": 4,
+            "end_line": 185,
+            "start_line": 180
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "method",
           "name": "test_regression_cases_replaced_by_timeouts_are_never_promotable",
           "parameters": [
             {
@@ -131856,8 +131951,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 191,
-            "start_line": 161
+            "end_line": 217,
+            "start_line": 187
           }
         },
         {
@@ -131885,8 +131980,8 @@
           "signature": "(parameters, case)",
           "source_location": {
             "column": 8,
-            "end_line": 173,
-            "start_line": 167
+            "end_line": 199,
+            "start_line": 193
           }
         },
         {
@@ -131908,8 +132003,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 198,
-            "start_line": 193
+            "end_line": 224,
+            "start_line": 219
           }
         },
         {
@@ -131931,8 +132026,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 211,
-            "start_line": 200
+            "end_line": 237,
+            "start_line": 226
           }
         },
         {
@@ -131960,8 +132055,8 @@
           "signature": "(parameters, scored_case)",
           "source_location": {
             "column": 8,
-            "end_line": 205,
-            "start_line": 203
+            "end_line": 231,
+            "start_line": 229
           }
         },
         {
@@ -131983,8 +132078,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 237,
-            "start_line": 213
+            "end_line": 263,
+            "start_line": 239
           }
         },
         {
@@ -132006,8 +132101,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 257,
-            "start_line": 239
+            "end_line": 283,
+            "start_line": 265
           }
         },
         {
@@ -132028,8 +132123,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 372,
-            "start_line": 260
+            "end_line": 398,
+            "start_line": 286
           }
         },
         {
@@ -132051,8 +132146,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 285,
-            "start_line": 263
+            "end_line": 311,
+            "start_line": 289
           }
         },
         {
@@ -132080,8 +132175,8 @@
           "signature": "(self, **kwargs)",
           "source_location": {
             "column": 4,
-            "end_line": 295,
-            "start_line": 287
+            "end_line": 321,
+            "start_line": 313
           }
         },
         {
@@ -132103,8 +132198,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 305,
-            "start_line": 297
+            "end_line": 331,
+            "start_line": 323
           }
         },
         {
@@ -132126,8 +132221,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 332,
-            "start_line": 307
+            "end_line": 358,
+            "start_line": 333
           }
         },
         {
@@ -132155,8 +132250,8 @@
           "signature": "(_parameters, _case)",
           "source_location": {
             "column": 8,
-            "end_line": 312,
-            "start_line": 310
+            "end_line": 338,
+            "start_line": 336
           }
         },
         {
@@ -132178,8 +132273,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 339,
-            "start_line": 334
+            "end_line": 365,
+            "start_line": 360
           }
         },
         {
@@ -132201,8 +132296,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 357,
-            "start_line": 341
+            "end_line": 383,
+            "start_line": 367
           }
         },
         {
@@ -132230,8 +132325,8 @@
           "signature": "(parameters, scored)",
           "source_location": {
             "column": 8,
-            "end_line": 346,
-            "start_line": 342
+            "end_line": 372,
+            "start_line": 368
           }
         },
         {
@@ -132253,8 +132348,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 372,
-            "start_line": 359
+            "end_line": 398,
+            "start_line": 385
           }
         },
         {
@@ -132275,8 +132370,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 405,
-            "start_line": 375
+            "end_line": 431,
+            "start_line": 401
           }
         },
         {
@@ -132298,8 +132393,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 405,
-            "start_line": 378
+            "end_line": 431,
+            "start_line": 404
           }
         },
         {
@@ -132327,8 +132422,8 @@
           "signature": "(_parameters, scored)",
           "source_location": {
             "column": 8,
-            "end_line": 385,
-            "start_line": 383
+            "end_line": 411,
+            "start_line": 409
           }
         },
         {
@@ -132349,8 +132444,8 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 440,
-            "start_line": 408
+            "end_line": 466,
+            "start_line": 434
           }
         },
         {
@@ -132372,8 +132467,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 420,
-            "start_line": 409
+            "end_line": 446,
+            "start_line": 435
           }
         },
         {
@@ -132395,8 +132490,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 424,
-            "start_line": 422
+            "end_line": 450,
+            "start_line": 448
           }
         },
         {
@@ -132418,8 +132513,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 434,
-            "start_line": 426
+            "end_line": 460,
+            "start_line": 452
           }
         },
         {
@@ -132441,8 +132536,8 @@
           "signature": "(self)",
           "source_location": {
             "column": 4,
-            "end_line": 440,
-            "start_line": 436
+            "end_line": 466,
+            "start_line": 462
           }
         }
       ]

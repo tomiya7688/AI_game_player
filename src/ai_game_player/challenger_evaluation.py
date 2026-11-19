@@ -234,6 +234,9 @@ def _summarize(
         latencies.append(elapsed_ms)
         if elapsed_ms > policy.case_latency_budget_ms:
             failed += 1  # 時間超過は誤り扱いにして母数へ含める
+        elif type(accepted) is not bool:
+            # 契約はbool。1/0/1.0/0.0/Noneなどはboolと==で等しくなりうるので、型を厳密に見て故障として母数へ残す。
+            failed += 1
         elif accepted == label:
             correct += 1
     return ArmSummary(
