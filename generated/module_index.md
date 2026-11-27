@@ -13,6 +13,7 @@
 | [applications](#group-pkg-applications) | 10 | `applications/` |
 | [belief_*](#group-pfx-belief) | 7 | 直下の`belief_`で始まるモジュール |
 | [campaign_*](#group-pfx-campaign) | 5 | 直下の`campaign_`で始まるモジュール |
+| [challenger_*](#group-pfx-challenger) | 5 | 直下の`challenger_`で始まるモジュール |
 | [decision_*](#group-pfx-decision) | 5 | 直下の`decision_`で始まるモジュール |
 | [evaluation_*](#group-pfx-evaluation) | 5 | 直下の`evaluation_`で始まるモジュール |
 | [frame_*](#group-pfx-frame) | 4 | 直下の`frame_`で始まるモジュール |
@@ -27,27 +28,27 @@
 | [runtime](#group-pkg-runtime) | 10 | `runtime/` |
 | [runtime_*](#group-pfx-runtime) | 8 | 直下の`runtime_`で始まるモジュール |
 | [ui](#group-pkg-ui) | 5 | `ui/` |
-| [(その他の直下)](#group-misc-top) | 91 | 接頭辞で束ねられない直下のモジュール |
+| [(その他の直下)](#group-misc-top) | 88 | 接頭辞で束ねられない直下のモジュール |
 
 ## 最初に読む場所（依存元が多いモジュール）
 
 | モジュール | 依存元の数 | 責務 |
 |---|---|---|
 | [`ai_game_player.models`](../src/ai_game_player/models.py) | 51 | 判断元が選んだ操作、その理由、回答が基づいた画面状態を実行前検証へ渡す |
-| [`ai_game_player.knowledge_scope`](../src/ai_game_player/knowledge_scope.py) | 21 | 自由文やパスを含まない有界の不透明識別子だけを受理する |
+| [`ai_game_player.knowledge_scope`](../src/ai_game_player/knowledge_scope.py) | 22 | 自由文やパスを含まない有界の不透明識別子だけを受理する |
 | [`ai_game_player.belief_contract`](../src/ai_game_player/belief_contract.py) | 20 | 確率と比較score、確率が分からない状態を区別する |
 | [`ai_game_player.experience`](../src/ai_game_player/experience.py) | 18 | (責務コメントなし) |
 | [`ai_game_player.belief_validation`](../src/ai_game_player/belief_validation.py) | 16 | 自由文・パスを含まない有界の参照IDを検証する |
+| [`ai_game_player.atomic_json`](../src/ai_game_player/atomic_json.py) | 15 | JSON内容を一時ファイルへ準備し、呼出側の確定時に置換する |
 | [`ai_game_player.decision_context`](../src/ai_game_player/decision_context.py) | 15 | 1つの評価器が1候補について出した点数・根拠・確信度をまとめる |
 | [`ai_game_player.planning_outcome`](../src/ai_game_player/planning_outcome.py) | 15 | 操作選択、再観測、保留、追加判断要求を共通の語彙で表す |
 | [`ai_game_player.screen_capture`](../src/ai_game_player/screen_capture.py) | 15 | BGRA画素、取得時刻、screen/window mapping、適用済みROI変換を保持する |
-| [`ai_game_player.atomic_json`](../src/ai_game_player/atomic_json.py) | 14 | JSON内容を一時ファイルへ準備し、呼出側の確定時に置換する |
 | [`ai_game_player.decision_withheld`](../src/ai_game_player/decision_withheld.py) | 12 | 入力を提案しなかった判断をSessionへ伝える |
 | [`ai_game_player.outcome`](../src/ai_game_player/outcome.py) | 12 | (責務コメントなし) |
 | [`ai_game_player.belief_snapshot`](../src/ai_game_player/belief_snapshot.py) | 11 | 更新コストと切詰め・相関の件数を有界metadataへ固定する |
 | [`ai_game_player.run_control`](../src/ai_game_player/run_control.py) | 11 | 停止または再開で失効した実行を表す |
+| [`ai_game_player.bounded_file`](../src/ai_game_player/bounded_file.py) | 10 | 非通常ファイルや途中の差し替えを検査し、上限付きbytesだけを読む |
 | [`ai_game_player.artifact_store`](../src/ai_game_player/artifact_store.py) | 9 | 既存Store契約を壊さず容量上限・型照合の読込能力を追加する |
-| [`ai_game_player.bounded_file`](../src/ai_game_player/bounded_file.py) | 9 | 非通常ファイルや途中の差し替えを検査し、上限付きbytesだけを読む |
 
 ## グループ間の依存図
 
@@ -56,6 +57,7 @@ flowchart LR
     group_pkg_applications["applications (10)"]
     group_pfx_belief["belief_* (7)"]
     group_pfx_campaign["campaign_* (5)"]
+    group_pfx_challenger["challenger_* (5)"]
     group_pfx_decision["decision_* (5)"]
     group_pfx_evaluation["evaluation_* (5)"]
     group_pfx_frame["frame_* (4)"]
@@ -70,14 +72,14 @@ flowchart LR
     group_pkg_runtime["runtime (10)"]
     group_pfx_runtime["runtime_* (8)"]
     group_pkg_ui["ui (5)"]
-    group_misc_top["(その他の直下) (91)"]
+    group_misc_top["(その他の直下) (88)"]
     group_misc_top -->|7| group_pfx_belief
     group_misc_top -->|13| group_pfx_decision
     group_misc_top -->|1| group_pfx_evaluation
     group_misc_top -->|5| group_pfx_frame
     group_misc_top -->|2| group_pfx_game
     group_misc_top -->|6| group_pfx_hook
-    group_misc_top -->|8| group_pfx_knowledge
+    group_misc_top -->|7| group_pfx_knowledge
     group_misc_top -->|9| group_pfx_outcome
     group_misc_top -->|12| group_pfx_planning
     group_misc_top -->|11| group_pfx_retention
@@ -88,6 +90,8 @@ flowchart LR
     group_pkg_applications -->|1| group_pfx_decision
     group_pkg_applications -->|1| group_pfx_frame
     group_pfx_belief -->|6| group_misc_top
+    group_pfx_challenger -->|8| group_misc_top
+    group_pfx_challenger -->|2| group_pfx_knowledge
     group_pfx_decision -->|11| group_misc_top
     group_pfx_decision -->|2| group_pfx_knowledge
     group_pfx_decision -->|1| group_pfx_outcome
@@ -177,6 +181,17 @@ flowchart LR
 | [`campaign_loop`](../src/ai_game_player/campaign_loop.py) | `CampaignProgress`, `CampaignLoop` | 1回のcampaignで変化するepisode、状態、action、停止、metricを集約する | 2: `campaign_artifacts`, `campaign_contract` | 1: `campaign_execution` |
 | [`campaign_runner`](../src/ai_game_player/campaign_runner.py) | - | Public imports for the reusable campaign contract and deadline runner. | 3: `campaign_artifacts`, `campaign_contract`, `campaign_execution` | - |
 
+<a id="group-pfx-challenger"></a>
+## challenger_*
+
+| モジュール | 主なクラス | 責務 | 依存先 | 依存元 |
+|---|---|---|---|---|
+| [`challenger_promotion`](../src/ai_game_player/challenger_promotion.py) | `ChampionRegistry`, `_StateSession` | component×scopeごとのChampion pointer・rollback履歴・監査を1ファイルで所有し、採否とrollbackを原子的に確定する | 6: `atomic_json`, `bounded_file`, `challenger_promotion_models`, `challenger_update_models`, `cross_process_lock` 他1 | - |
+| [`challenger_promotion_models`](../src/ai_game_player/challenger_promotion_models.py) | `PromotionError`, `PromotionCriteria`, `CandidateEvaluation` | Gateの入力・状態・保存内容が契約に反することを機械可読な理由付きで伝える | - | 1: `challenger_promotion` |
+| [`challenger_update`](../src/ai_game_player/challenger_update.py) | - | 診断報告のcandidate targetから型付き更新提案を作り、仮説targetを観測要求へ分ける | 5: `artifact_store`, `challenger_update_models`, `challenger_update_policy`, `learning_dataset`, `training_diagnosis_models` | - |
+| [`challenger_update_models`](../src/ai_game_player/challenger_update_models.py) | `ChallengerUpdateError`, `Prototype`, `ComponentParameters` | 更新提案・Challenger生成・読込の拒否を固定codeで伝える | 4: `challenger_update_policy`, `knowledge_scope`, `learning_dataset`, `training_diagnosis_models` | 2: `challenger_promotion`, `challenger_update` |
+| [`challenger_update_policy`](../src/ai_game_player/challenger_update_policy.py) | `ChallengerUpdatePolicy` | 更新提案のstrategy選択・更新量・件数上限を一つの指紋へ固定する | - | 2: `challenger_update`, `challenger_update_models` |
+
 <a id="group-pfx-decision"></a>
 ## decision_*
 
@@ -244,7 +259,7 @@ flowchart LR
 | [`knowledge_projection`](../src/ai_game_player/knowledge_projection.py) | `KnowledgeProjection` | 参照Knowledgeの版・出所・soft hintを一回の判断へ固定する | - | 2: `decision_context`, `knowledge_feature_adapter` |
 | [`knowledge_promotion`](../src/ai_game_player/knowledge_promotion.py) | `KnowledgePromotionResult`, `KnowledgePromotionGate` | 昇格・却下・復元の結論と確定した世代を返す | 12: `artifact_store`, `atomic_json`, `bounded_file`, `cross_process_lock`, `experience` 他7 | 1: `light_adaptation` |
 | [`knowledge_promotion_policy`](../src/ai_game_player/knowledge_promotion_policy.py) | `KnowledgePromotionPolicy` | 知識の小標本・悪化・資源超過を昇格前に拒否する | 2: `knowledge_evaluation`, `knowledge_snapshot` | 1: `knowledge_promotion` |
-| [`knowledge_scope`](../src/ai_game_player/knowledge_scope.py) | `KnowledgeScope` | 自由文やパスを含まない有界の不透明識別子だけを受理する | - | 21: `challenger_update_models`, `evaluation_prediction`, `evaluation_profile`, `knowledge_builder`, `knowledge_builder_policy` 他16 |
+| [`knowledge_scope`](../src/ai_game_player/knowledge_scope.py) | `KnowledgeScope` | 自由文やパスを含まない有界の不透明識別子だけを受理する | - | 22: `challenger_promotion`, `challenger_update_models`, `evaluation_prediction`, `evaluation_profile`, `knowledge_builder` 他17 |
 | [`knowledge_snapshot`](../src/ai_game_player/knowledge_snapshot.py) | `KnowledgeSnapshot` | 検証済み数値知識とその出所を、変更不能な正規化JSONとして保持する | 1: `knowledge_scope` | 9: `knowledge_builder`, `knowledge_evaluation`, `knowledge_feature_adapter`, `knowledge_light_validation`, `knowledge_promotion_policy` 他4 |
 | [`knowledge_snapshot_store`](../src/ai_game_player/knowledge_snapshot_store.py) | `KnowledgeReadResult`, `KnowledgeSnapshotStore` | 有効Snapshotかstatic defaultへ戻す理由を明示する | 7: `artifact_store`, `atomic_json`, `bounded_file`, `cross_process_lock`, `experience` 他2 | 2: `knowledge_promotion`, `light_adaptation` |
 | [`knowledge_update_sample`](../src/ai_game_player/knowledge_update_sample.py) | `KnowledgeUpdateSample` | 操作との対応と証拠の出所を保持する、変更不能な集計用投影 | 3: `experience`, `knowledge_scope`, `knowledge_snapshot` | 7: `knowledge_builder`, `knowledge_light_validation`, `knowledge_update_statistics`, `light_adaptation`, `light_pending_store` 他2 |
@@ -375,9 +390,9 @@ flowchart LR
 | [`artifact_admission`](../src/ai_game_player/artifact_admission.py) | `ArtifactAdmissionError`, `ArtifactAdmissionRequest`, `AdmissionTraceEvent` | put以降の失敗を、補償結果付きで呼出側へ通知する（silent successにしない） | 6: `admission_pending_store`, `artifact_store`, `experience`, `retention_collector`, `retention_index` 他1 | 3: `orphan_reconciler`, `runtime.retention_adapter`, `runtime.session_composition` |
 | [`artifact_store`](../src/ai_game_player/artifact_store.py) | `ArtifactIntegrityError`, `ArtifactMetadata`, `IntegrityIssue` | 既存Store契約を壊さず容量上限・型照合の読込能力を追加する | 2: `bounded_file`, `experience` | 9: `artifact_admission`, `challenger_update`, `experience_reader`, `knowledge_promotion`, `knowledge_snapshot_store` 他4 |
 | [`artifact_trash`](../src/ai_game_player/artifact_trash.py) | `TrashIntentError`, `TrashIntent`, `TrashSweepReport` | trash intent recordが契約外で、安全に判断できないことを通知する | 5: `atomic_json`, `bounded_file`, `retention_collector`, `retention_index`, `retention_root_lock` | 2: `orphan_reconciler`, `retention_collector` |
-| [`atomic_json`](../src/ai_game_player/atomic_json.py) | `StagedJsonWrite` | JSON内容を一時ファイルへ準備し、呼出側の確定時に置換する | - | 14: `admission_pending_store`, `artifact_trash`, `decision_context`, `engine`, `execution_history` 他9 |
+| [`atomic_json`](../src/ai_game_player/atomic_json.py) | `StagedJsonWrite` | JSON内容を一時ファイルへ準備し、呼出側の確定時に置換する | - | 15: `admission_pending_store`, `artifact_trash`, `challenger_promotion`, `decision_context`, `engine` 他10 |
 | [`baseline_provider`](../src/ai_game_player/baseline_provider.py) | `BaselineProviderProfile`, `BaselineDecision`, `BaselineWithheld` | 学習Model・GPU・通信なしで動く判断元が、満たす条件と対応する判断能力を機械可読に宣言する | 4: `decision_context`, `decision_withheld`, `models`, `planning_outcome` | 4: `knowledge_evaluation`, `planner_factory`, `planner_provider`, `provider` |
-| [`bounded_file`](../src/ai_game_player/bounded_file.py) | - | 非通常ファイルや途中の差し替えを検査し、上限付きbytesだけを読む | - | 9: `admission_pending_store`, `artifact_store`, `artifact_trash`, `data_inventory`, `knowledge_promotion` 他4 |
+| [`bounded_file`](../src/ai_game_player/bounded_file.py) | - | 非通常ファイルや途中の差し替えを検査し、上限付きbytesだけを読む | - | 10: `admission_pending_store`, `artifact_store`, `artifact_trash`, `challenger_promotion`, `data_inventory` 他5 |
 | [`bounded_planner`](../src/ai_game_player/bounded_planner.py) | `BoundedExpectimaxPlanner` | 純粋な探索callbackを親の停止/観測/メモリ境界から分離する | 11: `belief_contract`, `belief_snapshot`, `belief_validation`, `planning_contract`, `planning_file_reader` 他6 | 1: `planner_factory` |
 | [`bright_region_detector`](../src/ai_game_player/bright_region_detector.py) | `BrightRegionDetector` | 輝度が高い連結領域を検出し、UI要素かどうかは未確認の要素として返す | 2: `models`, `screen_capture` | 3: `frame_analyzer`, `frame_preprocessor`, `runtime.native` |
 | [`bundle_self_check`](../src/ai_game_player/bundle_self_check.py) | `BundleCheckResult` | 自己検査1項目の合否と、失敗時に原因を特定できる説明を保持する | 3: `runtime`, `runtime.native`, `safety_guard` | 1: `__main__` |
@@ -386,11 +401,8 @@ flowchart LR
 | [`capture_geometry`](../src/ai_game_player/capture_geometry.py) | `CaptureGeometry` | packed BGRA frameの1pixelを構成するbyte数を定義する | 1: `capture_region` | 4: `capture_region`, `frame_analyzer`, `observation_service`, `screen_capture` |
 | [`capture_region`](../src/ai_game_player/capture_region.py) | `CaptureRegionMode`, `PixelRect`, `NormalizedRect` | 利用者が明示した矩形の解決成功を記録するconfidence値を定義する | 1: `capture_geometry` | 8: `app`, `application_workflow`, `capture_geometry`, `config`, `frame_analyzer` 他3 |
 | [`captured_source`](../src/ai_game_player/captured_source.py) | `CapturedObservationSource` | 一つの実capture sourceから認識結果と新Frame参照を生成する | 3: `frame_analyzer`, `frame_stream`, `models` | - |
-| [`challenger_update`](../src/ai_game_player/challenger_update.py) | - | 診断報告のcandidate targetから型付き更新提案を作り、仮説targetを観測要求へ分ける | 5: `artifact_store`, `challenger_update_models`, `challenger_update_policy`, `learning_dataset`, `training_diagnosis_models` | - |
-| [`challenger_update_models`](../src/ai_game_player/challenger_update_models.py) | `ChallengerUpdateError`, `Prototype`, `ComponentParameters` | 更新提案・Challenger生成・読込の拒否を固定codeで伝える | 4: `challenger_update_policy`, `knowledge_scope`, `learning_dataset`, `training_diagnosis_models` | 1: `challenger_update` |
-| [`challenger_update_policy`](../src/ai_game_player/challenger_update_policy.py) | `ChallengerUpdatePolicy` | 更新提案のstrategy選択・更新量・件数上限を一つの指紋へ固定する | - | 2: `challenger_update`, `challenger_update_models` |
 | [`config`](../src/ai_game_player/config.py) | `AppConfig`, `ConfigStore` | 判断・実行設定と永続化可能なcapture regionを保持する | 1: `capture_region` | 2: `app`, `application_workflow` |
-| [`cross_process_lock`](../src/ai_game_player/cross_process_lock.py) | - | (責務コメントなし) | - | 5: `fail_safe_runtime`, `knowledge_promotion`, `knowledge_snapshot_store`, `light_pending_store`, `retention_root_lock` |
+| [`cross_process_lock`](../src/ai_game_player/cross_process_lock.py) | - | (責務コメントなし) | - | 6: `challenger_promotion`, `fail_safe_runtime`, `knowledge_promotion`, `knowledge_snapshot_store`, `light_pending_store` 他1 |
 | [`data_class_policy`](../src/ai_game_player/data_class_policy.py) | `DataClassPolicyError`, `DataClassPolicy` | data class policyが契約外で、保存・送信判断に使えないことを通知する | - | 1: `data_inventory` |
 | [`data_inventory`](../src/ai_game_player/data_inventory.py) | `DataInventoryError`, `DataInventory` | data inventoryが契約外、または問合せ対象が未登録であることを通知する | 2: `bounded_file`, `data_class_policy` | 2: `orphan_reconciler`, `runtime.session_composition` |
 | [`deferred_trace_append`](../src/ai_game_player/deferred_trace_append.py) | `DeferredTraceAppend` | 計画準備後に追記された実行auditを失わず判断traceを公開する | - | 2: `decision_context`, `engine` |

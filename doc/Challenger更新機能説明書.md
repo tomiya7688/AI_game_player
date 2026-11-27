@@ -1,6 +1,6 @@
 # Challenger更新（Challenger Update Pipeline）機能説明書
 
-[リポジトリに戻る](../README.md) ｜ [学習診断](学習診断機能説明書.md) ｜ [記録と学習の案内](guide/records_learning.md) ｜ [設計](design/issue-170-challenger-update.md)
+[リポジトリに戻る](../README.md) ｜ [学習診断](学習診断機能説明書.md) ｜ [記録と学習の案内](guide/records_learning.md) ｜ [設計](design/issue-170-challenger-update.md) ｜ [採否Gate（#171）](design/issue-171-promotion-gate.md)
 
 Issue #170（親 #36）の今回のスライスを説明します。#169の学習診断（`TrainingDiagnosisReport`）から型付きの更新提案を作り、Championの部品parameterを変えずに、版・出所・資源見積り付きのChallenger artifactを決定論的に生成します。採否・Champion pointer・rollbackの適用（#171）と、Champion/Challengerの比較評価（#173）は行いません。
 
