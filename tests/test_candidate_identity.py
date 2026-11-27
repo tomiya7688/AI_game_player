@@ -185,3 +185,16 @@ def test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart() -> None:
     second = ActionCandidate("b", "click", "OK", 50, 5, 0.9, False, (40, 0, 10, 10))
     report = CandidateMerger(iou_threshold=0).merge_detailed([first, second], [])
     assert len(report.candidates) == 2
+
+
+def test_issue_853_comparisons_stay_within_pair_limit_at_capacity() -> None:
+    from ai_game_player.candidate_identity import MAX_CANDIDATES, MAX_PAIR_COMPARISONS
+    from ai_game_player.candidate_merger import CandidateMerger
+    from ai_game_player.models import ActionCandidate
+
+    items = [
+        ActionCandidate(f"id{i}", "click", "", 10, 10, 0.9, False, (0, 0, 10, 10))
+        for i in range(MAX_CANDIDATES)
+    ]
+    report = CandidateMerger().merge_detailed(items, [])
+    assert report.comparisons <= MAX_PAIR_COMPARISONS

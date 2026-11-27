@@ -127140,12 +127140,64 @@
               "name": "ActionCandidate"
             }
           ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 191,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_identity"
+          ],
+          "module": "ai_game_player.candidate_identity",
+          "names": [
+            {
+              "alias": null,
+              "name": "MAX_CANDIDATES"
+            },
+            {
+              "alias": null,
+              "name": "MAX_PAIR_COMPARISONS"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 192,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_merger"
+          ],
+          "module": "ai_game_player.candidate_merger",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateMerger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 193,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            }
+          ]
         }
       ],
       "module": "tests.test_candidate_identity",
       "path": "tests/test_candidate_identity.py",
       "source_location": {
-        "end_line": 187,
+        "end_line": 200,
         "start_line": 1
       },
       "symbols": [
@@ -127631,6 +127683,22 @@
             "column": 0,
             "end_line": 187,
             "start_line": 180
+          }
+        },
+        {
+          "bases": [],
+          "data_model": null,
+          "decorators": [],
+          "kind": "function",
+          "name": "test_issue_853_comparisons_stay_within_pair_limit_at_capacity",
+          "parameters": [],
+          "qualified_name": "test_issue_853_comparisons_stay_within_pair_limit_at_capacity",
+          "return_annotation": "None",
+          "signature": "() -> None",
+          "source_location": {
+            "column": 0,
+            "end_line": 200,
+            "start_line": 190
           }
         }
       ]
