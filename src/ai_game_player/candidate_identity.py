@@ -129,6 +129,14 @@ def ground_pair(
     if (
         left.bbox is not None
         and right.bbox is not None
+        and "image" not in (left.source, right.source)
+        and iou(left.bbox, right.bbox) == 0
+    ):
+        # 矩形が重ならない設定済み・認識済み候補は、中心のIoU閾値より先に判定し、近接だけでは同一視しない
+        return Grounding.DIFFERENT
+    if (
+        left.bbox is not None
+        and right.bbox is not None
         and iou(left.bbox, right.bbox) >= iou_threshold
     ):
         return Grounding.DIFFERENT if text_conflict else Grounding.SAME
