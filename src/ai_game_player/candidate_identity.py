@@ -113,7 +113,7 @@ def iou(left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> fl
 #     "種別が違えばDIFFERENTを返す",
 #     "矩形が重ならない設定済み・認識済み候補（画像由来を除く）は近接だけでは同一視せずDIFFERENTを返す",
 #     "矩形の重なり率が閾値以上ならSAME（文字が食い違えばDIFFERENT）を返す",
-#     "中心距離が許容値内で、文字が両方あれば一致する場合だけSAMEを返す"
+#     "中心距離が許容値内で、文字が両方あれば一致する場合だけSAMEを返す（文字が片方でも無い組は、画像由来を含む場合だけSAME、それ以外はDIFFERENT）"
 #   ],
 #   "引数": {
 #     "left": "比較する候補",
@@ -122,7 +122,7 @@ def iou(left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> fl
 #     "iou_threshold": "重なり率の閾値"
 #   },
 #   "戻り値": {
-#     "Grounding": "SAME・DIFFERENT・AMBIGUOUSのいずれか"
+#     "Grounding": "SAME=同一要素として統合してよい、DIFFERENT=別候補として残す、AMBIGUOUS=座標系・Frame・世代の食い違いで判定できず保留する"
 #   },
 #   "補足": [
 #     "IDは判定に使わない"

@@ -129546,7 +129546,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 155,
+          "line": 150,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_merger"
@@ -129562,7 +129562,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 156,
+          "line": 151,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -129578,7 +129578,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 177,
+          "line": 173,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_identity"
@@ -129598,7 +129598,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 178,
+          "line": 174,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_merger"
@@ -129614,7 +129614,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 179,
+          "line": 175,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -129630,7 +129630,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 201,
+          "line": 198,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_merger"
@@ -129646,7 +129646,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 202,
+          "line": 199,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -129662,7 +129662,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 226,
+          "line": 224,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_merger"
@@ -129678,7 +129678,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 227,
+          "line": 225,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -129694,7 +129694,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 247,
+          "line": 244,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_identity"
@@ -129747,7 +129747,7 @@
       "module": "tests.test_candidate_identity",
       "path": "tests/test_candidate_identity.py",
       "source_location": {
-        "end_line": 256,
+        "end_line": 260,
         "start_line": 1
       },
       "symbols": [
@@ -129822,7 +129822,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 136,
+            "end_line": 256,
             "start_line": 23
           }
         },
@@ -130175,80 +130175,115 @@
           "bases": [],
           "data_model": null,
           "decorators": [],
-          "kind": "function",
+          "kind": "method",
           "name": "test_issue_853_disjoint_rects_are_not_merged_by_proximity",
-          "parameters": [],
-          "qualified_name": "test_issue_853_disjoint_rects_are_not_merged_by_proximity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_issue_853_disjoint_rects_are_not_merged_by_proximity",
           "return_annotation": "None",
-          "signature": "() -> None",
+          "signature": "(self) -> None",
           "source_location": {
-            "column": 0,
-            "end_line": 161,
-            "start_line": 154
+            "column": 4,
+            "end_line": 158,
+            "start_line": 149
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [],
-          "kind": "function",
+          "kind": "method",
           "name": "test_issue_853_incoming_is_checked_against_all_group_members",
-          "parameters": [],
-          "qualified_name": "test_issue_853_incoming_is_checked_against_all_group_members",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_issue_853_incoming_is_checked_against_all_group_members",
           "return_annotation": "None",
-          "signature": "() -> None",
+          "signature": "(self) -> None",
           "source_location": {
-            "column": 0,
-            "end_line": 186,
-            "start_line": 176
+            "column": 4,
+            "end_line": 184,
+            "start_line": 172
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [],
-          "kind": "function",
+          "kind": "method",
           "name": "test_issue_853_chain_member_difference_blocks_merge",
-          "parameters": [],
-          "qualified_name": "test_issue_853_chain_member_difference_blocks_merge",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_issue_853_chain_member_difference_blocks_merge",
           "return_annotation": "None",
-          "signature": "() -> None",
+          "signature": "(self) -> None",
           "source_location": {
-            "column": 0,
-            "end_line": 211,
-            "start_line": 200
+            "column": 4,
+            "end_line": 210,
+            "start_line": 197
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [],
-          "kind": "function",
+          "kind": "method",
           "name": "test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart",
-          "parameters": [],
-          "qualified_name": "test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart",
           "return_annotation": "None",
-          "signature": "() -> None",
+          "signature": "(self) -> None",
           "source_location": {
-            "column": 0,
-            "end_line": 232,
-            "start_line": 225
+            "column": 4,
+            "end_line": 230,
+            "start_line": 223
           }
         },
         {
           "bases": [],
           "data_model": null,
           "decorators": [],
-          "kind": "function",
+          "kind": "method",
           "name": "test_issue_853_comparisons_stay_within_pair_limit_at_capacity",
-          "parameters": [],
-          "qualified_name": "test_issue_853_comparisons_stay_within_pair_limit_at_capacity",
+          "parameters": [
+            {
+              "annotation": null,
+              "has_default": false,
+              "kind": "positional_or_keyword",
+              "name": "self"
+            }
+          ],
+          "qualified_name": "CandidateIdentityTest.test_issue_853_comparisons_stay_within_pair_limit_at_capacity",
           "return_annotation": "None",
-          "signature": "() -> None",
+          "signature": "(self) -> None",
           "source_location": {
-            "column": 0,
+            "column": 4,
             "end_line": 256,
-            "start_line": 246
+            "start_line": 243
           }
         }
       ]
