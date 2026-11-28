@@ -83,11 +83,13 @@ def summarize_document(text: str) -> tuple[str, str, dict[str, str]]:
 
 def _document_paths(root: Path) -> list[Path]:
     candidates = [root / name for name in ROOT_DOCS]
-    candidates += sorted(
+    # WindowsPathは大文字小文字を区別せず並べるため、OS差のない文字列順で固定する
+    found = [
         p
         for p in (root / "doc").rglob("*.md")
         if not SKIP_PARTS & set(p.relative_to(root).parts)
-    )
+    ]
+    candidates += sorted(found, key=lambda p: p.relative_to(root).as_posix())
     resolved_root = root.resolve()
     # symlink経由でリポジトリ外のファイルを索引へ取り込まない。
     return [

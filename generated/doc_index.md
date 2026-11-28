@@ -10,6 +10,26 @@
 | [`AI_CONTEXT.md`](../AI_CONTEXT.md) | AI Context | Codex / AI が最初に読む小さい索引。 | - | - |
 | [`key_info.md`](../key_info.md) | AI Game Player 現在の機能 | 確認基準：2026-11-01、統合feature 77a8995e。 | - | - |
 | [`doc/ActionSafetyEvaluator機能説明書.md`](../doc/ActionSafetyEvaluator機能説明書.md) | Action Safety Evaluator 機能説明書 | ActionSafetyEvaluator は、Decisionが選んだ ActionCandidate を実行前に独立評価し、その候補を実行候補として信用してよいかを SAFE / SUSPICI… | - | - |
+| [`doc/Automation機能説明書.md`](../doc/Automation機能説明書.md) | Automation候補検出 | ConfiguredRegionDetector はゲーム固有の automation.json に定義された名前付き矩形を ActionCandidate へ変換する。 | - | - |
+| [`doc/Challenger更新機能説明書.md`](../doc/Challenger更新機能説明書.md) | Challenger更新（Challenger Update Pipeline）機能説明書 | Issue 170（親 36）の今回のスライスを説明します。 | - | - |
+| [`doc/DecisionContext機能説明書.md`](../doc/DecisionContext機能説明書.md) | Decision Context機能説明書 | Recognition / Evaluation / Decision を分離し、小型Decision LLMへraw認識結果ではなく、候補単位に整理した DecisionContext を渡します。 | - | - |
+| [`doc/E2E受入試験手順.md`](../doc/E2E受入試験手順.md) | E2E受入試験手順 | Issue 30 の第一段階受入として、人間が候補JSONを編集せずに Screen - State - Decide - Act - Observe - Evaluate - next Decis… | - | - |
+| [`doc/Experience Reader機能説明書.md`](../doc/Experience%20Reader機能説明書.md) | Experience Reader | ai_game_player.experience_reader.JsonlExperienceReader は、Canonical Episode を1行1件のJSON Lines形式で読み込みま… | - | - |
+| [`doc/FailSafeRuntime説明書.md`](../doc/FailSafeRuntime説明書.md) | Fail-safe Runtime / OS Emergency Stop | Issue 40 のFail-safe Runtimeは、Actionの意味や通常の入力妥当性ではなく、上位AIや制御processそのものが壊れた場合にも入力権限を失効させるための実行基盤である。 | - | - |
+| [`doc/NativeRuntime接続機能説明書.md`](../doc/NativeRuntime接続機能説明書.md) | Native Runtime Python接続 | ai_game_player.runtime.nativeはC ABI v1に対する薄いctypes接続層です。 | - | - |
+| [`doc/OCR候補検出機能説明書.md`](../doc/OCR候補検出機能説明書.md) | OCR候補検出 | OcrTextCandidateDetector はOCRエンジンの出力（文字列と矩形）を、認識共通中間表現 DetectedElement へ変換する。 | - | - |
+| [`doc/OutcomeDetectionFusion機能説明書.md`](../doc/OutcomeDetectionFusion機能説明書.md) | Outcome Detection / Fusion 機能説明書 | Issue 34 のOutcome Detectionは、Before Observation + Action + After Observation から「何が起きたか」を構造化する責務を持つ。 | - | - |
+| [`doc/Pythonコードの整形.md`](../doc/Pythonコードの整形.md) | 変更したPythonファイルを整形する | この手順はPythonコードを変更する開発者向けです。 | - | - |
+| [`doc/Python証明書信頼棚卸し.md`](../doc/Python証明書信頼棚卸し.md) | Python証明書信頼の棚卸し（Issue 513 / 親Issue 482） | この文書は、AI Game Playerの開発・CI・配布で使うPython環境が、実際にどのpip・certifi・uv・sigstoreと、どの証明書信頼源（CA bundleまたはOSの信頼ス… | - | - |
+| [`doc/RecoveryController機能説明書.md`](../doc/RecoveryController機能説明書.md) | Recovery Controllerの機能説明書 | この説明書は、Issue 38のSelfCheckMonitorが返すSelfCheckEventを受けて、再観測・再判断・停止要求を有限回で段階的に進めるRecoveryController（Is… | - | - |
+| [`doc/SafetyGuard説明書.md`](../doc/SafetyGuard説明書.md) | SafetyGuard / Emergency Stop 説明書 | Issue 33 の最終防衛線として、LLM・Recognition・Action Safety Evaluatorの判断に依存しない決定論的な入力Guardを提供する。 | - | - |
+| [`doc/UI埋め込み機能説明書.md`](../doc/UI埋め込み機能説明書.md) | UI埋め込み機能 | ui_embedding.py はUI crop/regionを検索用特徴へ変換し、同一ゲーム再認識とゲーム横断prototype検索へ利用する基盤を提供する。 | - | - |
+| [`doc/UI認識メモリ機能説明書.md`](../doc/UI認識メモリ機能説明書.md) | UI Detection / Recognition Memory | Issue 10 の初期実装は、未知ゲーム向けの汎用detectorと、プレイ済みゲーム向けの軽量Recognition Memoryを分離する。 | - | - |
+| [`doc/UPDCommander導入方針.md`](../doc/UPDCommander導入方針.md) | UPD Commander 導入方針と品質Checker | upd-commander-base-design の UI / Process / Data、Commander / Messenger / Processing の責務分離を AI Game P… | - | - |
+| [`doc/UnknownnessMonitor機能説明書.md`](../doc/UnknownnessMonitor機能説明書.md) | Unknownness Monitorの機能説明書 | この説明書は、画面認識・知識検索・候補評価などの検出器を追加する実装者が、検出器の不確かさをUnknownnessMonitorへ渡し、scope別の瞬間判定と持続判定を確認するための説明です。 | - | - |
+| [`doc/Windows安全統合ゲート.md`](../doc/Windows安全統合ゲート.md) | Windows安全統合ゲート（Issue 94） | GitHub ActionsのWindows runnerで、Windows固有のCapture・Window targeting・Input・Safety・bundleの回帰を検出する検査の一覧で… | - | - |
+| [`doc/Windows配布bundle説明書.md`](../doc/Windows配布bundle説明書.md) | Windows配布bundle説明書（Issue 149、515） | この文書は、tools/build_windows_bundle.ps1が作るWindows用配布物（以下、bundle）の配置と、bundleの起動・同梱CAを確かめる検査を説明します。 | - | - |
+| [`doc/architecture/README.md`](../doc/architecture/README.md) | 動作と配置の見取り図：詳しく読む入口 | このフォルダーには、開発者向けの実装配置資料があります。 | - | - |
 | [`doc/architecture/artifact_store.md`](../doc/architecture/artifact_store.md) | Content-addressed Artifact Store | ArtifactStore defines the backend-neutral API; FileSystemArtifactStore is the local immutable imple… | - | - |
 | [`doc/architecture/autonomous_player_goal_authority.md`](../doc/architecture/autonomous_player_goal_authority.md) | 自律Playerと権限分離：Goalは賢者ミスク本人が決める（845） | 過去の設計は「利用者がGUIで目標を与え、システムがそれを最優先で実行する」前提を含んでいました。 | - | - |
 | [`doc/architecture/belief_snapshot.md`](../doc/architecture/belief_snapshot.md) | 型付き BeliefSnapshot と有界候補 Store | Issue 478 の子 563 が実装する Versioned Bounded BeliefSnapshot Contract + Candidate Dedup/Residual Mass の契… | - | - |
@@ -36,7 +56,6 @@
 | [`doc/architecture/plugin_capability_manifest.md`](../doc/architecture/plugin_capability_manifest.md) | Plugin Capability Manifest v1：Plugin権限の宣言と判定 | Issue 152（親 58）で定義する、PluginがどのHook接続点で何をするかを宣言する版付き契約と、その宣言だけを根拠にHookを許可する判定です。 | - | - |
 | [`doc/architecture/privacy_data_inventory.md`](../doc/architecture/privacy_data_inventory.md) | Privacy Data Inventory（data class・1.0既定policy） | Privacy条件が文章だけだと、Provider・Recorder・Learningで保存や送信の判断がずれます。 | - | - |
 | [`doc/architecture/qt_rust_migration.md`](../doc/architecture/qt_rust_migration.md) | Qtの画面とRustの常駐Coreへ移る設計 | Issue 661 の決定により、恒久GUIは Qt 6 Widgetsを使うC++のネイティブ画面、常駐する実行・状態・操作許可の中心は Rust Core とします。 | - | - |
-| [`doc/architecture/README.md`](../doc/architecture/README.md) | 動作と配置の見取り図：詳しく読む入口 | このフォルダーには、開発者向けの実装配置資料があります。 | - | - |
 | [`doc/architecture/reference_2048_recognition.md`](../doc/architecture/reference_2048_recognition.md) | 固定版2048の発光・得点認識回帰（Issue 659） | この修正は任意の参照2048 Adapterの画像認識に限定する。 | - | - |
 | [`doc/architecture/reference_browser_post_failure_diagnostics.md`](../doc/architecture/reference_browser_post_failure_diagnostics.md) | 参照ブラウザーの失敗後だけに行う描画診断（明示検証のみ） | Windows の initial observation が全空盤面のまま期限切れになる場合、 画素だけでは未実行の初期 RAF、DOM 構築、CSS 表示、GDI の合成面取得を 分離できない。 | - | - |
 | [`doc/architecture/reference_http_accept_queue.md`](../doc/architecture/reference_http_accept_queue.md) | 参照ゲームの私有HTTPサーバーと起動時burst | LoopbackStaticServer は所有する固定版2048だけを、episodeごとの 127.0.0.1 / ephemeral portから配信する。 | - | - |
@@ -53,11 +72,8 @@
 | [`doc/architecture/startup_failure_evidence.md`](../doc/architecture/startup_failure_evidence.md) | 2048起動失敗の診断保存 | Issue 637は、自然なbrowser起動失敗の原因を調べるための証拠保存を追加する。 | - | - |
 | [`doc/architecture/transition_simulation.md`](../doc/architecture/transition_simulation.md) | 仮想操作と確率遷移を実入力から分離する | この文書は汎用ゲームプレイヤーの探索機能を実装する開発者向けです。 | - | - |
 | [`doc/architecture/windows_long_comparison.md`](../doc/architecture/windows_long_comparison.md) | Windows長枠3 Provider比較(Issue 795) | リポジトリ直下から実行し、先に PYTHONPATH=src;.(PowerShellでは $env:PYTHONPATH = "src;.")を設定します。 | - | - |
-| [`doc/Automation機能説明書.md`](../doc/Automation機能説明書.md) | Automation候補検出 | ConfiguredRegionDetector はゲーム固有の automation.json に定義された名前付き矩形を ActionCandidate へ変換する。 | - | - |
-| [`doc/Challenger更新機能説明書.md`](../doc/Challenger更新機能説明書.md) | Challenger更新（Challenger Update Pipeline）機能説明書 | Issue 170（親 36）の今回のスライスを説明します。 | - | - |
 | [`doc/contributor/documentation_update_guide.md`](../doc/contributor/documentation_update_guide.md) | 日本語の設計図と説明書を更新するとき | この手順は、ゲームの実装が変わったときに「分かりやすい図は古い実装を説明している」という問題を防ぐためのものです。 | - | - |
 | [`doc/contributor/subsystem_ownership_map.md`](../doc/contributor/subsystem_ownership_map.md) | Contributor向けサブシステム責務とレビュー先 | このページは、Kadoka AI Game Playerへコード・テスト・文書を提供するContributor（貢献者）が、変更する場所、守る境界、相談するレビュー先を選ぶための地図です。 | - | - |
-| [`doc/DecisionContext機能説明書.md`](../doc/DecisionContext機能説明書.md) | Decision Context機能説明書 | Recognition / Evaluation / Decision を分離し、小型Decision LLMへraw認識結果ではなく、候補単位に整理した DecisionContext を渡します。 | - | - |
 | [`doc/design/issue-152-capability-manifest.md`](../doc/design/issue-152-capability-manifest.md) | Issue 152 設計：Plugin Capability Manifest / Enforcement Contract | 今回のスライスは「宣言の契約（schema・参照validator・適合ケース）」と「in-process Hook runtimeでのdeny-by-default判定」まで。 | #58（関連: #42 Optional Parent、#235 Isolation、#224 Data Inventory） | - |
 | [`doc/design/issue-170-challenger-update.md`](../doc/design/issue-170-challenger-update.md) | Issue 170 設計：Challenger Update Pipeline（今回のスライス） | 今回のスライス: proposal schema、strategy選択（calibration / threshold / prototype の3 baseline）、Champion/Chall… | #36（兄弟: #171 Promotion / Rollback Gate、#173 Candidate Evaluation Runner。関連: #647、#712、#426、#427） | - |
 | [`doc/design/issue-171-promotion-gate.md`](../doc/design/issue-171-promotion-gate.md) | Issue 171 Promotion / Rollback Gate 設計と検証 | 対象外: 比較評価そのものの実行（173）、実runtimeからのpointer読取り・自動学習配線（422等）、test synthesis、無制御なオンライン自己更新。 | #36（兄弟: #170 Challenger Update、#173 Candidate Evaluation Runner）。最終確認日: 2026-11-07。 | - |
@@ -83,13 +99,10 @@
 | [`doc/design/issue-866-decision-architecture.md`](../doc/design/issue-866-decision-architecture.md) | Issue 866 判断・操作の層構造と、モデル運用・学習・知識増築・データ圧縮の統合設計 | 設計資料のみ。 | #19 | 2026-11-08 |
 | [`doc/design/issue-868-human-cognition-tasks.md`](../doc/design/issue-868-human-cognition-tasks.md) | Issue 868 人間のゲームプレイ中の認知をタスクとして洗い出し、タスク別のモデル・手法を割り当てる | 設計資料のみ。 | #866 | 2026-11-08 |
 | [`doc/design/issue-895-reading-indexes.md`](../doc/design/issue-895-reading-indexes.md) | Issue 895 読む時のトークンを減らす目次・責務表・依存図の自動生成 | 設計書やソースを読む時に、探すためだけに読む量を減らす。 | #19 | 2026-11-09 |
-| [`doc/E2E受入試験手順.md`](../doc/E2E受入試験手順.md) | E2E受入試験手順 | Issue 30 の第一段階受入として、人間が候補JSONを編集せずに Screen - State - Decide - Act - Observe - Evaluate - next Decis… | - | - |
-| [`doc/Experience Reader機能説明書.md`](../doc/Experience%20Reader機能説明書.md) | Experience Reader | ai_game_player.experience_reader.JsonlExperienceReader は、Canonical Episode を1行1件のJSON Lines形式で読み込みま… | - | - |
-| [`doc/FailSafeRuntime説明書.md`](../doc/FailSafeRuntime説明書.md) | Fail-safe Runtime / OS Emergency Stop | Issue 40 のFail-safe Runtimeは、Actionの意味や通常の入力妥当性ではなく、上位AIや制御processそのものが壊れた場合にも入力権限を失効させるための実行基盤である。 | - | - |
+| [`doc/guide/README.md`](../doc/guide/README.md) | AI Game Player：まず全体を知る | READMEへ戻る ｜ 目指す完成図と現在の実装図 ｜ 場所ごとの実装状況と根拠 ｜ 用語集 | - | - |
 | [`doc/guide/implementation_status.md`](../doc/guide/implementation_status.md) | 場所ごとの実装状況と、完成までの残作業 | 「部品あり」はコードが存在すること、「接続あり」は標準の操作から呼ばれることです。 | - | - |
 | [`doc/guide/judgment.md`](../doc/guide/judgment.md) | 次の操作をどう決める？ 前回の結果をどう確かめる？ | このページは、候補を評価すること、前回の操作結果を調べること、今回の操作を選ぶこと、回答を検証することを別々の仕事として説明します。 | - | - |
 | [`doc/guide/orchestration.md`](../doc/guide/orchestration.md) | 処理を選ぶ調整役と、精度・時間の配分 | 実装したい調整役は、候補の処理時間を見積もり、追加したときに判断がどの程度改善しそうかを比較します。 | - | - |
-| [`doc/guide/README.md`](../doc/guide/README.md) | AI Game Player：まず全体を知る | READMEへ戻る ｜ 目指す完成図と現在の実装図 ｜ 場所ごとの実装状況と根拠 ｜ 用語集 | - | - |
 | [`doc/guide/recognition.md`](../doc/guide/recognition.md) | 画面をどう読み取り、操作候補に変えるの？ | 古い画像は捨て、待ち時間の期限まで新しい画像を待ちます。 | - | - |
 | [`doc/guide/records_learning.md`](../doc/guide/records_learning.md) | ゲームを動かした記録は、どう残し、何に使う？ | このアプリは、画面を見て判断したことや入力の結果を、後で確かめられるように記録する仕組みを持っています。 | - | - |
 | [`doc/guide/safety.md`](../doc/guide/safety.md) | モデルが「押す」と答えたら、すぐゲームに入力される？ | このページは、操作の許可・拒否・確認運転・停止・記録を説明します。 | - | - |
@@ -98,25 +111,12 @@
 | [`doc/guide/writing_rules.md`](../doc/guide/writing_rules.md) | 詳しい資料の書き方と確認事項 | この様式は、長い説明を読みやすく分けるためのものです。 | - | - |
 | [`doc/licensing_rationale.md`](../doc/licensing_rationale.md) | ライセンス方針と、その意図 | この文書は法的なライセンス本文ではなく、AI Game Player Projectがなぜ現在のライセンス構成を選んでいるかを説明するためのものです。 | - | - |
 | [`doc/main保護方針.md`](../doc/main保護方針.md) | mainブランチ保護方針（Repository Ruleset） | この文書は、AI Game Playerのmainブランチへ、CIを通過していない変更が通常のマージ経路で入らないようにする設定と運用を説明します。 | - | - |
-| [`doc/models/evidence.md`](../doc/models/evidence.md) | 設定にあるモデルと、実際に動いたモデルを分けて確認する | 「設定欄にgemma3:4bとあるので、このゲームはgemma3で動いた」とは言えません。 | - | - |
 | [`doc/models/README.md`](../doc/models/README.md) | どこで、どのモデルや手法を使う？ | 実線は標準のつながり、点線は条件付きのつながりです。 | - | - |
-| [`doc/NativeRuntime接続機能説明書.md`](../doc/NativeRuntime接続機能説明書.md) | Native Runtime Python接続 | ai_game_player.runtime.nativeはC ABI v1に対する薄いctypes接続層です。 | - | - |
-| [`doc/OCR候補検出機能説明書.md`](../doc/OCR候補検出機能説明書.md) | OCR候補検出 | OcrTextCandidateDetector はOCRエンジンの出力（文字列と矩形）を、認識共通中間表現 DetectedElement へ変換する。 | - | - |
-| [`doc/OutcomeDetectionFusion機能説明書.md`](../doc/OutcomeDetectionFusion機能説明書.md) | Outcome Detection / Fusion 機能説明書 | Issue 34 のOutcome Detectionは、Before Observation + Action + After Observation から「何が起きたか」を構造化する責務を持つ。 | - | - |
-| [`doc/Pythonコードの整形.md`](../doc/Pythonコードの整形.md) | 変更したPythonファイルを整形する | この手順はPythonコードを変更する開発者向けです。 | - | - |
-| [`doc/Python証明書信頼棚卸し.md`](../doc/Python証明書信頼棚卸し.md) | Python証明書信頼の棚卸し（Issue 513 / 親Issue 482） | この文書は、AI Game Playerの開発・CI・配布で使うPython環境が、実際にどのpip・certifi・uv・sigstoreと、どの証明書信頼源（CA bundleまたはOSの信頼ス… | - | - |
-| [`doc/RecoveryController機能説明書.md`](../doc/RecoveryController機能説明書.md) | Recovery Controllerの機能説明書 | この説明書は、Issue 38のSelfCheckMonitorが返すSelfCheckEventを受けて、再観測・再判断・停止要求を有限回で段階的に進めるRecoveryController（Is… | - | - |
+| [`doc/models/evidence.md`](../doc/models/evidence.md) | 設定にあるモデルと、実際に動いたモデルを分けて確認する | 「設定欄にgemma3:4bとあるので、このゲームはgemma3で動いた」とは言えません。 | - | - |
 | [`doc/release_1_0.md`](../doc/release_1_0.md) | 1.0.0 Release Scope and Acceptance | Issue 19 is the priority/source-of-truth. | - | - |
-| [`doc/SafetyGuard説明書.md`](../doc/SafetyGuard説明書.md) | SafetyGuard / Emergency Stop 説明書 | Issue 33 の最終防衛線として、LLM・Recognition・Action Safety Evaluatorの判断に依存しない決定論的な入力Guardを提供する。 | - | - |
 | [`doc/security/python_security_profile.md`](../doc/security/python_security_profile.md) | Python Security Profile | この文書は、Python層のセキュリティ静的解析（Issue 114）の判定規則、抑制の管理方法、CIでの実行方法を説明します。 | - | - |
 | [`doc/security/threat_model.md`](../doc/security/threat_model.md) | Kadoka AI Game Player 脅威モデル | この文書は、Kadoka AI Game Playerの保守者とContributorが、実装・テスト・CI（コード変更を自動build / testする継続的インテグレーション）で先に扱うセキュリ… | - | - |
-| [`doc/UI埋め込み機能説明書.md`](../doc/UI埋め込み機能説明書.md) | UI埋め込み機能 | ui_embedding.py はUI crop/regionを検索用特徴へ変換し、同一ゲーム再認識とゲーム横断prototype検索へ利用する基盤を提供する。 | - | - |
-| [`doc/UI認識メモリ機能説明書.md`](../doc/UI認識メモリ機能説明書.md) | UI Detection / Recognition Memory | Issue 10 の初期実装は、未知ゲーム向けの汎用detectorと、プレイ済みゲーム向けの軽量Recognition Memoryを分離する。 | - | - |
-| [`doc/UnknownnessMonitor機能説明書.md`](../doc/UnknownnessMonitor機能説明書.md) | Unknownness Monitorの機能説明書 | この説明書は、画面認識・知識検索・候補評価などの検出器を追加する実装者が、検出器の不確かさをUnknownnessMonitorへ渡し、scope別の瞬間判定と持続判定を確認するための説明です。 | - | - |
-| [`doc/UPDCommander導入方針.md`](../doc/UPDCommander導入方針.md) | UPD Commander 導入方針と品質Checker | upd-commander-base-design の UI / Process / Data、Commander / Messenger / Processing の責務分離を AI Game P… | - | - |
 | [`doc/versions.md`](../doc/versions.md) | Versions | Application versionとSchema/API/ABI versionは独立して管理する。 | - | - |
-| [`doc/Windows安全統合ゲート.md`](../doc/Windows安全統合ゲート.md) | Windows安全統合ゲート（Issue 94） | GitHub ActionsのWindows runnerで、Windows固有のCapture・Window targeting・Input・Safety・bundleの回帰を検出する検査の一覧で… | - | - |
-| [`doc/Windows配布bundle説明書.md`](../doc/Windows配布bundle説明書.md) | Windows配布bundle説明書（Issue 149、515） | この文書は、tools/build_windows_bundle.ps1が作るWindows用配布物（以下、bundle）の配置と、bundleの起動・同梱CAを確かめる検査を説明します。 | - | - |
 | [`doc/キャプチャ観測Source機能説明書.md`](../doc/キャプチャ観測Source機能説明書.md) | キャプチャ観測Source | CapturedObservationSource はFrameCaptureとFrameAnalyzerを接続し、実画面のBGRAフレームを ScreenObservation へ変換する。 | - | - |
 | [`doc/コア判断ループ機能説明書.md`](../doc/コア判断ループ機能説明書.md) | (題名なし) | - | - | - |
 | [`doc/コマンド指向.md`](../doc/コマンド指向.md) | (題名なし) | - | - | - |
