@@ -192,7 +192,7 @@ def test_issue_853_incoming_is_checked_against_all_group_members() -> None:
 #   },
 #   "処理": [
 #     "一定間隔で並ぶ候補を順に統合する",
-#     "食い違うメンバーのある候補がorigin_idsに含まれないことを確認する"
+#     "食い違うメンバーのある候補が拒否され、origin_idsに含まれないことを確認する"
 #   ],
 #   "引数": {},
 #   "戻り値": []
