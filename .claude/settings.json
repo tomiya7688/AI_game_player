@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|WebFetch|WebSearch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_cloud.py\"; rc=$?; if [ $rc -eq 49 ] || [ $rc -eq 127 ]; then python \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_cloud.py\"; rc=$?; fi; exit $rc",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/prompt_cloud.py\"; rc=$?; if [ $rc -eq 49 ] || [ $rc -eq 127 ]; then python \"$CLAUDE_PROJECT_DIR/.claude/hooks/prompt_cloud.py\"; rc=$?; fi; exit $rc",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
