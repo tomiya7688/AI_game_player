@@ -140,6 +140,17 @@ if __name__ == "__main__":
     unittest.main()
 
 
+# {
+#   "責務": {
+#     "test_issue_853_disjoint_rects_are_not_merged_by_proximity": "矩形が重ならない候補は中心が近くても統合されないことを確認する"
+#   },
+#   "処理": [
+#     "中心が近い重ならない2矩形を統合へ渡す",
+#     "別候補として残ることを確認する"
+#   ],
+#   "引数": {},
+#   "戻り値": []
+# }
 def test_issue_853_disjoint_rects_are_not_merged_by_proximity() -> None:
     from ai_game_player.candidate_merger import CandidateMerger
     from ai_game_player.models import ActionCandidate
@@ -150,6 +161,18 @@ def test_issue_853_disjoint_rects_are_not_merged_by_proximity() -> None:
     assert len(report.candidates) == 2
 
 
+# {
+#   "責務": {
+#     "test_issue_853_incoming_is_checked_against_all_group_members": "新候補が統合済みグループの全メンバーと照合されることを確認する"
+#   },
+#   "処理": [
+#     "同じ世代の2候補でグループを作る",
+#     "グループのメンバーと世代が食い違う新候補を渡す",
+#     "統合されず曖昧として保留されることを確認する"
+#   ],
+#   "引数": {},
+#   "戻り値": []
+# }
 def test_issue_853_incoming_is_checked_against_all_group_members() -> None:
     from ai_game_player.candidate_identity import MergeContext, REASON_AMBIGUOUS
     from ai_game_player.candidate_merger import CandidateMerger
@@ -163,6 +186,17 @@ def test_issue_853_incoming_is_checked_against_all_group_members() -> None:
     assert report.reason == REASON_AMBIGUOUS
 
 
+# {
+#   "責務": {
+#     "test_issue_853_chain_member_difference_blocks_merge": "連鎖的に近い候補でも途中のメンバーと別物なら統合されないことを確認する"
+#   },
+#   "処理": [
+#     "一定間隔で並ぶ候補を順に統合する",
+#     "食い違うメンバーのある候補がorigin_idsに含まれないことを確認する"
+#   ],
+#   "引数": {},
+#   "戻り値": []
+# }
 def test_issue_853_chain_member_difference_blocks_merge() -> None:
     from ai_game_player.candidate_merger import CandidateMerger
     from ai_game_player.models import ActionCandidate
@@ -177,6 +211,17 @@ def test_issue_853_chain_member_difference_blocks_merge() -> None:
     assert [c.action_id for c, _ in report.rejected] == ["id2"]
 
 
+# {
+#   "責務": {
+#     "test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart": "重なり率の閾値が0でも重ならない矩形は別候補になることを確認する"
+#   },
+#   "処理": [
+#     "iou_threshold=0で統合を実行する",
+#     "別候補として残ることを確認する"
+#   ],
+#   "引数": {},
+#   "戻り値": []
+# }
 def test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart() -> None:
     from ai_game_player.candidate_merger import CandidateMerger
     from ai_game_player.models import ActionCandidate
@@ -187,6 +232,17 @@ def test_issue_853_zero_iou_threshold_keeps_disjoint_rects_apart() -> None:
     assert len(report.candidates) == 2
 
 
+# {
+#   "責務": {
+#     "test_issue_853_comparisons_stay_within_pair_limit_at_capacity": "候補数が上限でも比較回数がMAX_PAIR_COMPARISONS以内に収まることを確認する"
+#   },
+#   "処理": [
+#     "上限件数の候補を統合する",
+#     "比較回数が上限以内であることを確認する"
+#   ],
+#   "引数": {},
+#   "戻り値": []
+# }
 def test_issue_853_comparisons_stay_within_pair_limit_at_capacity() -> None:
     from ai_game_player.candidate_identity import MAX_CANDIDATES, MAX_PAIR_COMPARISONS
     from ai_game_player.candidate_merger import CandidateMerger

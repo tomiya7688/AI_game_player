@@ -17530,7 +17530,7 @@
       "module": "ai_game_player.candidate_identity",
       "path": "src/ai_game_player/candidate_identity.py",
       "source_location": {
-        "end_line": 158,
+        "end_line": 176,
         "start_line": 1
       },
       "symbols": [
@@ -17711,8 +17711,8 @@
           "signature": "(left: CandidateIdentity, right: CandidateIdentity, proximity: int = …, iou_threshold: float = …) -> Grounding",
           "source_location": {
             "column": 0,
-            "end_line": 158,
-            "start_line": 113
+            "end_line": 176,
+            "start_line": 131
           }
         }
       ]
@@ -17834,7 +17834,7 @@
       "module": "ai_game_player.candidate_merger",
       "path": "src/ai_game_player/candidate_merger.py",
       "source_location": {
-        "end_line": 247,
+        "end_line": 266,
         "start_line": 1
       },
       "symbols": [
@@ -17854,7 +17854,7 @@
           "signature": null,
           "source_location": {
             "column": 0,
-            "end_line": 247,
+            "end_line": 266,
             "start_line": 26
           }
         },
@@ -18018,8 +18018,8 @@
           "signature": "(self, automation: list[ActionCandidate], ocr: Sequence[CandidateInput], image: Sequence[CandidateInput] | None = …, context: MergeContext | None = …) -> CandidateMergeReport",
           "source_location": {
             "column": 4,
-            "end_line": 171,
-            "start_line": 71
+            "end_line": 190,
+            "start_line": 90
           }
         },
         {
@@ -18049,8 +18049,8 @@
           "signature": "(collisions: tuple[ActionCandidate, ...], rejected: list[tuple[ActionCandidate, str]]) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 183,
-            "start_line": 175
+            "end_line": 202,
+            "start_line": 194
           }
         },
         {
@@ -18078,8 +18078,8 @@
           "signature": "(self, candidate: ActionCandidate) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 194,
-            "start_line": 185
+            "end_line": 213,
+            "start_line": 204
           }
         },
         {
@@ -18113,8 +18113,8 @@
           "signature": "(self, view: CandidateView, context: MergeContext) -> CandidateIdentity",
           "source_location": {
             "column": 4,
-            "end_line": 215,
-            "start_line": 196
+            "end_line": 234,
+            "start_line": 215
           }
         },
         {
@@ -18148,8 +18148,8 @@
           "signature": "(self, value: CandidateInput, group: str) -> CandidateView",
           "source_location": {
             "column": 4,
-            "end_line": 232,
-            "start_line": 217
+            "end_line": 251,
+            "start_line": 236
           }
         },
         {
@@ -18183,8 +18183,8 @@
           "signature": "(self, incoming: CandidateView, existing: CandidateView) -> bool",
           "source_location": {
             "column": 4,
-            "end_line": 241,
-            "start_line": 234
+            "end_line": 260,
+            "start_line": 253
           }
         },
         {
@@ -18212,8 +18212,8 @@
           "signature": "(self, group: str) -> int",
           "source_location": {
             "column": 4,
-            "end_line": 244,
-            "start_line": 243
+            "end_line": 263,
+            "start_line": 262
           }
         },
         {
@@ -18241,8 +18241,8 @@
           "signature": "(self, text: str | None) -> str",
           "source_location": {
             "column": 4,
-            "end_line": 247,
-            "start_line": 246
+            "end_line": 266,
+            "start_line": 265
           }
         }
       ]
@@ -129546,58 +129546,6 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 144,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.candidate_merger"
-          ],
-          "module": "ai_game_player.candidate_merger",
-          "names": [
-            {
-              "alias": null,
-              "name": "CandidateMerger"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 145,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.models"
-          ],
-          "module": "ai_game_player.models",
-          "names": [
-            {
-              "alias": null,
-              "name": "ActionCandidate"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
-          "line": 154,
-          "local_dependencies": [
-            "ai_game_player",
-            "ai_game_player.candidate_identity"
-          ],
-          "module": "ai_game_player.candidate_identity",
-          "names": [
-            {
-              "alias": null,
-              "name": "MergeContext"
-            },
-            {
-              "alias": null,
-              "name": "REASON_AMBIGUOUS"
-            }
-          ]
-        },
-        {
-          "kind": "from",
-          "level": 0,
           "line": 155,
           "local_dependencies": [
             "ai_game_player",
@@ -129630,7 +129578,27 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 167,
+          "line": 177,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_identity"
+          ],
+          "module": "ai_game_player.candidate_identity",
+          "names": [
+            {
+              "alias": null,
+              "name": "MergeContext"
+            },
+            {
+              "alias": null,
+              "name": "REASON_AMBIGUOUS"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 178,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_merger"
@@ -129646,7 +129614,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 168,
+          "line": 179,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -129662,7 +129630,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 181,
+          "line": 201,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_merger"
@@ -129678,7 +129646,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 182,
+          "line": 202,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -129694,7 +129662,39 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 191,
+          "line": 226,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.candidate_merger"
+          ],
+          "module": "ai_game_player.candidate_merger",
+          "names": [
+            {
+              "alias": null,
+              "name": "CandidateMerger"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 227,
+          "local_dependencies": [
+            "ai_game_player",
+            "ai_game_player.models"
+          ],
+          "module": "ai_game_player.models",
+          "names": [
+            {
+              "alias": null,
+              "name": "ActionCandidate"
+            }
+          ]
+        },
+        {
+          "kind": "from",
+          "level": 0,
+          "line": 247,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_identity"
@@ -129714,7 +129714,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 192,
+          "line": 248,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.candidate_merger"
@@ -129730,7 +129730,7 @@
         {
           "kind": "from",
           "level": 0,
-          "line": 193,
+          "line": 249,
           "local_dependencies": [
             "ai_game_player",
             "ai_game_player.models"
@@ -129747,7 +129747,7 @@
       "module": "tests.test_candidate_identity",
       "path": "tests/test_candidate_identity.py",
       "source_location": {
-        "end_line": 200,
+        "end_line": 256,
         "start_line": 1
       },
       "symbols": [
@@ -130183,8 +130183,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 150,
-            "start_line": 143
+            "end_line": 161,
+            "start_line": 154
           }
         },
         {
@@ -130199,8 +130199,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 163,
-            "start_line": 153
+            "end_line": 186,
+            "start_line": 176
           }
         },
         {
@@ -130215,8 +130215,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 177,
-            "start_line": 166
+            "end_line": 211,
+            "start_line": 200
           }
         },
         {
@@ -130231,8 +130231,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 187,
-            "start_line": 180
+            "end_line": 232,
+            "start_line": 225
           }
         },
         {
@@ -130247,8 +130247,8 @@
           "signature": "() -> None",
           "source_location": {
             "column": 0,
-            "end_line": 200,
-            "start_line": 190
+            "end_line": 256,
+            "start_line": 246
           }
         }
       ]

@@ -105,10 +105,28 @@ def iou(left: tuple[int, int, int, int], right: tuple[int, int, int, int]) -> fl
 
 
 # {
-#   責務: [ground_pair: 2候補が同じ画面要素かを、IDではなく証拠で判定する]
-#   処理: [座標系・Frame・世代が両方既知で食い違えばAMBIGUOUS、種別違いはDIFFERENT。矩形の重なり率か中心距離が閾値内で、文字が両方あれば一致する場合だけSAME。IDは判定に使わない]
-#   引数: [left: 候補, right: 候補, proximity: 中心距離の許容値, iou_threshold: 重なり率の閾値]
-#   戻り値: [Grounding: SAME・DIFFERENT・AMBIGUOUSのいずれか]
+#   "責務": {
+#     "ground_pair": "2候補が同じ画面要素かを、IDではなく証拠で判定する"
+#   },
+#   "処理": [
+#     "座標系・Frame・世代が両方既知で食い違えばAMBIGUOUSを返す",
+#     "種別が違えばDIFFERENTを返す",
+#     "矩形が重ならない設定済み・認識済み候補（画像由来を除く）は近接だけでは同一視せずDIFFERENTを返す",
+#     "矩形の重なり率が閾値以上ならSAME（文字が食い違えばDIFFERENT）を返す",
+#     "中心距離が許容値内で、文字が両方あれば一致する場合だけSAMEを返す"
+#   ],
+#   "引数": {
+#     "left": "比較する候補",
+#     "right": "比較する候補",
+#     "proximity": "中心距離の許容値",
+#     "iou_threshold": "重なり率の閾値"
+#   },
+#   "戻り値": {
+#     "Grounding": "SAME・DIFFERENT・AMBIGUOUSのいずれか"
+#   },
+#   "補足": [
+#     "IDは判定に使わない"
+#   ]
 # }
 def ground_pair(
     left: CandidateIdentity,
